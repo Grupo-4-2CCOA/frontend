@@ -1,0 +1,27 @@
+.navbar{
+	background-color: var(--ROSA);
+	padding: 16px 80px;
+	border-bottom: 1px solid var(--CINZA);
+
+    display: flex;
+    align-items: center; 
+    justify-content: space-between;
+    gap: 24px;
+}
+
+.navbarLogo {
+    height: 100px;
+}
+
+.navbarLinks ul {
+    list-style: none;
+    display: flex;
+    gap: 40px;
+    margin: 0;
+    padding: 0;
+}
+
+.navbarActions {
+    display: flex;
+    gap: 16px;
+}

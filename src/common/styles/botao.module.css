@@ -1,0 +1,22 @@
+.botaoPrincipal {
+	border: 2px solid var(--ROSA);
+	background: var(--ROXO);
+	padding: 12px 16px;
+	color: var(--BRANCO);
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.botaoSecundario {
+    border: 2px solid var(--ROXO);
+    padding: 12px 16px;
+    background-color: transparent;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}

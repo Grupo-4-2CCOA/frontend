@@ -1,0 +1,42 @@
+.heroSection {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: var(--BRANCO);
+    overflow: hidden;
+    max-height: 500px;
+    position: relative;
+    margin-top: 0;
+
+	border-bottom: 4px solid var(--PRETO);
+}
+
+.heroContent {
+    flex: 1;
+    padding-left: 150px;
+}
+
+.heroContent h1 {
+    font-size: 48px;
+    font-weight: 500;
+    color: var(--PRETO);
+    line-height: 1.2;
+}
+
+.heroImageContainer {
+    flex: 1;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    height: 100%;
+}
+
+.heroImage {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    width: 650px;
+    height: 500px;
+    object-fit: cover;
+    object-position: right center
+}
