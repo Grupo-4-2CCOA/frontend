@@ -1,6 +1,6 @@
 .navbar{
 	background-color: var(--ROSA);
-	padding: 16px 80px;
+	padding: 0 80px;
 	border-bottom: 1px solid var(--CINZA);
 
     display: flex;
@@ -9,7 +9,17 @@
     gap: 24px;
 }
 
+.navbar a {
+	text-decoration: none;
+	color: var(--PRETO);
+}
+
+.navbar a:hover{
+	color: var(--ROXO);
+}
+
 .navbarLogo {
+	padding-top: 20px;
     height: 100px;
 }
 

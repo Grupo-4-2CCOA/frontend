@@ -2,6 +2,7 @@ import { BotaoPrincipal } from "./BotaoPrincipal";
 import BotaoSecundario from "./BotaoSecundario";
 import logo from "../../assets/logo-vb.svg"
 import style from "../styles/navbar.module.css"
+import { Link } from "react-router";
 
 export default function Navbar() {
 	return (
@@ -10,16 +11,16 @@ export default function Navbar() {
 
 			<div className={style.navbarLinks}>
 				<ul>
-					<li>Home</li>
-					<li>Serviços</li>
-					<li>Sobre nós</li>
-					<li>Contato</li>
+					<a href="#">Home</a>
+					<a href="#">Serviços</a>
+					<a href="#">Sobre nós</a>
+					<a href="#">Contato</a>
 				</ul>
 			</div>
 
 			<div className={style.navbarActions}>
-				<BotaoSecundario children="Entrar" />
-				<BotaoPrincipal children="Cadastre-se" />
+				<Link to="/login"><BotaoSecundario children="Entrar" /></Link>
+				<Link to="/cadastro"><BotaoPrincipal children="Cadastre-se" /></Link>
 			</div>
 		</nav>
 	);
