@@ -1,9 +1,9 @@
 .botaoPrincipal {
 	border: 2px solid var(--ROSA);
 	background: var(--ROXO);
-	padding: 12px 16px;
+	padding: 8px 12px;
 	color: var(--BRANCO);
-    height: 48px;
+    height: 38px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -12,9 +12,9 @@
 
 .botaoSecundario {
     border: 2px solid var(--ROXO);
-    padding: 12px 16px;
+    padding: 8px 12px;
     background-color: transparent;
-    height: 48px;
+    height: 38px;
     display: flex;
     align-items: center;
     justify-content: center;

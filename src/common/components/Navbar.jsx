@@ -2,7 +2,7 @@ import { BotaoPrincipal } from "./BotaoPrincipal";
 import BotaoSecundario from "./BotaoSecundario";
 import logo from "../../assets/logo-vb.svg"
 import style from "../styles/navbar.module.css"
-import { Link } from "react-router";
+import { Link } from "react-router-dom"; 
 
 export default function Navbar() {
 	return (

@@ -1,0 +1,108 @@
+.main {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--BRANCO) 0%, var(--BRANCO) 100%);
+  padding: 2rem 1rem; /* Reduzido o padding vertical */
+  min-height: calc(100vh - 64px); /* Subtraindo a altura da navbar */
+}
+
+.card {
+  background: var(--BRANCO);
+  border-radius: 1rem;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+  border: 2px solid var(--ROSA);
+  padding: 1.5rem; /* Reduzido o padding do card */
+  width: 100%;
+  max-width: 400px;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 1.5rem; /* Reduzido a margem */
+}
+
+.title {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: var(--ROXO);
+  margin-bottom: 0.5rem;
+}
+
+.subtitle {
+  color: var(--CINZA);
+}
+
+.inputRow {
+  display: flex;
+  gap: 1rem;
+  width: 100%;
+}
+
+.inputGroup {
+  flex: 1;
+  min-width: 0;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem; /* Reduzido o gap */
+}
+
+.label {
+  display: block;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--ROXO);
+  margin-bottom: 0.5rem;
+}
+
+.input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--ROSA);
+  border-radius: 0.5rem;
+  background: #f9fafb;
+  outline: none;
+  transition: border 0.2s, box-shadow 0.2s;
+}
+
+.input:focus {
+  border-color: var(--ROXO);
+  box-shadow: 0 0 0 2px var(--ROSA);
+}
+
+.button {
+  width: 100%;
+  background: var(--ROXO);
+  color: var(--BRANCO);
+  padding: 0.75rem 1rem;
+  border: none;
+  border-radius: 0.5rem;
+  font-size: 1.1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.button:hover {
+  background: var(--ROSA);
+  color: var(--PRETO);
+}
+
+.loginLink {
+  text-align: center;
+  margin-top: 1.5rem;
+}
+
+.loginAnchor {
+  color: var(--ROXO);
+  font-size: 0.95rem;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.loginAnchor:hover {
+  color: var(--ROSA);
+}

@@ -1,12 +1,13 @@
 .navbar{
 	background-color: var(--ROSA);
-	padding: 0 80px;
+	padding: 0 40px;           /* Reduzido o padding lateral */
 	border-bottom: 1px solid var(--CINZA);
 
     display: flex;
     align-items: center; 
     justify-content: space-between;
     gap: 24px;
+    height: 64px;            
 }
 
 .navbar a {
@@ -19,8 +20,8 @@
 }
 
 .navbarLogo {
-	padding-top: 20px;
-    height: 100px;
+	padding-top: 25px;
+    height: 88px;
 }
 
 .navbarLinks ul {
