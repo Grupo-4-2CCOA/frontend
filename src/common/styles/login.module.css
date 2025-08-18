@@ -1,0 +1,78 @@
+.main {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--BRANCO);
+  padding: 2rem 1rem;
+  min-height: calc(100vh - 64px);
+}
+
+.card {
+  background: var(--BRANCO);
+  border-radius: 1rem;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+  border: 2px solid var(--ROSA);
+  padding: 2.5rem;
+  width: 100%;
+  max-width: 450px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 2.5rem;
+  width: 100%;
+}
+
+.title {
+  font-size: 2rem;
+  font-weight: bold;
+  color: var(--ROSA-LOGO);
+  margin-bottom: 0.75rem;
+}
+
+.subtitle {
+  color: var(--CINZA);
+  font-size: 1.1rem;
+}
+
+.googleButton {
+  width: 80%;
+  background: var(--BRANCO);
+  color: var(--CINZA-ESCURO);
+  padding: 1rem 1.5rem;
+  border: 2px solid var(--ROSA);
+  border-radius: 0.75rem;
+  font-size: 1.2rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin: 0 auto;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.googleButton:hover {
+  background: var(--BRANCO);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  transform: translateY(-2px);
+  border-color: var(--ROSA-LOGO);
+  color: var(--ROSA-LOGO);
+}
+
+.googleButton:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  border-color: var(--ROSA-LOGO);
+}
+
+
+.googleIcon {
+  width: 28px;
+  height: 28px;
+}
