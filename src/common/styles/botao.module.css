@@ -1,6 +1,8 @@
 .botaoPrincipal {
-	border: 2px solid var(--ROSA);
-	background: var(--ROXO);
+    border-radius: 5px;
+    border: none; 
+    font-weight: 700;
+	background: var(--DOURADO);
 	padding: 8px 12px;
 	color: var(--BRANCO);
     height: 38px;
@@ -8,10 +10,17 @@
     align-items: center;
     justify-content: center;
     cursor: pointer;
+    transition: all 0.3s ease-in-out;
+}
+
+.botaoPrincipal:hover{
+    transform: scale(1.1, 1.1);
+    background-color: var(--ROSA-LOGO);
 }
 
 .botaoSecundario {
-    border: 2px solid var(--ROXO);
+    border: 2px solid var(--DOURADO);
+    border-radius: 5px;
     padding: 8px 12px;
     background-color: transparent;
     height: 38px;
@@ -19,4 +28,14 @@
     align-items: center;
     justify-content: center;
     cursor: pointer;
+    font-weight: 700;
+    color: var(--DOURADO);
+    transition: all 0.3s ease-in-out;
+}
+
+.botaoSecundario:hover{
+    transform: scale(1.1, 1.1);
+    background-color: var(--ROSA-LOGO);
+    color: var(--BRANCO);
+    border-color: var(--ROSA-LOGO);
 }

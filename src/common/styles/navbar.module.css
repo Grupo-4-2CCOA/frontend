@@ -1,9 +1,10 @@
 .navbar{
-	background-color: var(--ROSA);
-	padding: 0 40px;           /* Reduzido o padding lateral */
-	border-bottom: 1px solid var(--CINZA);
-
+	background-color: var(--BRANCO);
+	padding: 0 40px;           
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    z-index: 10;
     display: flex;
+    position: relative;
     align-items: center; 
     justify-content: space-between;
     gap: 24px;
@@ -12,15 +13,29 @@
 
 .navbar a {
 	text-decoration: none;
-	color: var(--PRETO);
+	color: var(--DOURADO);
+    font-weight: 700;
 }
 
 .navbar a:hover{
-	color: var(--ROXO);
+	color: var(--ROSA-LOGO);
+	transition: all 0.3s ease-in-out;
+    transform: scale(1.1, 1.1);
+    font-weight: 700;
+    text-decoration: underline;
+    text-underline-offset: 5px;
+    text-decoration-thickness: 2px;
+}
+
+.navbarLinks ul li {
+	transition: transform 0.2s ease;
+}
+
+.navbarLinks ul li:hover {
+	transform: translateY(-2px);
 }
 
 .navbarLogo {
-	padding-top: 25px;
     height: 88px;
 }
 

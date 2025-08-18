@@ -4,8 +4,6 @@ import styles from '../styles/secao-servicos.module.css';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Pagination, A11y } from 'swiper/modules';
 
-import { GoArrowLeft, GoArrowRight  } from "react-icons/go";
-
 import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
@@ -54,9 +52,8 @@ export default function SecaoServicos() {
             <h2 className={styles['servico-titulo']}>Serviços</h2>
 
             <div className={styles['carousel-container']}>
-				{/* <GoArrowLeft className={styles['button-prev-slide']}/>
-  				<GoArrowRight className={styles['button-next-slide']}/> */}
                 <Swiper
+                    className={styles['swiper']}
                     modules={[Navigation, Pagination, A11y]}
                     spaceBetween={40}
                     slidesPerView={4}

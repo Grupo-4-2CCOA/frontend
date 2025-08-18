@@ -1,42 +1,29 @@
 .heroSection {
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: space-around;
     background-color: var(--BRANCO);
     overflow: hidden;
     max-height: 500px;
-    position: relative;
-    margin-top: 0;
-
-	border-bottom: 4px solid var(--PRETO);
+    padding: 0 150px;
 }
 
 .heroContent {
-    flex: 1;
-    padding-left: 150px;
+    max-width: 60%;
 }
 
-.heroContent h1 {
+.heroContent p {
     font-size: 48px;
-    font-weight: 500;
-    color: var(--PRETO);
+    color: var(--ROSA-LOGO);
+    text-shadow: 2px 2px 10px rgba(255, 103, 197, 0.777);
     line-height: 1.2;
-}
-
-.heroImageContainer {
-    flex: 1;
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-    height: 100%;
 }
 
 .heroImage {
     max-width: 100%;
     height: auto;
     display: block;
-    width: 650px;
-    height: 500px;
+    width: 250px;
+    height: 250px;
     object-fit: cover;
-    object-position: right center
 }

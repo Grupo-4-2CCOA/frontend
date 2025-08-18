@@ -1,87 +1,109 @@
 .servico-secao {
-	padding: 70px 40px;
-	background-color: #dcc6e0;
+	padding: 80px 40px;
+	background: linear-gradient(0deg, var(--BRANCO) 0%, #FFBDCE 50%, var(--BRANCO) 100%);
 	text-align: center;
+	position: relative;
 }
 
 .servico-titulo {
-	font-size: 36px;
-	font-weight: 500;
-	color: var(--PRETO);
-	margin-bottom: 40px;
+	font-size: 3.5rem;
+	font-weight: 700;
+	color: var(--ROSA-LOGO);
+	margin-bottom: 60px;
+	text-shadow: 2px 2px 15px rgba(255, 103, 197, 0.3);
+	position: relative;
+	z-index: 2;
+}
+
+.servico-titulo::after {
+	content: '';
+	position: absolute;
+	bottom: -15px;
+	left: 50%;
+	transform: translateX(-50%);
+	width: 80px;
+	height: 4px;
+	background: linear-gradient(90deg, var(--ROSA-LOGO), var(--DOURADO));
+	border-radius: 2px;
 }
 
 .carousel-container {
-	max-width: 100%;
-	position: relative;
+	max-width: 1400px;
+	margin: 0 auto;
+	height: 600px;
+}
+
+.swiper {
+	height: 100%;
 }
 
 .service-card {
 	background-color: var(--BRANCO);
-	border-radius: 4px;
+	border-radius: 20px;
 	overflow: hidden;
 	display: flex;
 	flex-direction: column;
-	height: 500px;
+	height: 520px;
 	text-align: left;
+	margin: 0 25px;
+	box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+	transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+	border: 2px solid transparent;
+	box-shadow: 5px 5px 10px 0 #AAA;
+	margin-top: 30px;
+}
 
-	margin: 0 50px 0 50px;
+.service-card:hover {
+	transform: translateY(-15px) scale(1.02);
 }
 
 .service-image-placeholder {
 	width: 100%;
-	height: 160px;
-	background-color: #d9d9d9;
+	height: 180px;
+	background: linear-gradient(135deg, var(--ROSA-LOGO) 0%, var(--DOURADO) 100%);
 	display: flex;
 	justify-content: center;
 	align-items: center;
+	position: relative;
 }
 
 .placeholder-x {
-	font-size: 48px;
-	color: #bdbdbd;
+	font-size: 3rem;
+	color: var(--BRANCO);
+	font-weight: 300;
+	text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.2);
+	z-index: 2;
 }
 
 .service-category {
-	font-size: 12px;
-	color: #555;
-	font-weight: 500;
-	padding: 16px 16px 0;
+	font-size: 0.75rem;
+	color: var(--ROSA-LOGO);
+	font-weight: 600;
+	padding: 20px 20px 8px;
+	text-transform: uppercase;
+	letter-spacing: 1px;
+	background: linear-gradient(90deg, var(--ROSA-LOGO), var(--DOURADO));
+	-webkit-background-clip: text;
+	-webkit-text-fill-color: transparent;
+	background-clip: text;
 }
 
 .service-title {
-	font-size: 16px;
-	font-weight: bold;
-	color: #000;
-	padding: 0 16px;
-	margin-top: 4px;
+	font-size: 1.5rem;
+	font-weight: 700;
+	color: var(--PRETO);
+	padding: 0 20px;
+	margin-top: 8px;
+	margin-bottom: 15px;
+	line-height: 1.2;
 }
 
 .service-description {
-	font-size: 14px;
-	color: #444;
-	padding: 8px 16px 16px;
-	line-height: 1.4;
-}
-
-.button-prev-slide,
-.button-next-slide {
-	position: absolute;
-	top: 50%;
-	transform: translateY(-50%);
-	z-index: 10;
-	font-size: 40px;
-	color: #000;
-	background-color: transparent;
-	border: none;
-	cursor: pointer;
-	user-select: none;
-}
-
-.button-prev-slide {
-	left: -20px;
-}
-
-.button-next-slide {
-	right: -20px;
+	font-size: 0.9rem;
+	color: var(--CINZA);
+	padding: 0 20px 20px;
+	line-height: 1.6;
+	flex-grow: 1;
+	display: flex;
+	align-items: flex-start;
 }

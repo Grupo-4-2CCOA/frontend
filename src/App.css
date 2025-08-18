@@ -3,8 +3,11 @@
 :root{
 	--ROXO: #9B59B6;
 	--ROSA: #FFBDCE;
+	--DOURADO: #CA9534;
+	--ROSA-LOGO: #FF3678;
 	--BRANCO: #FFFFFF;
 	--PRETO: #000000;
+	--CINZA-ESCURO: #333;
 	--CINZA: #7D7D7D;
 }
 
@@ -14,7 +17,7 @@
 	box-sizing: border-box;
 }
 
-body{
+body {
 	font-family: "Roboto", sans-serif;
 	font-size: 16px;
 	font-weight: normal;
