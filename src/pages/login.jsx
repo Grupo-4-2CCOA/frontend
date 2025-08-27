@@ -8,7 +8,7 @@ export default function LoginPage() {
 
   const handleGoogleLogin = () => {
     // Aqui você implementaria a lógica de autenticação com Google  
-    navigate('/agendamento');
+    navigate('/agendamentoCliente');
   };
 
   return (
