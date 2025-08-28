@@ -1,0 +1,63 @@
+.systemPanel {
+    display: flex;
+    flex-direction: row;
+    background-color: var(--ROSA);
+    width: 95%;
+    margin: 0 auto;
+    padding: 40px;
+    gap: 40px;
+    border-radius: 20px;
+}
+
+.charts {
+    display: flex;
+    flex-direction: column;
+    flex: 0.6;
+    gap: 30px;
+}
+
+.charts div {
+    background-color: var(--BRANCO);
+    border-radius: 15px;
+    /* box-shadow: 5px 5px 10px 0 rgba(0, 0, 0, 0.2); */
+}
+
+.kpis {
+    display: flex;
+    flex-direction: column;
+    flex: 0.4;
+    width: 100%;
+    justify-content: space-between;
+}
+
+.kpiCard {
+    background-color: var(--BRANCO);
+    border-radius: 15px;
+    box-shadow: 5px 5px 10px 0 rgba(0, 0, 0, 0.2);
+    padding: 30px;
+    gap: 25px;
+    display: flex;
+    flex-direction: column;
+}
+
+.kpiCardHeader {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.cardTitle {
+    font-weight: 700;
+    font-size: 26px;
+}
+
+.kpiItem {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.rankValueSpan {
+    font-size: 20px;
+}
