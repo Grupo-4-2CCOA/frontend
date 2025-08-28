@@ -2,14 +2,18 @@ import React, { useState } from 'react';
 import NavbarLogado from "../common/components/NavBarLogado";
 import SecaoAgendar from "../common/components/SecaoAgendar";
 import Agendar from "../common/components/Agendar"
+import { useAuth } from '../hooks/useAuth';
 
 export default function AgendamentoCliente() {
+  const { userInfo } = useAuth('USER');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [agendamentos, setAgendamentos] = useState([
     { id: 1, data: '12 de março de 2025', servico: 'Manicure' },
     { id: 2, data: '13 de março de 2025', servico: 'Corte de Cabelo' },
     { id: 3, data: '14 de março de 2025', servico: 'Pedicure' },
   ]); 
+
+  if (!userInfo) return <div>Carregando...</div>;
 
   const handleDelete = (id) => {
     setAgendamentos(agendamentos.filter(item => item.id !== id));

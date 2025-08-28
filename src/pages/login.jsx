@@ -4,13 +4,7 @@ import { useNavigate } from "react-router-dom";
 import styles from "../common/styles/login.module.css";
 
 export default function LoginPage() {
-  const navigate = useNavigate();
-
-  const handleGoogleLogin = () => {
-    // Aqui você implementaria a lógica de autenticação com Google  
-    navigate('/agendamento');
-  };
-
+  
   return (
     <>
       <Navbar />

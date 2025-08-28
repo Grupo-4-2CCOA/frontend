@@ -23,7 +23,7 @@ export default function AuthLoading() {
             navigate('/admin/dashboard');
             break;
           case 'USER':
-            navigate('/user/agendamento');
+            navigate('/agendamento');
             break;
           default:
             navigate('/login?error=invalid_role');
