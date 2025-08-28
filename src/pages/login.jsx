@@ -4,13 +4,7 @@ import { useNavigate } from "react-router-dom";
 import styles from "../common/styles/login.module.css";
 
 export default function LoginPage() {
-  const navigate = useNavigate();
-
-  const handleGoogleLogin = () => {
-    // Aqui você implementaria a lógica de autenticação com Google  
-    navigate('/agendamentoCliente');
-  };
-
+  
   return (
     <>
       <Navbar />
@@ -25,8 +19,8 @@ export default function LoginPage() {
             </p>
           </div>
 
-          <button
-            onClick={handleGoogleLogin}
+          <a 
+            href="http://localhost:8080/oauth2/authorization/google" 
             className={styles.googleButton}
           >
             <img 
@@ -35,7 +29,9 @@ export default function LoginPage() {
               className={styles.googleIcon}
             />
             Entrar com Google
-          </button>
+          </a>
+
+
         </div>
       </main>
     </>
