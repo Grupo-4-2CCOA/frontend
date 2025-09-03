@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import NavbarLogado from "../common/components/NavBarLogado";
+import NavbarLogado from "../common/components/NavbarLogado";
 import SecaoAgendar from "../common/components/SecaoAgendar";
 import Agendar from "../common/components/Agendar"
 import { useAuth } from '../hooks/useAuth';
