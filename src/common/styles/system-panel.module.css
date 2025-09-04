@@ -17,9 +17,10 @@
 }
 
 .chart {
-    padding: 18px;
+    padding: 15px;
     background-color: var(--BRANCO);
     border-radius: 15px;
+    position: relative;
 }
 
 .kpis {
@@ -49,11 +50,11 @@
 
 .cardTitle {
     font-weight: 700;
-    font-size: 26px;
+    font-size: 23px;
 }
 
 .kpiItem {
-    display: flex;
+    display: grid;
     flex-direction: row;
     justify-content: space-between;
 }

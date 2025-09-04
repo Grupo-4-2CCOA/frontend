@@ -3,12 +3,20 @@ import styles from "../styles/system-panel.module.css";
 import InfoButton from "./InfoButton.jsx";
 import ApexCharts from 'apexcharts';
 import Popup from "./Popup.jsx";
+import Table from '@mui/material/Table';
+import TableBody from '@mui/material/TableBody';
+import TableCell from '@mui/material/TableCell';
+import TableContainer from '@mui/material/TableContainer';
+import TableHead from '@mui/material/TableHead';
+import TablePagination from '@mui/material/TablePagination';
+import TableRow from '@mui/material/TableRow';
+
 // import { useAuth } from '../hooks/useAuth';
 
-export default function SystemPanel(){
+export default function SystemPanel() {
     // const { userInfo } = useAuth('ADMIN', "FUNC");
-    const[showPopup, setShowPopup] = useState(false);
-    const[popupText, setPopupText] = useState("Número total de atendimentos realizados no período selecionado.");
+    const [showPopup, setShowPopup] = useState(false);
+    const [popupText, setPopupText] = useState("Número total de atendimentos realizados no período selecionado.");
 
     const chartsRef = useRef([]);
 
@@ -73,7 +81,7 @@ export default function SystemPanel(){
                 text: "Agendamentos Cancelados",
                 align: "center",
                 style: {
-                    fontSize: "20px",
+                    fontSize: "23px",
                     fontWeight: "bold",
                     fontFamily: "Roboto",
                     color: "var(--PRETO)"
@@ -96,7 +104,7 @@ export default function SystemPanel(){
                         color: 'var(--CINZA-ESCURO)',
                         fontSize: '14px',
                         fontFamily: 'Roboto',
-                        fontWeight: '600' 
+                        fontWeight: '600'
                     },
                     offsetX: -10
                 },
@@ -116,7 +124,7 @@ export default function SystemPanel(){
                 text: "Rendimento Total",
                 align: "center",
                 style: {
-                    fontSize: "20px",
+                    fontSize: "23px",
                     fontWeight: "bold",
                     fontFamily: "Roboto",
                     color: "var(--PRETO)"
@@ -139,7 +147,7 @@ export default function SystemPanel(){
                         color: 'var(--CINZA-ESCURO)',
                         fontSize: '14px',
                         fontFamily: 'Roboto',
-                        fontWeight: '600' 
+                        fontWeight: '600'
                     },
                     offsetX: -10
                 },
@@ -182,44 +190,61 @@ export default function SystemPanel(){
     var mockValues = [
         {
             service: "Cabelo",
-            quantity: 150
+            quantity: 150,
+            price: 10
         },
         {
             service: "Sobrancelha",
-            quantity: 100
+            quantity: 100,
+            price: 30
         },
         {
             service: "Manicure",
-            quantity: 75
+            quantity: 75,
+            price: 20
         },
         {
             service: "Pedicure",
-            quantity: 50
+            quantity: 50,
+            price: 22.45
         },
         {
             service: "Unhas de Gel",
-            quantity: 25
+            quantity: 25,
+            price: 111
         }
     ]
 
-    return(
+    return (
         <div className={styles.systemPanel}>
             {
-                showPopup && <Popup text={popupText}/>
+                showPopup && <Popup text={popupText} setShowPopup={setShowPopup} />
             }
             <div className={styles.charts}>
                 <div className={styles.chart}>
                     <div id="performance-schedule-chart"></div>
+                    <InfoButton
+                        isAbsolute={true}
+                        setShowPopup={setShowPopup}
+                        setPopupText={setPopupText}
+                        popupText={"Número total de atendimentos realizados no período selecionado."}
+                    />
                 </div>
                 <div className={styles.chart}>
                     <div id="cancelled-schedule-chart"></div>
+                    <InfoButton
+                        isAbsolute={true}
+                        setShowPopup={setShowPopup}
+                        setPopupText={setPopupText}
+                        popupText={"Número total de atendimentos realizados no período selecionado."}
+                    />
                 </div>
             </div>
             <div className={styles.kpis}>
                 <div className={styles.kpiCard}>
                     <div className={styles.kpiCardHeader}>
                         <span className={styles.cardTitle}>Quantidade de atendimentos</span>
-                        <InfoButton 
+                        <InfoButton
                             setShowPopup={setShowPopup}
                             setPopupText={setPopupText}
                             popupText={"Número total de atendimentos realizados no período selecionado."}
@@ -232,21 +257,41 @@ export default function SystemPanel(){
                 <div className={styles.kpiCard}>
                     <div className={styles.kpiCardHeader}>
                         <span className={styles.cardTitle}>Serviços mais vendidos</span>
-                        <InfoButton 
+                        <InfoButton
                             setShowPopup={setShowPopup}
                             setPopupText={setPopupText}
                             popupText={"Lista dos serviços mais vendidos no período selecionado."}
                         />
                     </div>
-                    {
-                        mockValues.map((item, index) => (
-                            <div className={styles.kpiItem}>
-                                <span className={styles.rankValueSpan}>{index + 1}.</span>
-                                <span className={styles.rankValueSpan}>{item.service}</span>
-                                <span className={styles.rankValueSpan}>{item.quantity}</span>
-                            </div>
-                        ))
-                    }
+                    <TableContainer>
+                        <Table>
+                            <TableHead>
+                                <TableRow>
+                                    <TableCell sx={{ color: 'var(--DOURADO)', fontWeight: "bold", fontSize: 20 }}>Ranking</TableCell>
+                                    <TableCell sx={{ color: 'var(--DOURADO)', fontWeight: "bold", fontSize: 20 }}>Serviço</TableCell>
+                                    <TableCell sx={{ color: 'var(--DOURADO)', fontWeight: "bold", fontSize: 20 }}>Quantidade</TableCell>
+                                    <TableCell sx={{ color: 'var(--DOURADO)', fontWeight: "bold", fontSize: 20 }}>Valor total</TableCell>
+                                </TableRow>
+                            </TableHead>
+                            <TableBody>
+                                {
+                                    mockValues.map((item, index) => (
+                                        <TableRow>
+                                            <TableCell sx={{ fontSize: 17 }}>{index + 1}º</TableCell>
+                                            <TableCell sx={{ fontSize: 17 }}>{item.service}</TableCell>
+                                            <TableCell sx={{ fontSize: 17 }}>{item.quantity}</TableCell>
+                                            <TableCell sx={{ fontSize: 17 }}>
+                                                {(item.price * item.quantity).toLocaleString('pt-BR', {
+                                                    style: 'currency',
+                                                    currency: 'BRL'
+                                                })}
+                                            </TableCell>
+                                        </TableRow>
+                                    ))
+                                }
+                            </TableBody>
+                        </Table>
+                    </TableContainer>
                 </div>
             </div>
         </div>
