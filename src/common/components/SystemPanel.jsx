@@ -1,12 +1,16 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import styles from "../styles/system-panel.module.css";
 import InfoButton from "./InfoButton.jsx";
 import ApexCharts from 'apexcharts';
+import Popup from "./Popup.jsx";
+// import { useAuth } from '../hooks/useAuth';
 
 export default function SystemPanel(){
-    const[charts, setCharts] = useState({performance: null, cancelled: null});
+    // const { userInfo } = useAuth('ADMIN', "FUNC");
     const[showPopup, setShowPopup] = useState(false);
-    const[popupText, setPopupText] = useState("");
+    const[popupText, setPopupText] = useState("Número total de atendimentos realizados no período selecionado.");
+
+    const chartsRef = useRef([]);
 
     const commonChartOptions = {
         chart: {
@@ -22,10 +26,15 @@ export default function SystemPanel(){
             show: false
         },
         dataLabels: {
-            enabled: true
+            enabled: true,
+            style: {
+                colors: ['#FF4081'],
+                fontSize: '12px',
+                fontWeight: 'bold',
+            }
         },
         xaxis: {
-            categories: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul"],
+            categories: ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul"],
             axisBorder: {
                 show: false
             },
@@ -33,15 +42,29 @@ export default function SystemPanel(){
                 show: false
             }
         },
+        fill: {
+            type: 'gradient',
+            colors: ["var(--ROSA-LOGO)"],
+            gradient: {
+                shade: 'dark',
+                type: 'vertical',
+                shadeIntensity: 0.1,
+                gradientToColors: ["var(--ROSA)"],
+                inverseColors: false,
+                opacityFrom: 0.8,
+                opacityTo: 0.5,
+                stops: [0, 100]
+            }
+        }
     };
 
     function generateCharts() {
-        if(charts.cancelled) {
-            charts.cancelled.destroy();
+        if (chartsRef.current.cancelled) {
+            chartsRef.current.cancelled.destroy();
         }
 
-        if(charts.performance) {
-            charts.performance.destroy();
+        if (chartsRef.current.performance) {
+            chartsRef.current.performance.destroy();
         }
 
         let cancelledChartOptions = {
@@ -66,19 +89,6 @@ export default function SystemPanel(){
                     data: [30, 40, 35, 50, 49, 60, 70]
                 }
             ],
-            fill: {
-                type: 'gradient',
-                colors: ["var(--ROSA-LOGO)"],
-                gradient: {
-                    shade: 'light',
-                    type: 'vertical',
-                    shadeIntensity: 0.1,
-                    inverseColors: false,
-                    opacityFrom: 0.8,
-                    opacityTo: 0.3,
-                    stops: [0, 100]
-                }
-            },
             yaxis: {
                 title: {
                     text: "Quantidade",
@@ -96,9 +106,7 @@ export default function SystemPanel(){
                         fontSize: '12px',
                         fontFamily: 'Roboto'
                     }
-                },
-                max: 100,
-                min: 0
+                }
             }
         };
 
@@ -120,26 +128,13 @@ export default function SystemPanel(){
             },
             series: [
                 {
-                    name: "Cancelled",
-                    data: [30, 40, 35, 50, 49, 60, 70]
+                    name: "Rendimento",
+                    data: [150, 250, 444, 390, 754, 555, 458]
                 }
             ],
-            fill: {
-                type: 'gradient',
-                colors: ["var(--ROSA-LOGO)"],
-                gradient: {
-                    shade: 'light',
-                    type: 'vertical',
-                    shadeIntensity: 0.1,
-                    inverseColors: false,
-                    opacityFrom: 0.8,
-                    opacityTo: 0.3,
-                    stops: [0, 100]
-                }
-            },
             yaxis: {
                 title: {
-                    text: "Quantidade",
+                    text: "Rendimento (R$)",
                     style: {
                         color: 'var(--CINZA-ESCURO)',
                         fontSize: '14px',
@@ -154,24 +149,35 @@ export default function SystemPanel(){
                         fontSize: '12px',
                         fontFamily: 'Roboto'
                     }
-                },
-                max: 100,
-                min: 0
+                }
             }
         };
 
-        var cancelledScheduleChart = new ApexCharts(document.querySelector("#cancelled-schedule-chart"), cancelledChartOptions);
+        const cancelledScheduleChart = new ApexCharts(
+            document.querySelector("#cancelled-schedule-chart"),
+            cancelledChartOptions
+        );
         cancelledScheduleChart.render();
-        
-        var performanceScheduleChart = new ApexCharts(document.querySelector("#performance-schedule-chart"), performanceChartOptions);
+
+        const performanceScheduleChart = new ApexCharts(
+            document.querySelector("#performance-schedule-chart"),
+            performanceChartOptions
+        );
         performanceScheduleChart.render();
 
-        setCharts({performance: performanceScheduleChart, cancelled: cancelledScheduleChart});
+        chartsRef.current = {
+            performance: performanceScheduleChart,
+            cancelled: cancelledScheduleChart
+        };
     }
 
     useEffect(() => {
         generateCharts();
-    }, []);
+        return () => {
+            chartsRef.current.performance?.destroy();
+            chartsRef.current.cancelled?.destroy();
+        };
+    }, [chartsRef]);
 
     var mockValues = [
         {
@@ -198,9 +204,16 @@ export default function SystemPanel(){
 
     return(
         <div className={styles.systemPanel}>
+            {
+                showPopup && <Popup text={popupText}/>
+            }
             <div className={styles.charts}>
-                <div id="performance-schedule-chart"></div>
-                <div id="cancelled-schedule-chart"></div>
+                <div className={styles.chart}>
+                    <div id="performance-schedule-chart"></div>
+                </div>
+                <div className={styles.chart}>
+                    <div id="cancelled-schedule-chart"></div>
+                </div>
             </div>
             <div className={styles.kpis}>
                 <div className={styles.kpiCard}>

@@ -1,0 +1,68 @@
+.navbar{
+	background-color: var(--BRANCO);
+	padding: 0 40px;           
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    z-index: 10;
+    display: flex;
+    position: relative;
+    align-items: center; 
+    justify-content: space-between;
+    gap: 24px;
+    height: 64px;            
+}
+
+.navbar a {
+	text-decoration: none;
+	color: var(--DOURADO);
+    font-weight: 700;
+}
+
+.navbar a:hover{
+	color: var(--ROSA-LOGO);
+	transition: all 0.3s ease-in-out;
+    transform: scale(1.1, 1.1);
+    font-weight: 700;
+    text-decoration: underline;
+    text-underline-offset: 5px;
+    text-decoration-thickness: 2px;
+}
+
+.navbarLinks ul {
+  display: flex;
+  flex-direction: row;
+  gap: 30px;
+}
+
+.navbarLinks ul li {
+	transition: transform 0.2s ease;
+}
+
+.navbarLinks ul li:hover {
+	transform: translateY(-2px);
+}
+
+.navbarLogo {
+    height: 88px;
+}
+
+.navbarActions {
+    display: flex;
+    gap: 16px;
+}
+
+.headerIcons {
+  display: flex;
+  gap: 1.5rem;
+}
+
+.icon {
+  width: 1.75rem;
+  height: 1.75rem;
+  color: rgb(0, 0, 0);
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.icon:hover {
+  color: #fc269f;
+}

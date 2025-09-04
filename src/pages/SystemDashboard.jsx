@@ -1,12 +1,13 @@
-import Navbar from "../common/components/Navbar";
+import NavbarLogado from "../common/components/NavbarLogado";
 import SystemPanel from "../common/components/SystemPanel";
+import SystemFilters from "../common/components/SystemFilters"
 
 export default function SystemDashboard() {
     return (
         <>
-            <Navbar />
+            <NavbarLogado />
+            <SystemFilters />
             <SystemPanel />
-            
         </>
     );
 }

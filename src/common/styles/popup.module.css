@@ -13,46 +13,37 @@
 
 .popup {
   background: var(--BRANCO);
-  padding: 1.5rem;
+  padding: 20px;
   border-radius: 8px;
-  text-align: center;
   min-width: 300px;
   max-width: 90%;
   display: flex;
   flex-direction: column;
-  gap: 1rem;
-  animation: fadeIn 0.3s ease-in-out;
-  z-index: 1000;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  z-index: 1001;
+  position: relative;
 }
 
-.error {
-  border: 2px solid var(--ROSA);
-}
-
-.success {
-  border: 2px solid var(--ROXO);
-}
-
-.message {
-  color: var(--PRETO);
-  font-size: 1rem;
-  margin: 0;
-}
-
-.button {
-  background: var(--ROXO);
-  color: var(--BRANCO);
+.popup button {
+  background-color: transparent;
   border: none;
-  padding: 0.5rem 2rem;
-  border-radius: 4px;
-  font-size: 1rem;
+  outline: none;
   cursor: pointer;
-  margin: 0 auto;
-  transition: background 0.2s;
+  position: absolute;
+  right: 20px;
+  top: 20px;
 }
 
-.button:hover {
-  background: var(--ROSA);
+.popup svg {
+  fill: var(--ROSA-LOGO);
 }
 
+.popup .popupTitle {
+  font-weight: 700;
+  font-size: 22px;
+  color: var(--ROSA-LOGO);
+}
+
+.popup .popupInfo {
+  font-size: 18px;
+  margin-top: 20px;
+}

@@ -16,10 +16,10 @@
     gap: 30px;
 }
 
-.charts div {
+.chart {
+    padding: 18px;
     background-color: var(--BRANCO);
     border-radius: 15px;
-    /* box-shadow: 5px 5px 10px 0 rgba(0, 0, 0, 0.2); */
 }
 
 .kpis {

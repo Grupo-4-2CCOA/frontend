@@ -1,4 +1,4 @@
-import { BotaoPrincipal } from "./BotaoPrincipal";
+import BotaoPrincipal from "./BotaoPrincipal";
 import BotaoSecundario from "./BotaoSecundario";
 import { Link } from "react-router-dom";
 import logo from "../../assets/logo-vb.png";
