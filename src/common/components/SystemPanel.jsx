@@ -227,7 +227,7 @@ export default function SystemPanel() {
                         isAbsolute={true}
                         setShowPopup={setShowPopup}
                         setPopupText={setPopupText}
-                        popupText={"Número total de atendimentos realizados no período selecionado."}
+                        popupText={"Valor adquirido (em reais) através dos serviços realizados em cada intervalo de tempo"}
                     />
                 </div>
                 <div className={styles.chart}>
@@ -236,7 +236,7 @@ export default function SystemPanel() {
                         isAbsolute={true}
                         setShowPopup={setShowPopup}
                         setPopupText={setPopupText}
-                        popupText={"Número total de atendimentos realizados no período selecionado."}
+                        popupText={"Quantidade de agendamentos que foram cancelados em cada intervalo de tempo."}
                     />
                 </div>
             </div>
