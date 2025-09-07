@@ -5,7 +5,7 @@ import SystemFilters from "../common/components/SystemFilters"
 export default function SystemDashboard() {
     return (
         <>
-            <NavbarLogado />
+            <NavbarLogado isAdmin={true} />
             <SystemFilters />
             <SystemPanel />
         </>
