@@ -4,6 +4,7 @@ import CadastroPage from "../pages/cadastro";
 import LoginPage from "../pages/login";
 import AgendarCliente from "../pages/agendamentoCliente";
 import AuthLoading from "../pages/AuthLogin";
+import AdicionarInformacoes from "../pages/AdicionarInformacoes";
 import SystemDashboard from "../pages/SystemDashboard";
 
 export default function AppRoutes(){
@@ -14,6 +15,7 @@ export default function AppRoutes(){
             <Route path="/cadastro" element={<CadastroPage/>}></Route>
             <Route path="/login" element={<LoginPage/>}></Route>
             <Route path="/agendamento" element={<AgendarCliente/>}></Route>
+            <Route path="/informacoes" element={<AdicionarInformacoes/>}></Route>
             <Route path="/system-dashboard" element={<SystemDashboard/>}></Route>
         </Routes>
     )

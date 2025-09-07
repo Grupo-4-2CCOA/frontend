@@ -1,7 +1,12 @@
 import style from "../styles/botao.module.css"
 
-export default function BotaoPrincipal(props){
+export default function BotaoPrincipal(props) {
 	return (
-		<button className={style.botaoPrincipal}>{props.children}</button>
+		<button
+			onClick={props.onClick}
+			className={style.botaoPrincipal}
+		>
+			{props.children}
+		</button>
 	)
 }

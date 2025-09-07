@@ -16,7 +16,8 @@ import TableRow from '@mui/material/TableRow';
 export default function SystemPanel() {
     // const { userInfo } = useAuth('ADMIN', "FUNC");
     const [showPopup, setShowPopup] = useState(false);
-    const [popupText, setPopupText] = useState("Número total de atendimentos realizados no período selecionado.");
+    const [popupTitle, setPopupTitle] = useState("Informação")
+    const [popupText, setPopupText] = useState("");
 
     const chartsRef = useRef([]);
 
@@ -218,7 +219,7 @@ export default function SystemPanel() {
     return (
         <div className={styles.systemPanel}>
             {
-                showPopup && <Popup text={popupText} setShowPopup={setShowPopup} />
+                showPopup && <Popup title={popupTitle} text={popupText} setShowPopup={setShowPopup} />
             }
             <div className={styles.charts}>
                 <div className={styles.chart}>
@@ -226,6 +227,8 @@ export default function SystemPanel() {
                     <InfoButton
                         isAbsolute={true}
                         setShowPopup={setShowPopup}
+                        setPopupTitle={setPopupTitle}
+                        popupTitle={"Informação"}
                         setPopupText={setPopupText}
                         popupText={"Valor adquirido (em reais) através dos serviços realizados em cada intervalo de tempo"}
                     />
@@ -235,6 +238,8 @@ export default function SystemPanel() {
                     <InfoButton
                         isAbsolute={true}
                         setShowPopup={setShowPopup}
+                        setPopupTitle={setPopupTitle}
+                        popupTitle={"Informação"}
                         setPopupText={setPopupText}
                         popupText={"Quantidade de agendamentos que foram cancelados em cada intervalo de tempo."}
                     />
@@ -246,6 +251,8 @@ export default function SystemPanel() {
                         <span className={styles.cardTitle}>Quantidade de atendimentos</span>
                         <InfoButton
                             setShowPopup={setShowPopup}
+                            setPopupTitle={setPopupTitle}
+                            popupTitle={"Informação"}
                             setPopupText={setPopupText}
                             popupText={"Número total de atendimentos realizados no período selecionado."}
                         />
@@ -259,6 +266,8 @@ export default function SystemPanel() {
                         <span className={styles.cardTitle}>Serviços mais vendidos</span>
                         <InfoButton
                             setShowPopup={setShowPopup}
+                            setPopupTitle={setPopupTitle}
+                            popupTitle={"Informação"}   
                             setPopupText={setPopupText}
                             popupText={"Lista dos serviços mais vendidos no período selecionado."}
                         />

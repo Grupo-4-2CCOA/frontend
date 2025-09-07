@@ -66,3 +66,35 @@
 .icon:hover {
   color: #fc269f;
 }
+
+.profileMenu {
+  position: relative;
+}
+
+.dropdown {
+  position: absolute;
+  top: 2.5rem;
+  right: 0;
+  background-color: var(--BRANCO);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  border-radius: 6px;
+  padding: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  z-index: 20;
+}
+
+.dropdown button {
+  background: none;
+  border: none;
+  padding: 0.5rem 1rem;
+  text-align: left;
+  font-weight: 600;
+  color: var(--DOURADO);
+  cursor: pointer;
+}
+
+.dropdown button:hover {
+  color: var(--ROSA-LOGO);
+  background-color: rgba(0, 0, 0, 0.05);
+}

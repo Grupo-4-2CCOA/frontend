@@ -23,7 +23,7 @@
   position: relative;
 }
 
-.popup button {
+.popup .svgButton {
   background-color: transparent;
   border: none;
   outline: none;
@@ -46,4 +46,15 @@
 .popup .popupInfo {
   font-size: 18px;
   margin-top: 20px;
+  line-height: 30px;
+  white-space: pre-line;
+}
+
+.optionalButtons {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  margin-top: 10px;
+  justify-content: flex-end;
+  gap: 10px;
 }
