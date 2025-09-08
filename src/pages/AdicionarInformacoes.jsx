@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import NavbarLogado from "../common/components/NavbarLogado";
 import { useAuth } from '../hooks/useAuth';
+import api from '../services/api';
 import styles from  '../common/styles/Informacoes.module.css';
 
 export default function AdicionarInformacoes() {
@@ -15,6 +16,35 @@ export default function AdicionarInformacoes() {
   });
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
+  
+  // Carrega dados existentes do cliente quando o id estiver disponível
+  useEffect(() => {
+    let isCancelled = false;
+
+    const carregarDados = async () => {
+      if (!userInfo?.id) return;
+      try {
+        const res = await api.get(`/clientes/${userInfo.id}`);
+        if (isCancelled) return;
+        const dados = res.data || {};
+        setFormData(prev => ({
+          ...prev,
+          cpf: dados.cpf || '',
+          telefone: dados.telefone || '',
+          cep: dados.cep || '',
+          endereco: dados.endereco || '',
+          cidade: dados.cidade || '',
+          estado: dados.estado || ''
+        }));
+      } catch (error) {
+        // Evita estourar erro visual aqui; a interceptação 401 já redireciona
+        console.error('Erro ao carregar dados do cliente:', error);
+      }
+    };
+
+    carregarDados();
+    return () => { isCancelled = true; };
+  }, [userInfo?.id]);
 
   if (!userInfo) return <div className={styles.loading}>Carregando...</div>;
 
@@ -128,10 +158,23 @@ export default function AdicionarInformacoes() {
       return;
     }
 
+    if (!userInfo?.id) {
+      alert('Usuário não identificado. Faça login novamente.');
+      return;
+    }
+
     setLoading(true);
     
     try {
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      const dadosAtualizar = {
+        cpf: formData.cpf,
+        telefone: formData.telefone,
+        cep: formData.cep,
+        endereco: formData.endereco,
+        cidade: formData.cidade,
+        estado: formData.estado,
+      };
+      await api.put(`/clientes/${userInfo.id}`, dadosAtualizar);
       alert('Informações salvas com sucesso!');
     } catch (error) {
       alert('Erro ao salvar informações. Tente novamente.');
@@ -207,24 +250,7 @@ export default function AdicionarInformacoes() {
                 {errors.cep && <span className={styles.errorMessage}>{errors.cep}</span>}
               </div>
 
-              {formData.endereco && (
-                <div className={styles.enderecoAutomatico}>
-                  <div className={styles.formGroup}>
-                    <label>Endereço</label>
-                    <div className={styles.infoValue}>{formData.endereco}</div>
-                  </div>
-                  <div className={styles.enderecoGrid}>
-                    <div className={styles.formGroup}>
-                      <label>Cidade</label>
-                      <div className={styles.infoValue}>{formData.cidade}</div>
-                    </div>
-                    <div className={styles.formGroup}>
-                      <label>Estado</label>
-                      <div className={styles.infoValue}>{formData.estado}</div>
-                    </div>
-                  </div>
-                </div>
-              )}
+              
             </div>
 
             <div className={styles.formActions}>
@@ -240,7 +266,7 @@ export default function AdicionarInformacoes() {
                   </span>
                 ) : (
                   <>
-                    <span>💾</span>
+                    <span></span>
                     Salvar Informações
                   </>
                 )}
