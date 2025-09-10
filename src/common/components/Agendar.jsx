@@ -1,20 +1,17 @@
 import React, { useState } from 'react';
-import styles from  '../styles/Agendar.module.css';
+import styles from '../styles/Agendar.module.css';
 
-const agendar = ({ isOpen, onClose, onConfirm }) => {
+const agendar = ({ isOpen, onClose, onConfirm, employees = [], paymentTypes = [], services = [], loading = false }) => {
   const [selectedDate, setSelectedDate] = useState('');
   const [selectedTime, setSelectedTime] = useState('');
   const [selectedServices, setSelectedServices] = useState([]);
-
-  const services = [
-    { id: 1, name: 'Manicure', price: 25.00 },
-    { id: 2, name: 'Pedicure', price: 30.00 },
-    { id: 3, name: 'Corte de Cabelo', price: 45.00 },
-    { id: 4, name: 'Escova', price: 35.00 }
-  ];
+  const [selectedEmployee, setSelectedEmployee] = useState('');
+  const [selectedPaymentType, setSelectedPaymentType] = useState('');
+  const [duration, setDuration] = useState(60);
+  const [transactionHash, setTransactionHash] = useState('');
 
   const timeSlots = [
-    '08:00', '09:00', '10:00', '11:00', 
+    '08:00', '09:00', '10:00', '11:00',
     '14:00', '15:00', '16:00', '17:00'
   ];
 
@@ -30,32 +27,33 @@ const agendar = ({ isOpen, onClose, onConfirm }) => {
   };
 
   const calculateTotal = () => {
-    return selectedServices.reduce((total, service) => total + service.price, 0);
+    return selectedServices.reduce((total, service) => total + (service.basePrice || 0), 0);
   };
 
   const handleSubmit = () => {
-    if (!selectedDate || !selectedTime || selectedServices.length === 0) {
-      alert('Por favor, preencha todos os campos');
+    if (!selectedDate || !selectedTime || selectedServices.length === 0 || !selectedEmployee || !selectedPaymentType) {
+      alert('Por favor, preencha todos os campos obrigatórios');
       return;
     }
-    
-    const appointment = {
-      date: selectedDate,
-      time: selectedTime,
+
+    const appointmentDateTime = `${selectedDate}T${selectedTime}:00`;
+
+    const appointmentData = {
+      appointment_datetime: appointmentDateTime,
+      fk_employee: selectedEmployee,
+      fk_payment_type: selectedPaymentType,
+      transaction_hash: transactionHash,
       services: selectedServices,
-      total: calculateTotal()
+      duration: selectedServices.reduce((acc, service) => acc + service.base_duration, 0)
     };
-    
-    // Chama a função de confirmação passada como prop
-    onConfirm(appointment);
-    
-    // Reset form
+    onConfirm(appointmentData);
+
     setSelectedDate('');
     setSelectedTime('');
     setSelectedServices([]);
-    
-    // Fecha o modal
-    onClose();
+    setSelectedEmployee('');
+    setSelectedPaymentType('');
+    setTransactionHash('');
   };
 
   // Injeta os estilos CSS
@@ -64,12 +62,12 @@ const agendar = ({ isOpen, onClose, onConfirm }) => {
       const styleSheet = document.createElement("style");
       styleSheet.innerText = styles;
       styleSheet.id = "appointment-modal-styles";
-      
+
       if (!document.getElementById("appointment-modal-styles")) {
         document.head.appendChild(styleSheet);
       }
     }
-    
+
     return () => {
       const existingStyle = document.getElementById("appointment-modal-styles");
       if (existingStyle && !isOpen) {
@@ -84,7 +82,7 @@ const agendar = ({ isOpen, onClose, onConfirm }) => {
     <div className={styles["modal-overlay"]}>
       <div className={styles["modal-content"]}>
         <h2>Realizar Agendamento</h2>
-        
+
         <div className={styles["form-group"]}>
           <label>Data:</label>
           <div className={styles["date-input"]}>
@@ -112,33 +110,68 @@ const agendar = ({ isOpen, onClose, onConfirm }) => {
         </div>
 
         <div className={styles["form-group"]}>
-          <label>Serviços:</label>
-          <div className={styles["services-list"]}>
-            {services.map(service => (
-              <div key={service.id} className={styles["service-item"]}>
-                <label className={styles["service-label"]}>
-                  <input
-                    type="checkbox"
-                    checked={selectedServices.some(s => s.id === service.id)}
-                    onChange={() => handleServiceChange(service)}
-                  />
-                  <span>{service.name} - R$ {service.price.toFixed(2)}</span>
-                </label>
-              </div>
+          <label>Funcionário:</label>
+          <select
+            value={selectedEmployee}
+            onChange={(e) => setSelectedEmployee(e.target.value)}
+            className={styles["time-select"]}
+          >
+            <option value="">Selecione um funcionário</option>
+            {employees.map(employee => (
+              <option key={employee.id} value={employee.id}>
+                {employee.name}
+              </option>
             ))}
-          </div>
+          </select>
         </div>
 
-        <div className={styles["total-section"]}>
-          <strong>Total: R$ {calculateTotal().toFixed(2)}</strong>
+        <div className={styles["form-group"]}>
+          <label>Tipo de Pagamento:</label>
+          <select
+            value={selectedPaymentType}
+            onChange={(e) => setSelectedPaymentType(e.target.value)}
+            className={styles["time-select"]}
+          >
+            <option value="">Selecione o tipo de pagamento</option>
+            {paymentTypes.map(payment => (
+              <option key={payment.id} value={payment.id}>
+                {payment.name}
+              </option>
+            ))}
+          </select>
         </div>
 
-        <div className={styles["button-group"]}>
-          <button className={styles["btn-back"]} onClick={onClose}>
+		<div className={styles["form-group"]}>
+			<label>Serviços:</label>
+			<div className={styles["services-list"]}>
+			{services.map(service => (
+				<div key={service.id} className={styles["service-item"]}>
+				<input
+					type="checkbox"
+					checked={selectedServices.some(s => s.id === service.id)}
+					onChange={() => handleServiceChange(service)}
+				/>
+				<span>{service.name}</span>
+				<span>R$ {service.basePrice}</span>
+				</div>
+			))}
+			</div>
+		</div>
+
+		<div className={styles["total-section"]}>
+			<strong>Total: R$ {calculateTotal().toFixed(2)}</strong>
+		</div>
+
+		<div className={styles["button-group"]}>
+          <button className={styles["btn-back"]} onClick={onClose} disabled={loading}>
             Voltar
           </button>
-          <button className={styles["btn-confirm"]} onClick={handleSubmit}>
-            + Realizar Agendamento
+          <button
+            className={styles["btn-confirm"]}
+            onClick={handleSubmit}
+            disabled={loading}
+          >
+            {loading ? 'Salvando...' : '+ Realizar Agendamento'}
           </button>
         </div>
       </div>
