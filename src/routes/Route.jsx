@@ -6,6 +6,7 @@ import AgendarCliente from "../pages/agendamentoCliente";
 import AuthLoading from "../pages/AuthLogin";
 import AdicionarInformacoes from "../pages/AdicionarInformacoes";
 import Unauthorized from "../pages/Unauthorized";
+import SystemDashboard from "../pages/SystemDashboard";
 
 export default function AppRoutes(){
     return(
@@ -17,6 +18,7 @@ export default function AppRoutes(){
             <Route path="/agendamento" element={<AgendarCliente/>}></Route>
             <Route path="/informacoes" element={<AdicionarInformacoes/>}></Route>
             <Route path="/unauthorized" element={<Unauthorized/>}></Route>
+            <Route path="/system-dashboard" element={<SystemDashboard/>}></Route>
         </Routes>
     )
 }

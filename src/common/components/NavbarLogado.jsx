@@ -1,26 +1,38 @@
 import logo from "../../assets/logo-vb.png";
-import style from "../styles/navbarLogado.module.css";
+import styles from "../styles/navbarLogado.module.css";
+import { Link } from "react-router-dom";
 import { Eye, User } from 'lucide-react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-
-export default function NavbarLogado() {
+export default function NavbarLogado(props) {
   const [showMenu, setShowMenu] = useState(false);
   const navigate = useNavigate();
 
   const handleNavigate = (path) => {
-  setShowMenu(false);
-  navigate(path);
-    };
+    setShowMenu(false);
+    navigate(path);
+  };
 
   return (
-    <nav className={style.navbar}>
-      <img src={logo} alt="Logo" className={style.navbarLogo} />
-      <div className={style.headerIcons}>
-        <Eye className={style.icon} />
-        <div className={style.profileMenu}>
-          <User className={style.icon} onClick={() => setShowMenu(!showMenu)} />
+    <nav className={styles.navbar}>
+      <img src={logo} alt="Logo" className={styles.navbarLogo} />
+      {
+        props.isAdmin && (
+          <div className={styles.navbarLinks}>
+            <ul>
+              <Link to="#">Serviços</Link>
+              <Link to="#">Agendamentos</Link>
+              <Link to="#">Feedbacks</Link>
+              <Link>Dashboards</Link>
+            </ul>
+          </div>
+        )
+      }
+      <div className={styles.headerIcons}>
+        <Eye className={styles.icon} />
+        <div className={styles.profileMenu}>
+          <User className={styles.icon} onClick={() => setShowMenu(!showMenu)} />
           {showMenu && (
             <div className={style.dropdown}>
               <button onClick={() => handleNavigate("/agendamento")}>Agendamento</button>

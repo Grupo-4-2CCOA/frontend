@@ -1,6 +1,6 @@
 import React from "react";
 import styles from "../styles/secao-contato.module.css";
-import { BotaoPrincipal } from "./BotaoPrincipal";
+import BotaoPrincipal from "./BotaoPrincipal";
 
 export default function SecaoContato() {
 	return (
