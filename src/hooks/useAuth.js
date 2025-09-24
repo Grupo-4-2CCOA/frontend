@@ -11,9 +11,33 @@ export function useAuth(requiredRole) {
     const checkAuth = async () => {
       try {
         const response = await api.get('/auth/user-info');
-        setUserInfo(response.data);
+        const data = response.data || {};
+        const normalizedUser = {
+          id: data.id
+            ?? data.userId
+            ?? data._id
+            ?? data.usuarioId
+            ?? data.clienteId
+            ?? data.idUsuario
+            ?? data.idCliente
+            ?? data.user_id
+            ?? data.id_user
+            ?? data.idcliente
+            ?? data.cliente_id
+            ?? (data.user && data.user.id)
+            ?? null,
+          role: data.role ?? data.papel ?? data.perfil ?? null,
+          name: data.name ?? data.nome ?? data.username ?? '',
+          email: data.email ?? data.mail ?? '',
+          ...data,
+        };
+        if (normalizedUser.id == null) {
+          // Ajuda a diagnosticar rapidamente se o backend usa outro campo de id
+          console.warn('useAuth: id ausente em /auth/user-info. Payload recebido:', data);
+        }
+        setUserInfo(normalizedUser);
         
-        if (!requiredRole || response.data.role === requiredRole) {
+        if (!requiredRole || normalizedUser.role === requiredRole) {
           setIsAuthorized(true);
         } else {
           navigate('/unauthorized');

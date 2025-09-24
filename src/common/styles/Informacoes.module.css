@@ -1,140 +1,90 @@
-/* Adicionar Informações - Estilo Feminino */
+/* Adicionar Informações - Estilo Clean */
+:root {
+  --ROXO: #9B59B6;
+  --ROSA: #FFBDCE;
+  --DOURADO: #CA9534;
+  --ROSA-LOGO: #FF3678;
+  --BRANCO: #FFFFFF;
+  --PRETO: #000000;
+  --CINZA-ESCURO: #333;
+  --CINZA: #7D7D7D;
+}
+
 .main {
   display: flex;
   align-items: center;
   justify-content: center;
   background: var(--BRANCO);
-  padding: 2rem 1rem;
   min-height: calc(100vh - 64px);
 }
 
 .adicionarInfoContainer {
-  min-height: 100vh;
-  padding: 2rem 1rem;
+  min-height: calc(100vh - 64px);
+  padding: 1rem;
   display: flex;
   justify-content: center;
   align-items: flex-start;
+  background: var(--BRANCO);
+  overflow: hidden;
 }
 
 .adicionarInfoContent {
-  background: white;
-  border-radius: 24px;
-  border: var(--ROSA) solid 4px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+  background: var(--BRANCO);
+  border-radius: 16px;
+  border: 2px solid var(--ROSA);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
   width: 100%;
-  max-width: 600px;
+  max-width: 1000px;
   overflow: hidden;
-  animation: fadeInUp 0.8s ease-out;
-}
-
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.pageHeaderInfo {
-  color: white;
-  text-align: center;
-  padding: 3rem 2rem;
-  position: relative;
-}
-
-.pageHeaderInfo::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  /* background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="10" cy="10" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="90" cy="20" r="1.5" fill="rgba(255,255,255,0.1)"/><circle cx="20" cy="90" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="80" cy="80" r="1.2" fill="rgba(255,255,255,0.1)"/></svg>'); */
-}
-
-.headerIcon {
-  font-size: 3rem;
-  margin-bottom: 1rem;
-  position: relative;
-  z-index: 1;
-}
-
-.pageHeaderInfo h1 {
-  font-size: 2.2rem;
-  margin: 0 0 0.5rem 0;
-  font-weight: 600;
-  position: relative;
-  z-index: 1;
-}
-
-.pageHeaderInfo p {
-  font-size: 1.1rem;
-  opacity: 0.9;
-  margin: 0;
-  position: relative;
-  z-index: 1;
+  max-height: calc(100vh - 64px - 2rem);
 }
 
 .infoForm {
-  padding: 2.5rem;
+  padding: 2rem;
 }
 
 /* Seção de informações existentes */
 .existingInfoSection {
-  margin-bottom: 2.5rem;
+  margin-bottom: 2rem;
   padding: 1.5rem;
-  background: linear-gradient(135deg, #ffeaa7, #fab1a0);
-  border-radius: 16px;
-  position: relative;
-  overflow: hidden;
-}
-
-.existingInfoSection::before {
-  content: '';
-  position: absolute;
-  top: -50%;
-  right: -50%;
-  width: 100%;
-  height: 100%;
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+  background: #fafafa;
+  border-radius: 12px;
+  border: 1px solid #e0e0e0;
 }
 
 .existingInfoSection h3 {
-  color: #8b4513;
+  color: var(--CINZA-ESCURO);
   margin: 0 0 1.5rem 0;
-  font-size: 1.3rem;
+  font-size: 1.2rem;
   font-weight: 600;
-  position: relative;
-  z-index: 1;
 }
 
 .existingInfoGrid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1.5rem;
-  position: relative;
-  z-index: 1;
+  display: flex;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+
+.infoItem {
+  flex: 1;
+  min-width: 200px;
 }
 
 .infoItem label {
   display: block;
-  color: #8b4513;
+  color: var(--CINZA);
   font-weight: 500;
   margin-bottom: 0.5rem;
-  font-size: 0.95rem;
+  font-size: 0.9rem;
 }
 
 .infoValue {
-  background: rgba(255, 255, 255, 0.8);
-  padding: 0.75rem;
-  border-radius: 12px;
-  color: #333;
+  background: var(--BRANCO);
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  color: var(--CINZA-ESCURO);
   font-weight: 500;
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  backdrop-filter: blur(10px);
+  border: 1px solid #e0e0e0;
 }
 
 /* Seção de novas informações */
@@ -143,65 +93,49 @@
 }
 
 .newInfoSection h3 {
-  color: #e91e63;
+  color: var(--ROSA-LOGO);
   margin: 0 0 2rem 0;
-  font-size: 1.4rem;
+  font-size: 1.3rem;
   font-weight: 600;
   text-align: center;
-  position: relative;
-}
-
-.newInfoSection h3::after {
-  content: '';
-  position: absolute;
-  bottom: -0.5rem;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 60px;
-  height: 3px;
-  background: linear-gradient(90deg, #e91e63, #9c27b0);
-  border-radius: 2px;
 }
 
 .formGroup {
-  margin-bottom: 1.8rem;
-  position: relative;
+  margin-bottom: 1.5rem;
 }
 
 .formGroup label {
   display: block;
-  color: #333;
-  font-weight: 600;
-  margin-bottom: 0.7rem;
-  font-size: 1rem;
+  color: var(--CINZA-ESCURO);
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+  font-size: 0.95rem;
 }
 
 .formInput {
   width: 100%;
-  padding: 1rem 1.2rem;
+  padding: 0.75rem 1rem;
   border: 2px solid #e0e0e0;
-  border-radius: 16px;
+  border-radius: 8px;
   font-size: 1rem;
-  transition: all 0.3s ease;
-  background: #fafafa;
+  transition: all 0.2s ease;
+  background: var(--BRANCO);
   box-sizing: border-box;
+  color: var(--CINZA-ESCURO);
 }
 
 .formInput:focus {
   outline: none;
-  border-color: #e91e63;
-  box-shadow: 0 0 0 4px rgba(233, 30, 99, 0.1);
-  background: white;
-  transform: translateY(-2px);
+  border-color: var(--ROSA-LOGO);
+  box-shadow: 0 0 0 3px rgba(255, 54, 120, 0.1);
 }
 
 .formInput.error {
-  border-color: #f44336;
-  box-shadow: 0 0 0 4px rgba(244, 67, 54, 0.1);
+  border-color: #e74c3c;
 }
 
 .errorMessage {
-  color: #f44336;
+  color: #e74c3c;
   font-size: 0.85rem;
   margin-top: 0.5rem;
   display: block;
@@ -210,67 +144,59 @@
 
 /* Endereço automático */
 .enderecoAutomatico {
-  background: linear-gradient(135deg, #e8f5e8, #c8e6c9);
+  background: #f8f9fa;
   padding: 1.5rem;
-  border-radius: 16px;
+  border-radius: 12px;
   margin-top: 1rem;
-  border: 2px solid #4caf50;
+  border: 1px solid var(--ROSA);
+}
+
+.enderecoAutomatico .formGroup label {
+  color: var(--CINZA);
 }
 
 .enderecoGrid {
-  display: grid;
-  grid-template-columns: 2fr 1fr;
-  gap: 1rem;
+  display: flex;
+  gap: 1.5rem;
   margin-top: 1rem;
+}
+
+.enderecoGrid .formGroup {
+  flex: 1;
+  margin-bottom: 0;
 }
 
 /* Ações do formulário */
 .formActions {
   text-align: center;
-  padding-top: 1.5rem;
-  border-top: 2px solid #f0f0f0;
+  padding-top: 2rem;
+  border-top: 1px solid #e0e0e0;
 }
 
 .btnSalvar {
-  background: linear-gradient(135deg, #e91e63, #9c27b0);
-  color: white;
+  background: var(--ROSA-LOGO);
+  color: var(--BRANCO);
   border: none;
-  padding: 1rem 3rem;
-  border-radius: 25px;
-  font-size: 1.1rem;
+  padding: 1rem 2.5rem;
+  border-radius: 8px;
+  font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  box-shadow: 0 8px 25px rgba(233, 30, 99, 0.3);
-  position: relative;
-  overflow: hidden;
-}
-
-.btnSalvar::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-  transition: left 0.5s ease;
-}
-
-.btnSalvar:hover::before {
-  left: 100%;
+  box-shadow: 0 2px 10px rgba(255, 54, 120, 0.2);
 }
 
 .btnSalvar:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 12px 35px rgba(233, 30, 99, 0.4);
+  background: #e6306b;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 15px rgba(255, 54, 120, 0.3);
 }
 
 .btnSalvar:disabled {
-  opacity: 0.7;
+  opacity: 0.6;
   cursor: not-allowed;
   transform: none;
 }
@@ -282,10 +208,10 @@
 }
 
 .loadingSpinner span:first-child {
-  width: 18px;
-  height: 18px;
+  width: 16px;
+  height: 16px;
   border: 2px solid rgba(255, 255, 255, 0.3);
-  border-top-color: white;
+  border-top-color: var(--BRANCO);
   border-radius: 50%;
   animation: spin 1s linear infinite;
 }
@@ -306,40 +232,26 @@
     padding: 1.5rem;
   }
   
-  .pageHeaderInfo {
-    padding: 2rem 1.5rem;
-  }
-  
-  .pageHeaderInfo h1 {
-    font-size: 1.8rem;
-  }
-  
   .existingInfoGrid {
-    grid-template-columns: 1fr;
+    flex-direction: column;
     gap: 1rem;
   }
   
   .enderecoGrid {
-    grid-template-columns: 1fr;
+    flex-direction: column;
+    gap: 1rem;
   }
   
   .btnSalvar {
     width: 100%;
-    padding: 1.2rem;
+    padding: 1rem;
   }
 }
 
 @media (max-width: 480px) {
   .adicionarInfoContent {
-    border-radius: 16px;
-  }
-  
-  .pageHeaderInfo {
-    padding: 1.5rem 1rem;
-  }
-  
-  .pageHeaderInfo h1 {
-    font-size: 1.6rem;
+    border-radius: 12px;
+    margin: 0.5rem;
   }
   
   .infoForm {
@@ -347,6 +259,11 @@
   }
   
   .formInput {
-    padding: 0.9rem;
+    padding: 0.75rem;
+  }
+  
+  .existingInfoSection,
+  .enderecoAutomatico {
+    padding: 1rem;
   }
 }
