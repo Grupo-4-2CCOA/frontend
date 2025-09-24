@@ -1,0 +1,15 @@
+.button {
+    background-color: var(--ROXO);
+    border-radius: 50%;
+    transition: all 0.3s ease;
+    width: 23px;
+    height: 23px;
+    color: var(--BRANCO);
+    font-weight: bold;
+    border: none;
+    cursor: pointer;
+}
+
+button:hover {
+    transform: scale(1.2, 1.2);
+}
