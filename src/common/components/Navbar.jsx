@@ -22,9 +22,6 @@ export default function Navbar() {
                 <Link to="/login">
                     <BotaoSecundario children="Entrar" />
                 </Link>
-                <Link to="/cadastro">
-                    <BotaoPrincipal children="Cadastre-se" />
-                </Link>
             </div>
         </nav>
     );

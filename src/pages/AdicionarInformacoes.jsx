@@ -361,46 +361,6 @@ export default function AdicionarInformacoes() {
                 />
                 {errors.cep && <span className={styles.errorMessage}>{errors.cep}</span>}
               </div>
-
-              <div className={styles.formGroup}>
-                <label htmlFor="endereco">Endereço</label>
-                <input
-                  type="text"
-                  id="endereco"
-                  className={styles.formInput}
-                  value={formData.endereco}
-                  onChange={(e) => handleInputChange('endereco', e.target.value)}
-                  placeholder="Rua, número, bairro"
-                  readOnly
-                />
-              </div>
-
-              <div className={styles.formGroup}>
-                <label htmlFor="cidade">Cidade</label>
-                <input
-                  type="text"
-                  id="cidade"
-                  className={styles.formInput}
-                  value={formData.cidade}
-                  onChange={(e) => handleInputChange('cidade', e.target.value)}
-                  placeholder="Cidade"
-                  readOnly
-                />
-              </div>
-
-              <div className={styles.formGroup}>
-                <label htmlFor="estado">Estado</label>
-                <input
-                  type="text"
-                  id="estado"
-                  className={styles.formInput}
-                  value={formData.estado}
-                  onChange={(e) => handleInputChange('estado', e.target.value)}
-                  placeholder="Estado"
-                  maxLength={2}
-                  readOnly
-                />
-              </div>
             </div>
 
             <div className={styles.formActions}>
