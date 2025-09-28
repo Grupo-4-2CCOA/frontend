@@ -1,25 +1,22 @@
 import React, { useState } from 'react';
 import NavbarLogado from "../common/components/NavbarLogado";
 import SecaoAgendar from "../common/components/SecaoAgendar";
-import Agendar from "../common/components/Agendar";
-import FeedbackModal from "../common/components/FeedbackModal";
+import Agendar from "../common/components/AgendarFunc"
 import { useAuth } from '../hooks/useAuth';
 import Popup from '../common/components/Popup';
 
-export default function AgendamentoCliente() {
-  // const { userInfo } = useAuth('USER');
+export default function AgendamentoFuncionario() {
+//   const { userInfo } = useAuth('USER');
   const [showPopup, setShowPopup] = useState(false);
   const [agendamentoParaDeletar, setAgendamentoParaDeletar] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [showFeedback, setShowFeedback] = useState(false);
-  const [selectedAgendamento, setSelectedAgendamento] = useState(null);
   const [agendamentos, setAgendamentos] = useState([
     { id: 1, data: '12 de março de 2025', servico: 'Manicure' },
     { id: 2, data: '13 de março de 2025', servico: 'Corte de Cabelo' },
     { id: 3, data: '14 de março de 2025', servico: 'Pedicure' },
   ]);
 
-  // if (!userInfo) return <div>Carregando...</div>;
+//   if (!userInfo) return <div>Carregando...</div>;
 
   const handleDelete = (id) => {
     setAgendamentos(agendamentos.filter(item => item.id !== id));
@@ -38,9 +35,7 @@ export default function AgendamentoCliente() {
   };
 
   const handleFeedback = (id) => {
-    const agendamento = agendamentos.find(a => a.id === id);
-    setSelectedAgendamento(agendamento);
-    setShowFeedback(true);
+    alert(`Dar feedback para agendamento ${id}`);
   };
 
   const handleShowDeletePopup = (id) => {
@@ -66,6 +61,7 @@ export default function AgendamentoCliente() {
     const agendamentoFormatado = {
       id: agendamentos.length + 1,
       data: dataFormatada,
+      cliente: novoAgendamento.client,
       servico: novoAgendamento.services.map(s => s.name).join(', ')
     };
 
@@ -75,24 +71,18 @@ export default function AgendamentoCliente() {
     alert('Agendamento realizado com sucesso!');
   };
 
-  const handleFeedbackSubmit = (feedback) => {
-    console.log('Feedback enviado:', feedback);
-    // Aqui você pode implementar a lógica para salvar o feedback
-    setShowFeedback(false);
-    setSelectedAgendamento(null);
-  };
-
   return (
     <>
-      {showPopup && <Popup
-        hasButtons={true}
-        onClick={handleConfirmDelete}
-        title={"Atenção!"}
-        text={"Tem certeza que deseja cancelar o seu agendamento?\nVocê não conseguirá reverter esta ação."}
-        setShowPopup={setShowPopup}
-      />}
-
-      <NavbarLogado />
+        {
+          showPopup && <Popup
+            hasButtons={true}
+            onClick={handleConfirmDelete}
+            title={"Atenção!"}
+            text={"Tem certeza que deseja cancelar o seu agendamento?\nVocê não conseguirá reverter esta ação."}
+            setShowPopup={setShowPopup}
+          />
+        }
+      <NavbarLogado isAdmin={true}/>
       <SecaoAgendar
         agendamentos={agendamentos}
         showPopup={handleShowDeletePopup}
@@ -102,18 +92,11 @@ export default function AgendamentoCliente() {
         onNovoAgendamento={handleNovoAgendamento}
       />
 
+      {/* Modal de agendamento */}
       <Agendar
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onConfirm={handleConfirmarAgendamento}
-      />
-
-      <FeedbackModal
-        isOpen={showFeedback}
-        onClose={() => setShowFeedback(false)}
-        onConfirm={handleFeedbackSubmit}
-        agendamento={selectedAgendamento}
-        userInfo={userInfo}
       />
     </>
   );
