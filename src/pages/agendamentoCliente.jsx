@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import NavbarLogado from "../common/components/NavbarLogado";
 import SecaoAgendar from "../common/components/SecaoAgendar";
-import Agendar from "../common/components/Agendar"
+import Agendar from "../common/components/Agendar";
+import FeedbackModal from "../common/components/FeedbackModal";
 import { useAuth } from '../hooks/useAuth';
 import Popup from '../common/components/Popup';
 
@@ -10,6 +11,8 @@ export default function AgendamentoCliente() {
   const [showPopup, setShowPopup] = useState(false);
   const [agendamentoParaDeletar, setAgendamentoParaDeletar] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [showFeedback, setShowFeedback] = useState(false);
+  const [selectedAgendamento, setSelectedAgendamento] = useState(null);
   const [agendamentos, setAgendamentos] = useState([
     { id: 1, data: '12 de março de 2025', servico: 'Manicure' },
     { id: 2, data: '13 de março de 2025', servico: 'Corte de Cabelo' },
@@ -35,7 +38,9 @@ export default function AgendamentoCliente() {
   };
 
   const handleFeedback = (id) => {
-    alert(`Dar feedback para agendamento ${id}`);
+    const agendamento = agendamentos.find(a => a.id === id);
+    setSelectedAgendamento(agendamento);
+    setShowFeedback(true);
   };
 
   const handleShowDeletePopup = (id) => {
@@ -70,17 +75,23 @@ export default function AgendamentoCliente() {
     alert('Agendamento realizado com sucesso!');
   };
 
+  const handleFeedbackSubmit = (feedback) => {
+    console.log('Feedback enviado:', feedback);
+    // Aqui você pode implementar a lógica para salvar o feedback
+    setShowFeedback(false);
+    setSelectedAgendamento(null);
+  };
+
   return (
     <>
-        {
-          showPopup && <Popup
-            hasButtons={true}
-            onClick={handleConfirmDelete}
-            title={"Atenção!"}
-            text={"Tem certeza que deseja cancelar o seu agendamento?\nVocê não conseguirá reverter esta ação."}
-            setShowPopup={setShowPopup}
-          />
-        }
+      {showPopup && <Popup
+        hasButtons={true}
+        onClick={handleConfirmDelete}
+        title={"Atenção!"}
+        text={"Tem certeza que deseja cancelar o seu agendamento?\nVocê não conseguirá reverter esta ação."}
+        setShowPopup={setShowPopup}
+      />}
+
       <NavbarLogado />
       <SecaoAgendar
         agendamentos={agendamentos}
@@ -91,11 +102,18 @@ export default function AgendamentoCliente() {
         onNovoAgendamento={handleNovoAgendamento}
       />
 
-      {/* Modal de agendamento */}
       <Agendar
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onConfirm={handleConfirmarAgendamento}
+      />
+
+      <FeedbackModal
+        isOpen={showFeedback}
+        onClose={() => setShowFeedback(false)}
+        onConfirm={handleFeedbackSubmit}
+        agendamento={selectedAgendamento}
+        userInfo={userInfo}
       />
     </>
   );

@@ -4,6 +4,39 @@ import { useAuth } from '../hooks/useAuth';
 import api from '../services/api';
 import styles from '../common/styles/Informacoes.module.css';
 
+function SuccessPopup({ show, onClose }) {
+  if (!show) return null;
+  return (
+    <div style={{
+      position: 'fixed',
+      top: 0, left: 0, right: 0, bottom: 0,
+      background: 'rgba(0,0,0,0.2)',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      zIndex: 9999
+    }}>
+      <div style={{
+        background: '#fff',
+        borderRadius: 12,
+        padding: '2rem 2.5rem',
+        boxShadow: '0 4px 24px rgba(0,0,0,0.12)',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        gap: '1rem',
+        minWidth: 280
+      }}>
+        <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+          <circle cx="24" cy="24" r="24" fill="#4BB543"/>
+          <path d="M15 25L22 32L34 18" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+        <div style={{ color: '#4BB543', fontWeight: 600, fontSize: 20 }}>Informações salvas!</div>
+      </div>
+    </div>
+  );
+}
+
 export default function AdicionarInformacoes() {
   const { userInfo } = useAuth('USER');
   const [formData, setFormData] = useState({
@@ -18,6 +51,8 @@ export default function AdicionarInformacoes() {
   const [loadingData, setLoadingData] = useState(true);
   const [errors, setErrors] = useState({});
   const [clientData, setClientData] = useState(null);
+  const [successPopupVisible, setSuccessPopupVisible] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
 
   // Funções de formatação
   const formatCPF = (value) => {
@@ -123,47 +158,7 @@ export default function AdicionarInformacoes() {
 
   if (loadingData) return <div className={styles.loading}>Carregando dados do cliente...</div>;
 
-  const buscarEnderecoPorCEP = async (cep) => {
-    if (cep.length === 9) {
-      try {
-        const response = await fetch(`https://viacep.com.br/ws/${cep.replace('-', '')}/json/`);
-        const data = await response.json();
-        if (!data.erro) {
-          setFormData(prev => ({
-            ...prev,
-            endereco: data.logradouro,
-            cidade: data.localidade,
-            estado: data.uf
-          }));
-        }
-      } catch (error) {
-        console.log('Erro ao buscar CEP');
-      }
-    }
-  };
-
-  const buscarEnderecoPorCEPCarregado = async (cep) => {
-    if (cep && cep.length === 8) {
-      try {
-        console.log('Buscando endereço para CEP carregado do banco:', cep);
-        const response = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
-        const data = await response.json();
-        if (!data.erro) {
-          console.log('Dados do endereço encontrados:', data);
-          setFormData(prev => ({
-            ...prev,
-            endereco: data.logradouro || '',
-            cidade: data.localidade || '',
-            estado: data.uf || ''
-          }));
-        } else {
-          console.log('CEP não encontrado na API ViaCEP');
-        }
-      } catch (error) {
-        console.log('Erro ao buscar CEP carregado do banco:', error);
-      }
-    }
-  };
+  
 
   const handleInputChange = (field, value) => {
     let formattedValue = value;
@@ -177,9 +172,6 @@ export default function AdicionarInformacoes() {
         break;
       case 'cep':
         formattedValue = formatCEP(value);
-        if (formattedValue.length === 9) {
-          buscarEnderecoPorCEP(formattedValue);
-        }
         break;
       default:
         break;
@@ -217,7 +209,7 @@ export default function AdicionarInformacoes() {
 
     if (!formData.cep) {
       newErrors.cep = 'CEP é obrigatório';
-    } else if (formData.cep.replace(/\D/g, '').length !== 8) {
+    } else if (formData.cep.replace(/\D/g, '').length === 9) {
       newErrors.cep = 'CEP deve ter 8 dígitos';
     }
 
@@ -273,7 +265,13 @@ export default function AdicionarInformacoes() {
       const response = await api.put(`/clientes/${userInfo.id}`, dadosAtualizar);
       console.log('Resposta da API:', response.data);
 
-      alert('Informações salvas com sucesso!');
+      setSuccessPopupVisible(true);
+      setShowSuccess(true);
+      // Aguarda 1.5s e recarrega os dados do cliente
+      setTimeout(() => {
+        setShowSuccess(false);
+        window.location.reload(); // recarrega a página para mostrar as informações atualizadas
+      }, 1500);
     } catch (error) {
       console.error('Erro detalhado ao salvar:', error);
       console.error('Status:', error.response?.status);
@@ -297,6 +295,7 @@ export default function AdicionarInformacoes() {
 
   return (
     <>
+      <SuccessPopup show={showSuccess} />
       <NavbarLogado />
       <div className={styles.adicionarInfoContainer}>
         <div className={styles.adicionarInfoContent}>
@@ -357,49 +356,9 @@ export default function AdicionarInformacoes() {
                   value={formData.cep}
                   onChange={(e) => handleInputChange('cep', e.target.value)}
                   placeholder="00000-000"
-                  maxLength={9}
+                  maxLength={10}
                 />
                 {errors.cep && <span className={styles.errorMessage}>{errors.cep}</span>}
-              </div>
-
-              <div className={styles.formGroup}>
-                <label htmlFor="endereco">Endereço</label>
-                <input
-                  type="text"
-                  id="endereco"
-                  className={styles.formInput}
-                  value={formData.endereco}
-                  onChange={(e) => handleInputChange('endereco', e.target.value)}
-                  placeholder="Rua, número, bairro"
-                  readOnly
-                />
-              </div>
-
-              <div className={styles.formGroup}>
-                <label htmlFor="cidade">Cidade</label>
-                <input
-                  type="text"
-                  id="cidade"
-                  className={styles.formInput}
-                  value={formData.cidade}
-                  onChange={(e) => handleInputChange('cidade', e.target.value)}
-                  placeholder="Cidade"
-                  readOnly
-                />
-              </div>
-
-              <div className={styles.formGroup}>
-                <label htmlFor="estado">Estado</label>
-                <input
-                  type="text"
-                  id="estado"
-                  className={styles.formInput}
-                  value={formData.estado}
-                  onChange={(e) => handleInputChange('estado', e.target.value)}
-                  placeholder="Estado"
-                  maxLength={2}
-                  readOnly
-                />
               </div>
             </div>
 
@@ -423,6 +382,8 @@ export default function AdicionarInformacoes() {
               </button>
             </div>
           </form>
+
+          <SuccessPopup show={successPopupVisible} onClose={() => setSuccessPopupVisible(false)} />
         </div>
       </div>
     </>
