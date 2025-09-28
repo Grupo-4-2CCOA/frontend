@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import NavbarLogado from "../common/components/NavbarLogado";
 import SecaoAgendar from "../common/components/SecaoAgendar";
-import Agendar from "../common/components/Agendar"
+import Agendar from "../common/components/AgendarFunc"
 import { useAuth } from '../hooks/useAuth';
 import Popup from '../common/components/Popup';
 
-export default function AgendamentoCliente() {
-  // const { userInfo } = useAuth('USER');
+export default function AgendamentoFuncionario() {
+//   const { userInfo } = useAuth('USER');
   const [showPopup, setShowPopup] = useState(false);
   const [agendamentoParaDeletar, setAgendamentoParaDeletar] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -16,7 +16,7 @@ export default function AgendamentoCliente() {
     { id: 3, data: '14 de março de 2025', servico: 'Pedicure' },
   ]);
 
-  // if (!userInfo) return <div>Carregando...</div>;
+//   if (!userInfo) return <div>Carregando...</div>;
 
   const handleDelete = (id) => {
     setAgendamentos(agendamentos.filter(item => item.id !== id));
@@ -61,6 +61,7 @@ export default function AgendamentoCliente() {
     const agendamentoFormatado = {
       id: agendamentos.length + 1,
       data: dataFormatada,
+      cliente: novoAgendamento.client,
       servico: novoAgendamento.services.map(s => s.name).join(', ')
     };
 
@@ -81,7 +82,7 @@ export default function AgendamentoCliente() {
             setShowPopup={setShowPopup}
           />
         }
-      <NavbarLogado />
+      <NavbarLogado isAdmin={true}/>
       <SecaoAgendar
         agendamentos={agendamentos}
         showPopup={handleShowDeletePopup}
