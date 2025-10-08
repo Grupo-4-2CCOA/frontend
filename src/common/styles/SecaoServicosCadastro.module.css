@@ -1,0 +1,119 @@
+.servicoSecao {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    margin-top: 40px;
+    padding: 80px 40px;
+    background: linear-gradient(0deg, var(--BRANCO) 0%, #FFBDCE 50%, var(--BRANCO) 100%);
+    text-align: center;
+    position: relative;
+}
+
+.carouselContainer {
+    width: 90%;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.swiper {
+    padding-bottom: 40px;
+}
+
+.serviceCard {
+    background-color: var(--BRANCO, #e6cce6);
+    border-radius: 20px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+    margin: 20px auto;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    border: 2px solid transparent;
+    box-shadow: 5px 5px 10px 0 #AAA;
+    margin-top: 30px;
+    width: 260px;
+    padding: 20px;
+    align-items: center;
+    box-sizing: border-box;
+}
+
+.serviceCard:hover {
+    transform: translateY(-10px) scale(1.02);
+}
+
+.serviceImagePlaceholder {
+    width: 100%;
+    height: 110px;
+    background: linear-gradient(135deg, var(--ROSA-LOGO, #e6cce6) 0%, var(--DOURADO, #e0e0e0) 100%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    border-radius: 4px;
+    margin-bottom: 16px;
+}
+
+.placeholderX {
+    font-size: 32px;
+    color: var(--BRANCO, #fff);
+    font-weight: 300;
+    text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.2);
+    z-index: 2;
+}
+
+.serviceCategory {
+    font-size: 0.95rem;
+    color: var(--ROSA-LOGO, #7c4d9b);
+    margin-bottom: 4px;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    background: linear-gradient(90deg, var(--ROSA-LOGO, #7c4d9b), var(--DOURADO, #e0e0e0));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.serviceTitle {
+    font-size: 1.2rem;
+    color: var(--PRETO, #9b59b6);
+    margin-bottom: 8px;
+    font-weight: bold;
+    padding: 0 10px;
+    margin-top: 8px;
+    line-height: 1.2;
+}
+
+.serviceDescription {
+    font-size: 1.1rem;
+    color: var(--CINZA, #000);
+    margin-bottom: 18px;
+    text-align: left;
+    width: 100%;
+    padding: 0 10px 10px;
+    line-height: 1.6;
+    flex-grow: 1;
+    display: flex;
+    align-items: flex-start;
+}
+
+.editarBtn {
+    background: none;
+    border: 2px solid #9b59b6;
+    color: #9b59b6;
+    padding: 6px 24px;
+    border-radius: 4px;
+    font-size: 1.1rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: bold;
+    transition: background 0.2s;
+    margin-top: 16px;
+}
+
+.editarBtn:hover {
+    background: #f3e6f7;
+}
