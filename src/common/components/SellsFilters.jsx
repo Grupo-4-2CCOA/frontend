@@ -60,10 +60,10 @@ export default function SystemFilters() {
                     </Select>
                 </FormControl>
             </div>
-            <span>Serviços</span>
+            <span>Vendas</span>
             <div className={styles.buttons}>
-                <BotaoPrincipal onClick={() => handleNavigate("/system-dashboard")} children="Serviços" />
-                <BotaoSecundario onClick={() => handleNavigate("/sells-dashboard")} children="Funil de Vendas" />
+                <BotaoSecundario onClick={() => handleNavigate("/system-dashboard")} children="Serviços" />
+                <BotaoPrincipal onClick={() => handleNavigate("/sells-dashboard")} children="Funil de Vendas" />
             </div>
         </div>
     );

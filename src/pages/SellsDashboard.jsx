@@ -1,12 +1,12 @@
 import NavbarLogado from "../common/components/NavbarLogado";
 import SellsPanel from "../common/components/SellsPanel";
-import SystemFilters from "../common/components/SystemFilters"
+import SellsFilters from "../common/components/SellsFilters"
 
-export default function SystemDashboard() {
+export default function SellsDashboard() {
     return (
         <>
             <NavbarLogado isAdmin={true} />
-            <SystemFilters />
+            <SellsFilters />
             <SellsPanel />
         </>
     );
