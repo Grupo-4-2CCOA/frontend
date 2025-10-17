@@ -11,10 +11,12 @@ jobs:
 
     strategy:
       matrix:
-        host: [
-            { name: "EC2-AZ1A-PUBLIC", remote_host: "${{ secrets.REMOTE_HOST_AZ1A }}" },
-            { name: "EC2-AZ1B-PUBLIC", remote_host: "${{ secrets.REMOTE_HOST_AZ1B }}" }
-        ]
+        host: 
+          - name: "EC2-AZ1A-PUBLIC"
+            remote_host: 3.93.88.182
+
+          - name: "EC2-AZ1B-PUBLIC"
+            remote_host: 44.214.171.116
 
     steps:
       - name: Checkout do Repositório
