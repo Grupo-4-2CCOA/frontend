@@ -1,6 +1,6 @@
  
 ## 1. Criando uma Nova Branch
-
+ 
 Branches são usadas para desenvolver funcionalidades isoladas umas das outras. Para criar uma nova branch:
 
 `git checkout -b nome-da-branch`
