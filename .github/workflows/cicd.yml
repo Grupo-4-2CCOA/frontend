@@ -21,8 +21,7 @@ jobs:
       - name: FE - Instalar Dependências e Fazer Build
         run: |
              npm install
-             npm run build --if-present 
-        working-directory: ./frontend
+             npm run build --if-present
 
       - name: FE - Copiar arquivos e Deploy (Usando SSH com rsync)
         uses: easingthemes/ssh-deploy@main
@@ -32,4 +31,4 @@ jobs:
           REMOTE_USER: ${{ secrets.REMOTE_USER }}
           TARGET: /home/${{ secrets.REMOTE_USER }}/frontend
           ARGS: "-rltgoDzvO --delete" 
-          SOURCE: "./frontend/dist/" 
+          SOURCE: "dist/" 
