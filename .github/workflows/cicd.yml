@@ -9,6 +9,13 @@ jobs:
   build_and_deploy:
     runs-on: ubuntu-latest
 
+    strategy:
+      matrix:
+        host: [
+            { name: "EC2-AZ1A-PUBLIC", remote_host: "${{ secrets.REMOTE_HOST_AZ1A }}" },
+            { name: "EC2-AZ1B-PUBLIC", remote_host: "${{ secrets.REMOTE_HOST_AZ1B }}" }
+        ]
+
     steps:
       - name: Checkout do Repositório
         uses: actions/checkout@v4
@@ -26,9 +33,18 @@ jobs:
       - name: FE - Copiar arquivos e Deploy (Usando SSH com rsync)
         uses: easingthemes/ssh-deploy@main
         with:
-          SSH_PRIVATE_KEY: ${{ secrets.EC2_SSH_KEY }}
-          REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          REMOTE_HOST: ${{ matrix.host.remote_host }}
           REMOTE_USER: ${{ secrets.REMOTE_USER }}
           TARGET: /home/${{ secrets.REMOTE_USER }}/frontend
           ARGS: "-rltgoDzvO --delete" 
-          SOURCE: "dist/" 
+          SOURCE: "dist/"
+
+      - name: FE - Iniciar aplicação
+        uses: appleboy/ssh-action@v0.1.7
+        with:
+          host: ${{ matrix.host.remote_host }}
+          username: ${{ secrets.REMOTE_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            docker compose up -d
