@@ -1,109 +1,122 @@
 .servicoSecao {
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    margin-top: 40px;
-    padding: 80px 40px;
-    background: linear-gradient(0deg, var(--BRANCO) 0%, #FFBDCE 50%, var(--BRANCO) 100%);
-    text-align: center;
-    position: relative;
+	background: linear-gradient(0deg, var(--BRANCO) 0%, #FFBDCE 50%, var(--BRANCO) 100%);
+	text-align: center;
+	position: relative;
 }
 
 .carouselContainer {
-    width: 90%;
-    max-width: 1200px;
-    margin: 0 auto;
+	max-width: 1400px;
+	margin: 0 auto;
+	height: 700px; 
+    padding: 10px;
+    display: flex;
+    align-items: flex-start; 
 }
 
 .swiper {
-    padding-bottom: 40px;
+    padding: 20px 0 40px 0;
 }
 
 .serviceCard {
-    background-color: var(--BRANCO, #e6cce6);
-    border-radius: 20px;
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-    text-align: left;
-    margin: 20px auto;
-    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
-    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    border: 2px solid transparent;
-    box-shadow: 5px 5px 10px 0 #AAA;
-    margin-top: 30px;
-    width: 260px;
-    padding: 20px;
-    align-items: center;
-    box-sizing: border-box;
+	background-color: var(--BRANCO);
+	border-radius: 20px;
+	overflow: hidden;
+	display: flex;
+	flex-direction: column;
+	height: 520px; 
+	text-align: left;
+	margin: 0 25px;
+	box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+	transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+	border: 2px solid transparent;
+	box-shadow: 5px 5px 10px 0 #AAA;
+	margin-top: 0px;
+    position: relative;
+    justify-content: space-between;
 }
 
 .serviceCard:hover {
-    transform: translateY(-10px) scale(1.02);
+    transform: translateY(-15px) scale(1.02);
 }
 
 .serviceImagePlaceholder {
-    width: 100%;
-    height: 110px;
-    background: linear-gradient(135deg, var(--ROSA-LOGO, #e6cce6) 0%, var(--DOURADO, #e0e0e0) 100%);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    position: relative;
-    border-radius: 4px;
-    margin-bottom: 16px;
+	width: 100%;
+	height: 180px;
+	min-height: 180px;
+	max-height: 180px;
+	background: linear-gradient(135deg, var(--ROSA-LOGO) 0%, var(--DOURADO) 100%);
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	position: relative;
+	flex-shrink: 0;
+	flex-grow: 0;  
 }
 
 .placeholderX {
-    font-size: 32px;
-    color: var(--BRANCO, #fff);
-    font-weight: 300;
-    text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.2);
-    z-index: 2;
+	font-size: 3rem;
+	color: var(--BRANCO);
+	font-weight: 300;
+	text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.2);
+	z-index: 2;
 }
 
 .serviceCategory {
-    font-size: 0.95rem;
-    color: var(--ROSA-LOGO, #7c4d9b);
-    margin-bottom: 4px;
-    font-weight: bold;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    background: linear-gradient(90deg, var(--ROSA-LOGO, #7c4d9b), var(--DOURADO, #e0e0e0));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+	font-size: 0.75rem;
+	color: var(--ROSA-LOGO);
+	font-weight: 600;
+	padding: 20px 20px 8px;
+	text-transform: uppercase;
+	letter-spacing: 1px;
+	background: linear-gradient(90deg, var(--ROSA-LOGO), var(--DOURADO));
+	-webkit-background-clip: text;
+	-webkit-text-fill-color: transparent;
+	background-clip: text;
 }
 
 .serviceTitle {
-    font-size: 1.2rem;
-    color: var(--PRETO, #9b59b6);
-    margin-bottom: 8px;
-    font-weight: bold;
-    padding: 0 10px;
-    margin-top: 8px;
-    line-height: 1.2;
+	font-size: 1.5rem;
+	font-weight: 700;
+	color: var(--PRETO);
+	padding: 0 20px;
+	margin-top: 8px;
+	margin-bottom: 15px;
+	line-height: 1.2;
 }
 
 .serviceDescription {
-    font-size: 1.1rem;
-    color: var(--CINZA, #000);
-    margin-bottom: 18px;
-    text-align: left;
-    width: 100%;
-    padding: 0 10px 10px;
-    line-height: 1.6;
-    flex-grow: 1;
+	font-size: 0.9rem;
+	color: var(--CINZA);
+	padding: 0 20px 20px;
+	line-height: 1.6;
+	flex-grow: 1;
+	display: flex;
+	align-items: flex-start;
+}
+
+.cardBottom {
     display: flex;
-    align-items: flex-start;
+    justify-content: center;
+    align-items: center;
+    height: 80px;      /* altura fixa */
+    min-height: 80px;  /* garante mínimo */
+    max-height: 80px;  /* garante máximo */
+    flex-shrink: 0;    /* não diminui */
+    flex-grow: 0;      /* não aumenta */
+}
+
+.cardBottom :global(.botaoSecundario) {
+    padding: 18px 48px;
+    font-size: 1.35rem;
+    border-radius: 12px;
 }
 
 .editarBtn {
     background: none;
     border: 2px solid #9b59b6;
     color: #9b59b6;
-    padding: 6px 24px;
-    border-radius: 4px;
+    padding: 10px 32px;
+    border-radius: 6px;
     font-size: 1.1rem;
     cursor: pointer;
     display: flex;
@@ -111,9 +124,16 @@
     gap: 8px;
     font-weight: bold;
     transition: background 0.2s;
-    margin-top: 16px;
+    margin-top: auto;
+    margin-bottom: 30px;
 }
 
 .editarBtn:hover {
     background: #f3e6f7;
+}
+
+.editarCadastro {
+    padding: 18px 48px !important;
+    font-size: 1.35rem !important;
+    border-radius: 12px !important;
 }

@@ -30,7 +30,7 @@ export default function CadastroServico() {
     return (
         <>
             <NavbarLogado />
-            <div style={{ margin: "32px 0 0 32px" }}>
+            <div style={{ margin: "20px 10px 3px 75px" }}>
                 <BotaoPrincipal
                     onClick={handleNovoServico}
                 >
