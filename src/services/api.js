@@ -1,16 +1,25 @@
 import axios from 'axios';
 
+// Criação da instância do Axios
 const api = axios.create({
   baseURL: 'http://localhost:8080',
-  withCredentials: true,
+  withCredentials: true, // só necessário se backend usar cookies de sessão
   headers: {
     'Content-Type': 'application/json',
   },
 });
 
-// Interceptor para adicionar headers de autenticação se necessário
+// Interceptor para adicionar o token JWT automaticamente
 api.interceptors.request.use(
   config => {
+    // Pega token do localStorage
+    const userInfo = JSON.parse(localStorage.getItem('userInfo'));
+    const token = userInfo?.token;
+
+    if (token) {
+      config.headers['Authorization'] = `Bearer ${token}`;
+    }
+
     // Log para debug
     console.log('Request config:', {
       url: config.url,
@@ -19,27 +28,20 @@ api.interceptors.request.use(
       data: config.data,
       withCredentials: config.withCredentials
     });
-    
-    // Verificar se há cookies de autenticação
-    const cookies = document.cookie;
-    console.log('Cookies disponíveis:', cookies);
-    
+
     return config;
   },
-  error => {
-    return Promise.reject(error);
-  }
+  error => Promise.reject(error)
 );
 
-// Interceptor para redirecionamentos
+// Interceptor para tratar respostas
 api.interceptors.response.use(
   response => response,
   error => {
     if (error.response?.status === 401) {
-      // Verifica se já está na página de login para evitar loop
+      // Evita loop de redirect
       if (window.location.pathname !== '/login' && !window.location.href.includes('/login')) {
         console.log('Sessão expirada, redirecionando para login...');
-        // Usar setTimeout para evitar problemas de timing
         setTimeout(() => {
           window.location.href = '/login?error=session_expired';
         }, 100);
@@ -52,16 +54,15 @@ api.interceptors.response.use(
 
 // Função para verificar se o usuário está autenticado
 export const isAuthenticated = () => {
-  const cookies = document.cookie;
-  return cookies.includes('AUTH_TOKEN') || cookies.includes('JSESSIONID') || cookies.includes('JSESSIONID=');
+  const userInfo = JSON.parse(localStorage.getItem('userInfo'));
+  return !!userInfo?.token;
 };
 
-// Função para obter informações de debug sobre a autenticação
+// Função para debug de autenticação
 export const getAuthDebugInfo = () => {
   return {
     cookies: document.cookie,
-    hasAuthToken: document.cookie.includes('AUTH_TOKEN'),
-    hasJSessionId: document.cookie.includes('JSESSIONID'),
+    localStorage: localStorage.getItem('userInfo'),
     userAgent: navigator.userAgent,
     url: window.location.href
   };
