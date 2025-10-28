@@ -15,11 +15,11 @@ export default function AuthLoading() {
         // 2. Redireciona conforme a role
         switch(role) {
           case 'OWNER':
-          case 'ADMIN':
+          case 'Administrador':
             navigate('/admin/dashboard');
             break;
           case 'FUNC':
-          case 'EMPLOYEE':
+          case 'Funcionário':
             navigate('/admin/dashboard');
             break;
           case 'Cliente':

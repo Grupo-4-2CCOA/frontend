@@ -38,7 +38,7 @@ function SuccessPopup({ show, onClose }) {
 }
 
 export default function AdicionarInformacoes() {
-  const { userInfo } = useAuth('USER');
+  const { userInfo } = useAuth('Cliente');
   const [formData, setFormData] = useState({
     cpf: '',
     telefone: '',
