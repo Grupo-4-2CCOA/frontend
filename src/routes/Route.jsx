@@ -1,26 +1,28 @@
 import { Routes, Route  } from "react-router";
 import Home from "../pages/Home";
-import CadastroPage from "../pages/cadastro"; 
 import LoginPage from "../pages/login";
 import AgendarCliente from "../pages/agendamentoCliente";
+import AgendarFuncionario from "../pages/agendamentoFuncionario";
 import AuthLoading from "../pages/AuthLogin";
 import AdicionarInformacoes from "../pages/AdicionarInformacoes";
 import Unauthorized from "../pages/Unauthorized";
 import SystemDashboard from "../pages/SystemDashboard";
 import CadastroServico from "../pages/CadastroServico";
+import SellsDashboard from "../pages/SellsDashboard";
 
 export default function AppRoutes(){
     return(
         <Routes>
             <Route path="/" element={<Home/>}></Route>
             <Route path="/auth-loading" element={<AuthLoading />} />
-            <Route path="/cadastro" element={<CadastroPage/>}></Route>
             <Route path="/login" element={<LoginPage/>}></Route>
             <Route path="/agendamento" element={<AgendarCliente/>}></Route>
+            <Route path="/agendamentoFunc" element={<AgendarFuncionario/>}></Route>
             <Route path="/informacoes" element={<AdicionarInformacoes/>}></Route>
             <Route path="/unauthorized" element={<Unauthorized/>}></Route>
             <Route path="/system-dashboard" element={<SystemDashboard/>}></Route>
             <Route path="/cadastro-servico" element={<CadastroServico/>}></Route>
+            <Route path="/sells-dashboard" element={<SellsDashboard/>}></Route>
         </Routes>
     )
 }

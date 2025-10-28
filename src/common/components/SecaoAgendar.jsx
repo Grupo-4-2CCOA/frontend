@@ -24,6 +24,7 @@ export default function SecaoAgendar({ agendamentos, showPopup, onEdit, onFeedba
             <div className={styles.cardHeader}>
               <div>
                 <p className={styles.date}>{agendamento.data}</p>
+                <p className={styles.clientName}>{agendamento.cliente}</p>
                 <p className={styles.service}>{agendamento.servico}</p>
               </div>
 

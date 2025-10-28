@@ -43,7 +43,11 @@ export function useAuth(requiredRole) {
           navigate('/unauthorized');
         }
       } catch (error) {
-        navigate('/login');
+        console.error('Erro na autenticação:', error);
+        // Só redireciona se não estiver já na página de login
+        if (window.location.pathname !== '/login') {
+          navigate('/login');
+        }
       }
     };
 
