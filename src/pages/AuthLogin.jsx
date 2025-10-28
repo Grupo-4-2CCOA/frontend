@@ -22,7 +22,7 @@ export default function AuthLoading() {
           case 'EMPLOYEE':
             navigate('/admin/dashboard');
             break;
-          case 'USER':
+          case 'Cliente':
             navigate('/agendamento');
             break;
           default:
