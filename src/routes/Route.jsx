@@ -7,6 +7,7 @@ import AuthLoading from "../pages/AuthLogin";
 import AdicionarInformacoes from "../pages/AdicionarInformacoes";
 import Unauthorized from "../pages/Unauthorized";
 import SystemDashboard from "../pages/SystemDashboard";
+import CadastroServico from "../pages/CadastroServico";
 import SellsDashboard from "../pages/SellsDashboard";
 
 export default function AppRoutes(){
@@ -20,6 +21,7 @@ export default function AppRoutes(){
             <Route path="/informacoes" element={<AdicionarInformacoes/>}></Route>
             <Route path="/unauthorized" element={<Unauthorized/>}></Route>
             <Route path="/system-dashboard" element={<SystemDashboard/>}></Route>
+            <Route path="/cadastro-servico" element={<CadastroServico/>}></Route>
             <Route path="/sells-dashboard" element={<SellsDashboard/>}></Route>
         </Routes>
     )

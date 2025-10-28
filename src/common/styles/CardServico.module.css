@@ -1,0 +1,60 @@
+.card {
+    background: #e6cce6;
+    width: 260px;
+    padding: 20px;
+    margin: 20px;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.imagem {
+    background: #e0e0e0;
+    width: 180px;
+    height: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 16px;
+    border-radius: 4px;
+}
+.placeholder {
+    width: 60px;
+    height: 60px;
+    border: 2px solid #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #d3d3d3;
+}
+.x {
+    font-size: 32px;
+    color: #fff;
+}
+.descricao {
+    font-size: 1.1rem;
+    color: #000;
+    margin-bottom: 18px;
+    text-align: left;
+    width: 100%;
+}
+.editarBtn {
+    background: none;
+    border: 2px solid #9b59b6;
+    color: #9b59b6;
+    padding: 6px 24px;
+    border-radius: 4px;
+    font-size: 1.1rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: bold;
+    transition: background 0.2s;
+}
+.editarBtn:hover {
+    background: #f3e6f7;
+}
+.seta {
+    font-size: 1.2rem;
+}
