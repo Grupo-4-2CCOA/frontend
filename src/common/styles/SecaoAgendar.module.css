@@ -171,3 +171,77 @@
 .emptyText {
   color: #6b7280; /* gray-500 */
 }
+
+.statusAtivo {
+  background: #e7f6ec;
+  color: #1b8f3a;
+  border-radius: 0.5rem;
+  font-weight: bold;
+  padding: 0.25rem 0.75rem;
+  margin-top:0.5rem;
+  display: inline-block;
+}
+.statusCancelado {
+  background: #ffeaea;
+  color: #e53935;
+  border-radius: 0.5rem;
+  font-weight: bold;
+  padding: 0.25rem 0.75rem;
+  margin-top:0.5rem;
+  display: inline-block;
+}
+.statusCompleto {
+  background: #e3ecff;
+  color: #1161d8;
+  border-radius: 0.5rem;
+  font-weight: bold;
+  padding: 0.25rem 0.75rem;
+  margin-top:0.5rem;
+  display: inline-block;
+}
+
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+.pageButton {
+  background: var(--ROSA-LOGO);
+  color: #fff;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 9999px;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.1s;
+}
+.pageButton:hover {
+  background: #db034b;
+  transform: translateY(-1px);
+}
+.pageButton:disabled {
+  background: #f2b3c4;
+  cursor: not-allowed;
+  transform: none;
+}
+.pageIndicator {
+  color: #1f2937;
+  font-weight: 500;
+}
+
+.servicesChips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+  margin-top: 0.5rem;
+}
+.serviceChip {
+  background: #fff1f5; /* tom claro relacionado ao rosa */
+  color: var(--ROSA-LOGO);
+  border: 1px solid var(--ROSA-LOGO);
+  border-radius: 9999px;
+  padding: 0.25rem 0.6rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
