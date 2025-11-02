@@ -35,7 +35,11 @@
 }
 
 .popupForm input[type="text"],
-.popupForm input[type="number"] {
+.popupForm input[type="number"],
+.popupForm input[type="file"],
+.popupForm textarea,
+.popupForm select,
+.popupForm option{
     margin-left: 12px;
     border: 2px solid #f6b6c7;
     border-radius: 4px;

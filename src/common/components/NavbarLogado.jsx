@@ -24,7 +24,7 @@ export default function NavbarLogado(props) {
               <Link to="/cadastro-servico">Serviços</Link>
               <Link to="/agendamentoFunc">Agendamentos</Link>
               <Link to="#">Feedbacks</Link>
-              <Link>Dashboards</Link>
+              <Link to="/system-dashboard">Dashboards</Link>
             </ul>
           </div>
         )
