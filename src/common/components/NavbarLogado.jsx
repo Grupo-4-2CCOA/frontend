@@ -21,8 +21,8 @@ export default function NavbarLogado(props) {
         props.isAdmin && (
           <div className={styles.navbarLinks}>
             <ul>
-              <Link to="#">Serviços</Link>
-              <Link to="#">Agendamentos</Link>
+              <Link to="/cadastro-servico">Serviços</Link>
+              <Link to="/agendamentoFunc">Agendamentos</Link>
               <Link to="#">Feedbacks</Link>
               <Link>Dashboards</Link>
             </ul>

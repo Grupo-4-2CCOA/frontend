@@ -238,18 +238,12 @@ export default function AdicionarInformacoes() {
         // Campos obrigatórios do backend
         name: clientData?.name || userInfo?.name || '',
         email: userInfo?.email || '',
-        password: 'dummy123', // Senha temporária para validação
 
         // Campos que estamos atualizando
         cpf: formData.cpf.replace(/\D/g, ''), // Remove formatação
         phone: formData.telefone.replace(/\D/g, ''), // Remove formatação e usa 'phone'
-        cep: formData.cep.replace(/\D/g, ''), // Remove hífen, apenas números
-        endereco: formData.endereco,
-        cidade: formData.cidade,
-        estado: formData.estado,
-
-        // Campo de timestamp
-        updated_at: new Date().toISOString(),
+        cep: formData.cep.replace(/\D/g, ''),
+		role: 2
       };
 
       console.log('Enviando dados:', dadosAtualizar);
