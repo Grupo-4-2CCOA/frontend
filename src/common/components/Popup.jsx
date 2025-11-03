@@ -16,7 +16,7 @@ export default function Popup(props) {
                         <div className={styles.optionalButtons}>
                             <BotaoPrincipal
                                 onClick={props.onClick}
-                                children={"Cancelar"}
+                                children={"Cancelar Agendamento"}
                             />
                             <BotaoSecundario
                                 onClick={()=>props.setShowPopup(false)}

@@ -1,27 +1,94 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import NavbarLogado from "../common/components/NavbarLogado";
 import SecaoAgendar from "../common/components/SecaoAgendar";
-import Agendar from "../common/components/AgendarFunc"
+import Agendar from "../common/components/AgendarFunc";
 import { useAuth } from '../hooks/useAuth';
 import Popup from '../common/components/Popup';
+import api from '../services/api';
 
 export default function AgendamentoFuncionario() {
-//   const { userInfo } = useAuth('USER');
   const [showPopup, setShowPopup] = useState(false);
   const [agendamentoParaDeletar, setAgendamentoParaDeletar] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [agendamentos, setAgendamentos] = useState([
-    { id: 1, data: '12 de março de 2025', servico: 'Manicure' },
-    { id: 2, data: '13 de março de 2025', servico: 'Corte de Cabelo' },
-    { id: 3, data: '14 de março de 2025', servico: 'Pedicure' },
-  ]);
+  const [agendamentos, setAgendamentos] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
 
-//   if (!userInfo) return <div>Carregando...</div>;
+  const fetchAgendamentos = async (pageNum) => {
+    try {
+      setLoading(true);
+      const response = await api.get(`/agendamentos?page=${pageNum}`);
+      const data = response.data;
+      
+      console.log('API Response:', data);
 
-  const handleDelete = (id) => {
-    setAgendamentos(agendamentos.filter(item => item.id !== id));
-    setAgendamentoParaDeletar(null);
-    setShowPopup(false);
+      // Handle paginated response
+      const content = data?.content || [];
+      setTotalPages(data?.totalPages || 0);
+
+      const formattedAppointments = content.map(apt => {
+		const dateArr = apt?.appointmentDatetime;
+		let dataPt = '';
+		
+		try {
+			if (Array.isArray(dateArr) && dateArr.length >= 5) {
+			const d = new Date(dateArr[0], dateArr[1] - 1, dateArr[2], dateArr[3], dateArr[4]);
+			
+			const day = d.getDate();
+			const month = d.toLocaleString('pt-BR', { month: 'long' });
+			const year = d.getFullYear();
+			const time = d.toLocaleTimeString('pt-BR', { 
+				hour: '2-digit', 
+				minute: '2-digit' 
+			});
+			
+			dataPt = `${day} de ${month} de ${year} às ${time}`;
+			}
+		} catch (error) {
+			console.error('Error formatting date:', error, dateArr);
+		}
+
+        return {
+          id: apt?.id,
+          data: dataPt || '-',
+          servico: apt.items?.map(item => item.service?.name).join(', ') || 'Sem serviços',
+          cliente: apt.client?.name || 'Cliente não identificado',
+          status: apt?.status || 'PENDING'
+        };
+      });
+
+      setAgendamentos(formattedAppointments);
+    } catch (error) {
+      console.error('Erro ao buscar agendamentos:', error);
+      if (error.response?.status === 401) {
+        alert('Sessão expirada. Por favor, faça login novamente.');
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchAgendamentos(page);
+  }, [page]);
+
+  const handleShowDeletePopup = (id) => {
+    setAgendamentoParaDeletar(id);
+    setShowPopup(true);
+  };
+
+  const handleDelete = async (id) => {
+    try {
+      await api.delete(`/agendamentos/${id}`);
+      await fetchAgendamentos(page); // Refresh current page
+      setAgendamentoParaDeletar(null);
+      setShowPopup(false);
+      alert('Agendamento cancelado com sucesso!');
+    } catch (error) {
+      console.error('Erro ao cancelar agendamento:', error);
+      alert('Erro ao cancelar agendamento');
+    }
   };
 
   const handleConfirmDelete = () => {
@@ -31,57 +98,47 @@ export default function AgendamentoFuncionario() {
   };
 
   const handleEdit = (id) => {
-    alert(`Editar agendamento ${id}`);
+    // Implement edit functionality if needed
+    console.log('Editar agendamento:', id);
   };
 
   const handleFeedback = (id) => {
-    alert(`Dar feedback para agendamento ${id}`);
+    // Implement feedback functionality if needed
+    console.log('Feedback para agendamento:', id);
   };
 
-  const handleShowDeletePopup = (id) => {
-    setAgendamentoParaDeletar(id);
-    setShowPopup(true);
-  };
-
-  // Função modificada para abrir o modal
   const handleNovoAgendamento = () => {
     setIsModalOpen(true);
   };
 
-  // Nova função para confirmar o agendamento
-  const handleConfirmarAgendamento = (novoAgendamento) => {
-    // Formatar a data para o padrão brasileiro
-    const dataFormatada = new Date(novoAgendamento.date).toLocaleDateString('pt-BR', {
-      day: 'numeric',
-      month: 'long',
-      year: 'numeric'
-    });
+  const onPrevPage = () => setPage((p) => Math.max(0, p - 1));
+  const onNextPage = () => setPage((p) => (p + 1 < totalPages ? p + 1 : p));
 
-    // Criar o novo agendamento
-    const agendamentoFormatado = {
-      id: agendamentos.length + 1,
-      data: dataFormatada,
-      cliente: novoAgendamento.client,
-      servico: novoAgendamento.services.map(s => s.name).join(', ')
-    };
-
-    // Adicionar ao estado
-    setAgendamentos([...agendamentos, agendamentoFormatado]);
-
-    alert('Agendamento realizado com sucesso!');
+  const handleConfirmarAgendamento = async (novoAgendamento) => {
+    try {
+      await fetchAgendamentos(page); // Refresh current page
+      setIsModalOpen(false);
+    } catch (error) {
+      console.error('Erro ao atualizar lista de agendamentos:', error);
+      alert('Erro ao atualizar lista de agendamentos');
+    }
   };
+
+  if (loading) {
+    return <div>Carregando agendamentos...</div>;
+  }
 
   return (
     <>
-        {
-          showPopup && <Popup
-            hasButtons={true}
-            onClick={handleConfirmDelete}
-            title={"Atenção!"}
-            text={"Tem certeza que deseja cancelar o seu agendamento?\nVocê não conseguirá reverter esta ação."}
-            setShowPopup={setShowPopup}
-          />
-        }
+      {showPopup && (
+        <Popup
+          hasButtons={true}
+          onClick={handleConfirmDelete}
+          title="Atenção!"
+          text="Tem certeza que deseja cancelar o agendamento? Você não conseguirá reverter esta ação."
+          setShowPopup={setShowPopup}
+        />
+      )}
       <NavbarLogado isAdmin={true}/>
       <SecaoAgendar
         agendamentos={agendamentos}
@@ -90,9 +147,12 @@ export default function AgendamentoFuncionario() {
         onDelete={handleDelete}
         onFeedback={handleFeedback}
         onNovoAgendamento={handleNovoAgendamento}
+        page={page}
+        totalPages={totalPages}
+        onPrevPage={onPrevPage}
+        onNextPage={onNextPage}
       />
 
-      {/* Modal de agendamento */}
       <Agendar
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
