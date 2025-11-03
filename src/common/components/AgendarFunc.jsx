@@ -10,8 +10,10 @@ const AgendarFunc = ({ isOpen, onClose, onConfirm }) => {
   const [services, setServices] = useState([]);
   const [clients, setClients] = useState([]);
   const [selectedClient, setSelectedClient] = useState(null);
+  const [selectedClientId, setSelectedClientId] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const [userInfo, setUserInfo] = useState(null);
 
   const timeSlots = ['08:00', '09:00', '10:00', '11:00', '14:00', '15:00', '16:00', '17:00'];
 
@@ -21,24 +23,39 @@ const AgendarFunc = ({ isOpen, onClose, onConfirm }) => {
     const fetchData = async () => {
       setLoading(true);
       try {
+        // fetch current authenticated user
+        const userResponse = await api.get('/auth/user-info');
+        setUserInfo(userResponse.data);
+
         // Buscar serviços
         const servicesResponse = await api.get('/servicos');
         setServices(servicesResponse.data);
 
         // Buscar clientes
         const clientsResponse = await api.get('/clientes');
-        const clientsList = clientsResponse.data;
-        setClients(clientsList);
-        
-        // Selecionar o primeiro cliente automaticamente
-        if (clientsList.length > 0) {
-          setSelectedClient(clientsList[0]);
+        const rawClients = clientsResponse.data || [];
+
+        // filtrar clientes conforme role (ex: "Funcionário" ou outro)
+        const filteredClients = rawClients.filter(c => {
+          const roleName = c?.role?.name || c?.role;
+          if (!roleName) return false;
+          const normalized = String(roleName)
+            .toLowerCase()
+            .normalize('NFD')
+            .replace(/\p{Diacritic}/gu, '');
+          return normalized === 'cliente';
+        });
+
+        setClients(filteredClients);
+
+        if (filteredClients.length > 0) {
+          setSelectedClient(filteredClients[0]);
+          setSelectedClientId(filteredClients[0].id);
+        } else {
+          setSelectedClient(null);
+          setSelectedClientId('');
         }
 
-        console.log('Dados carregados:', {
-          services: servicesResponse.data,
-          clients: clientsList
-        });
       } catch (error) {
         console.error('Erro ao buscar dados:', error);
         if (error.response?.status === 401) {
@@ -51,6 +68,7 @@ const AgendarFunc = ({ isOpen, onClose, onConfirm }) => {
         setLoading(false);
       }
     };
+
     fetchData();
   }, [isOpen, navigate]);
 
@@ -74,6 +92,26 @@ const AgendarFunc = ({ isOpen, onClose, onConfirm }) => {
       return;
     }
 
+	let user = userInfo;
+    if (!user || !user.id) {
+      try {
+        const resp = await api.get('/auth/user-info');
+        user = resp.data;
+        setUserInfo(user || null);
+      } catch (err) {
+        console.error('Não foi possível obter user-info no submit:', err);
+        alert('Usuário não autenticado. Por favor faça login novamente.');
+        navigate('/login');
+        return;
+      }
+    }
+
+	if (!user?.id) {
+      alert('Usuário não identificado. Faça login novamente.');
+      navigate('/login');
+      return;
+    }
+
     const appointmentDatetime = `${selectedDate}T${selectedTime}:00`;
 
     const items = selectedServices.map(service => ({
@@ -83,8 +121,8 @@ const AgendarFunc = ({ isOpen, onClose, onConfirm }) => {
     }));
 
     const appointment = {
-      client: selectedClient.id,
-      employee: JSON.parse(localStorage.getItem('userInfo')).id, // Current logged in employee
+      client: parseInt(selectedClientId, 10),
+      employee: user.id,
       appointmentDatetime: appointmentDatetime,
       status: 'ACTIVE',
       duration: calculateDuration(),
@@ -97,15 +135,15 @@ const AgendarFunc = ({ isOpen, onClose, onConfirm }) => {
     try {
       const response = await api.post('/agendamentos', appointment);
       alert('Agendamento realizado com sucesso!');
-      
+      const clientObj = clients.find(c => c.id === parseInt(selectedClientId, 10)) || selectedClient;
       const formattedData = {
         id: response.data.id,
         date: selectedDate,
         time: selectedTime,
-        client: selectedClient.name,
+        client: clientObj?.name || 'Cliente',
         services: selectedServices,
         total: calculateTotal(),
-        appointmentDatetime: appointmentDatetime
+        appointmentDatetime
       };
       
       onConfirm(formattedData);
@@ -113,6 +151,7 @@ const AgendarFunc = ({ isOpen, onClose, onConfirm }) => {
       setSelectedTime('');
       setSelectedServices([]);
       setSelectedClient(null);
+      setSelectedClientId('');
       onClose();
     } catch (error) {
       console.error('Erro ao criar agendamento:', error);
@@ -148,9 +187,11 @@ const AgendarFunc = ({ isOpen, onClose, onConfirm }) => {
         <div className={styles["form-group"]}>
           <label>Cliente:</label>
           <select
-            value={selectedClient?.id || ''}
+            value={selectedClientId || ''}
             onChange={e => {
-              const client = clients.find(c => c.id === parseInt(e.target.value));
+              const id = parseInt(e.target.value, 10);
+              setSelectedClientId(id);
+              const client = clients.find(c => c.id === id) || null;
               setSelectedClient(client);
             }}
             className={styles["time-select"]}

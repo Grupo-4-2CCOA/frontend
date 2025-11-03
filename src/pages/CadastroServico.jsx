@@ -7,24 +7,29 @@ import BotaoPrincipal from "../common/components/BotaoPrincipal";
 export default function CadastroServico() {
     const [showPopup, setShowPopup] = useState(false);
     const [popupMode, setPopupMode] = useState("novo"); // "novo" ou "editar"
-	const [refreshKey, setRefreshKey] = useState(0);
+    const [servicoParaEditar, setServicoParaEditar] = useState(null);
+    const [refreshKey, setRefreshKey] = useState(0);
 
-    const handleEditar = (idx) => {
+    const handleEditar = (servico) => {
         setPopupMode("editar");
+        setServicoParaEditar(servico);
         setShowPopup(true);
     };
 
     const handleNovoServico = () => {
         setPopupMode("novo");
+        setServicoParaEditar(null);
         setShowPopup(true);
     };
 
     const handleCancel = () => {
         setShowPopup(false);
+        setServicoParaEditar(null);
     };
 
-	const handleConfirm = () => {
+    const handleConfirm = () => {
         setShowPopup(false);
+        setServicoParaEditar(null);
         setRefreshKey(prev => prev + 1);
     };
 
@@ -40,11 +45,12 @@ export default function CadastroServico() {
             </div>
             <SecaoServicosCadastro onEditar={handleEditar} refreshKey={refreshKey} />
             {showPopup && (
-				<NovoServicoPopup 
-					onCancel={handleCancel}
-					onConfirm={handleConfirm}
-					titulo="Novo Serviço"
-				/>
+                <NovoServicoPopup 
+                    onCancel={handleCancel}
+                    onConfirm={handleConfirm}
+                    titulo={popupMode === "editar" ? "Editar serviço" : "Novo Serviço"}
+                    servicoParaEditar={servicoParaEditar}
+                />
             )}
         </>
     );

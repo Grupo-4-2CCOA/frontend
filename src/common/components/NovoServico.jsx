@@ -4,9 +4,12 @@ import BotaoPrincipal from "./BotaoPrincipal";
 import api from '../../services/api';
 import { useAuth } from '../../hooks/useAuth';
 
-export default function NovoServicoPopup({ onCancel, onConfirm, titulo }) {
+export default function NovoServicoPopup({ onCancel, onConfirm, titulo, servicoParaEditar }) {
+	const BUCKET_URL = 'https://beauty-barreto-source.s3.us-east-1.amazonaws.com'; // added
     const { userInfo } = useAuth();
     const [imagem, setImagem] = useState(null);
+	const [previewUrl, setPreviewUrl] = useState(null); 
+	const [existingImageUrl, setExistingImageUrl] = useState(null);
     const [descricao, setDescricao] = useState("");
     const [preco, setPreco] = useState("");
     const [duracao, setDuracao] = useState("");
@@ -16,6 +19,55 @@ export default function NovoServicoPopup({ onCancel, onConfirm, titulo }) {
     const [loading, setLoading] = useState(false);
     const [precoDesconto, setPrecoDesconto] = useState("");
     const [descontoHabilitado, setDescontoHabilitado] = useState(false);
+
+    useEffect(() => {
+        if (servicoParaEditar) {
+            setNome(servicoParaEditar.name || "");
+            setDescricao(servicoParaEditar.description || "");
+            setPreco(servicoParaEditar.basePrice ? String(servicoParaEditar.basePrice) : "");
+            setDuracao(servicoParaEditar.baseDuration ? String(servicoParaEditar.baseDuration) : "");
+            setCategoriaId(servicoParaEditar.category?.id ? String(servicoParaEditar.category.id) : "");
+            setImagem(null); // Não pré-carrega imagem
+			setPreviewUrl(null);
+
+			const imgName = servicoParaEditar.image || servicoParaEditar.photo || servicoParaEditar.imageName;
+            if (imgName) {
+                setExistingImageUrl(`${BUCKET_URL}/${encodeURIComponent(imgName)}`);
+            } else {
+                setExistingImageUrl(null);
+            }
+        } else {
+            setNome("");
+            setDescricao("");
+            setPreco("");
+            setDuracao("");
+            setCategoriaId("");
+            setImagem(null);
+            setPreviewUrl(null);
+            setExistingImageUrl(null);
+        }
+    }, [servicoParaEditar]);
+
+	useEffect(() => {
+        return () => {
+            if (previewUrl) URL.revokeObjectURL(previewUrl);
+        };
+    }, [previewUrl]);
+
+	const handleFileChange = (e) => {
+        const file = e.target.files?.[0] || null;
+        if (previewUrl) {
+            URL.revokeObjectURL(previewUrl);
+            setPreviewUrl(null);
+        }
+        if (file) {
+            setImagem(file);
+            setPreviewUrl(URL.createObjectURL(file));
+            // keep existingImageUrl for reference, preview will show new file
+        } else {
+            setImagem(null);
+        }
+    };
 
     useEffect(() => {
         const fetchCategorias = async () => {
@@ -53,22 +105,49 @@ export default function NovoServicoPopup({ onCancel, onConfirm, titulo }) {
                 type: 'application/json' 
             }));
 
+            // Se usuário escolheu novo arquivo, usa-o
             if (imagem) {
                 formData.append('image', imagem);
+            } else if (servicoParaEditar) {
+                // Se for edição e não houve novo arquivo, traz a imagem existente do bucket
+                const imgName = servicoParaEditar.image || servicoParaEditar.photo || servicoParaEditar.imageName;
+                if (imgName) {
+                    try {
+                        const url = `${BUCKET_URL}/${encodeURIComponent(imgName)}`;
+                        const resp = await fetch(url);
+                        if (resp.ok) {
+                            const blob = await resp.blob();
+                            // cria um File a partir do blob (backend recebe como arquivo)
+                            const file = new File([blob], decodeURIComponent(imgName), { type: blob.type });
+                            formData.append('image', file);
+                        } else {
+                            console.warn('Não foi possível baixar imagem existente:', resp.status, url);
+                        }
+                    } catch (fetchErr) {
+                        console.error('Erro ao baixar imagem existente:', fetchErr);
+                    }
+                }
             }
 
-            await api.post('/servicos', formData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                }
-            });
+            if (servicoParaEditar && servicoParaEditar.id) {
+                // Editar serviço existente
+                await api.put(`/servicos/${servicoParaEditar.id}`, formData, {
+                    headers: { 'Content-Type': 'multipart/form-data' }
+                });
+                alert('Serviço editado com sucesso!');
+            } else {
+                // Criar novo serviço
+                await api.post('/servicos', formData, {
+                    headers: { 'Content-Type': 'multipart/form-data' }
+                });
+                alert('Serviço cadastrado com sucesso!');
+            }
 
-            alert('Serviço cadastrado com sucesso!');
             onConfirm();
 
         } catch (error) {
-            console.error('Erro ao cadastrar serviço:', error);
-            const errorMessage = error.response?.data || 'Erro ao cadastrar serviço';
+            console.error('Erro ao salvar serviço:', error);
+            const errorMessage = error.response?.data || 'Erro ao salvar serviço';
             alert(errorMessage);
         } finally {
             setLoading(false);
@@ -79,7 +158,7 @@ export default function NovoServicoPopup({ onCancel, onConfirm, titulo }) {
         <div className={Styles.popupOverlay}>
             <div className={Styles.popupContainer}>
                 <h2>{titulo}</h2>
-                <div className={Styles.popupForm}>
+                <div className={Styles.popupForm}>			
                     <label>
                         Nome:
                         <input
@@ -110,7 +189,7 @@ export default function NovoServicoPopup({ onCancel, onConfirm, titulo }) {
                         <input
                             type="file"
                             accept="image/*"
-                            onChange={e => setImagem(e.target.files[0])}
+                            onChange={handleFileChange}
                         />
                     </label>
                     <label>
