@@ -27,21 +27,14 @@ const FeedbackModal = ({ isOpen, onClose, onConfirm, agendamento, userInfo }) =>
       return;
     }
 
-    // Verificar se há cookies de autenticação
-    if (!isAuthenticated()) {
-      setError('Erro: Sessão não encontrada. Faça login novamente.');
-      return;
-    }
-
     setIsLoading(true);
     setError(null);
 
     try {
       const feedback = {
-        client: userInfo.id, // ID do cliente
-        schedule: agendamento.id, // ID do agendamento
-        rating: rating, // Avaliação (1-5)
-        comment: comentario || '' // Comentário (opcional)
+		comment: comentario || '', // Comentário (opcional)
+		rating: rating, // Avaliação (1-5)
+        scheduleId: agendamento.id // ID do agendamento
       };
 
       console.log('Enviando feedback:', feedback);
@@ -51,7 +44,7 @@ const FeedbackModal = ({ isOpen, onClose, onConfirm, agendamento, userInfo }) =>
       
       // Tentar diferentes endpoints possíveis baseado no padrão do backend
       let response;
-      const endpoints = ['/feedback', '/feedbacks', '/api/feedback', '/api/feedbacks'];
+      const endpoints = ['/feedbacks'];
       
       for (let i = 0; i < endpoints.length; i++) {
         try {

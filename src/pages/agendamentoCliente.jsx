@@ -20,6 +20,7 @@ export default function AgendamentoCliente() {
   const [loading, setLoading] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [editingId, setEditingId] = useState(null);
+  const [userInfo, setUserInfo] = useState(null);
 
   useEffect(() => {
     const loadUserAndSchedules = async () => {
@@ -28,6 +29,7 @@ export default function AgendamentoCliente() {
         // Buscar usuário logado para pegar ID
         const userResp = await api.get('/auth/user-info');
         const id = userResp.data?.id;
+		setUserInfo(userResp.data);
         setClientId(id);
         if (!id) return;
         // Buscar agendamentos paginados
@@ -212,6 +214,7 @@ const fetchSchedules = async (id, pageNum) => {
         onClose={() => setShowFeedback(false)}
         onConfirm={handleFeedbackSubmit}
         agendamento={selectedAgendamento}
+		userInfo={userInfo}
       />
     </>
   );
