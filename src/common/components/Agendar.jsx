@@ -30,11 +30,24 @@ const Agendar = ({ isOpen, onClose, onConfirm }) => {
         // Buscar funcionários
         const employeesResponse = await api.get('/funcionarios');
         const employeesList = employeesResponse.data;
-        setEmployees(employeesList);
+
+		const filteredEmployees = employeesList.filter(emp => {
+          const roleName = emp?.role?.name || emp?.role;
+          if (!roleName) return false;
+          const normalized = String(roleName)
+            .toLowerCase()
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, ''); // remove acentos
+          return normalized === 'funcionario';
+        });
+
+		setEmployees(filteredEmployees);
         
         // Selecionar o primeiro funcionário automaticamente
-        if (employeesList.length > 0) {
-          setSelectedEmployee(employeesList[0]);
+        if (filteredEmployees.length > 0) {
+          setSelectedEmployee(filteredEmployees[0]);
+        } else {
+          setSelectedEmployee(null);
         }
 
         // Buscar informações do usuário logado
