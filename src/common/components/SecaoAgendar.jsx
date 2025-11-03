@@ -26,13 +26,13 @@ export default function SecaoAgendar({ agendamentos, showPopup, onEdit, onFeedba
                 <p className={styles.date}>{agendamento.data}</p>
                 <p className={styles.clientName}>{agendamento.cliente}</p>
                 <p className={styles.service}>{agendamento.servico}</p>
-                {Array.isArray(agendamento.servicos) && agendamento.servicos.length > 0 && (
+                {/* {Array.isArray(agendamento.servicos) && agendamento.servicos.length > 0 && (
                   <div className={styles.servicesChips}>
                     {agendamento.servicos.map((nome) => (
                       <span key={nome} className={styles.serviceChip}>{nome}</span>
                     ))}
                   </div>
-                )}
+                )} */}
                 {agendamento.status && (
                   <span className={
                     agendamento.status === 'ACTIVE' ? styles.statusAtivo :

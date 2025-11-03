@@ -47,42 +47,62 @@ export default function AgendamentoCliente() {
     fetchSchedules(clientId, page);
   }, [clientId, page]);
 
-  const fetchSchedules = async (id, pageNum) => {
-    try {
-      const resp = await api.get(`/agendamentos/agendamentos-por-cliente/${id}?page=${pageNum}`);
-      const data = resp.data;
-      const content = data?.content || [];
-      setTotalPages(data?.totalPages || 0);
+const fetchSchedules = async (id, pageNum) => {
+  try {
+    const resp = await api.get(`/agendamentos/agendamentos-por-cliente/${id}?page=${pageNum}`);
+    const data = resp.data;
+    const content = data?.content || [];
+    setTotalPages(data?.totalPages || 0);
 
-      const mapped = content.map((item) => {
-        const dateStr = item?.appointmentDatetime;
-        let dataPt = '';
-        try {
-          if (dateStr) {
-            const d = new Date(dateStr);
-            const dStr = d.toLocaleDateString('pt-BR', { day: 'numeric', month: 'long', year: 'numeric' });
-            const tStr = d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-            dataPt = `${dStr} às ${tStr}`;
-          }
-        } catch (_) {}
-        const nomesServicos = Array.isArray(item?.serviceNames) && item.serviceNames.length
-          ? item.serviceNames
-          : (Array.isArray(item?.services) ? item.services.map(s => s?.name).filter(Boolean) : []);
-        return {
-          id: item?.id,
-          data: dataPt || '-',
-          cliente: item?.client?.name || 'Você',
-          servico: nomesServicos.join(', '),
-          servicos: nomesServicos,
-          status: item?.status,
-          total: item?.total || 0,
-        };
-      });
-      setAgendamentos(mapped);
-    } catch (e) {
-      console.error('Erro ao buscar agendamentos paginados:', e);
-    }
-  };
+    const mapped = content.map((item) => {
+      const dt = item?.appointmentDatetime;
+      let dataPt = '';
+
+      try {
+        let d = null;
+        if (Array.isArray(dt) && dt.length >= 5) {
+          d = new Date(dt[0], dt[1] - 1, dt[2], dt[3], dt[4]);
+        } else if (dt) {
+          d = new Date(dt);
+        }
+
+        if (d && !isNaN(d.getTime())) {
+          const dStr = d.toLocaleDateString('pt-BR', {
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric'
+          });
+          const tStr = d.toLocaleTimeString('pt-BR', {
+            hour: '2-digit',
+            minute: '2-digit'
+          });
+          dataPt = `${dStr} às ${tStr}`;
+        }
+      } catch (e) {
+        console.error('Erro ao formatar data do agendamento:', e, dt);
+      }
+
+      // Extract service names from items array
+      const nomesServicos = item?.items?.map(i => i.service?.name).filter(Boolean) || [];
+      const total = item?.items?.reduce((sum, i) => sum + (i.finalPrice || 0), 0) || 0;
+
+      return {
+        id: item?.id,
+        data: dataPt || '-',
+        cliente: item?.client?.name || 'Você',
+        servico: nomesServicos.join(', '),
+        servicos: nomesServicos,
+        status: item?.status,
+        total: total,
+        items: item?.items || [] // keep original items if needed
+      };
+    });
+
+    setAgendamentos(mapped);
+  } catch (e) {
+    console.error('Erro ao buscar agendamentos paginados:', e);
+  }
+};
 
   const handleDelete = (id) => {
     setAgendamentos(agendamentos.filter(a => a.id !== id));
@@ -122,11 +142,16 @@ export default function AgendamentoCliente() {
       day: 'numeric', month: 'long', year: 'numeric'
     });
 
+    const servicosArray = Array.isArray(novoAgendamento.services)
+      ? novoAgendamento.services.map(s => s.name || s) // aceita objetos ou strings
+      : [];
+
     const agendamentoFormatado = {
       id: agendamentos.length + 1,
       data: `${dataFormatada} às ${novoAgendamento.time}`,
       cliente: 'Você',
-      servico: novoAgendamento.services.map(s => s.name).join(', '),
+      servico: servicosArray.join(', '), // string para compatibilidade
+      servicos: servicosArray,           // array com nomes dos serviços
       total: novoAgendamento.total,
       status: 'ACTIVE'
     };
