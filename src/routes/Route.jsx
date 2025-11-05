@@ -1,4 +1,4 @@
-import { Routes, Route  } from "react-router";
+import { Routes, Route  } from "react-router-dom";
 import Home from "../pages/Home";
 import LoginPage from "../pages/login";
 import AgendarCliente from "../pages/agendamentoCliente";
@@ -9,6 +9,7 @@ import Unauthorized from "../pages/Unauthorized";
 import SystemDashboard from "../pages/SystemDashboard";
 import CadastroServico from "../pages/CadastroServico";
 import SellsDashboard from "../pages/SellsDashboard";
+import FeedbackScreen from "../pages/feedbackPage";
 
 export default function AppRoutes(){
     return(
@@ -23,6 +24,7 @@ export default function AppRoutes(){
             <Route path="/system-dashboard" element={<SystemDashboard/>}></Route>
             <Route path="/cadastro-servico" element={<CadastroServico/>}></Route>
             <Route path="/sells-dashboard" element={<SellsDashboard/>}></Route>
+            <Route path="/feedback" element={<FeedbackScreen/>}></Route>
         </Routes>
     )
 }

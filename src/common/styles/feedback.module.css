@@ -1,0 +1,204 @@
+/* Styles for Feedback screen
+   This CSS module provides classes for the header, filters, action buttons
+   and feedback cards. The existing navbar and global button styles are
+   already present in the project — reuse them where appropriate.
+*/
+
+:root{
+  --pink-100: #ffd6e8;
+  --pink-200: #ffb3d1;
+  --pink-300: #ff8fb9;
+  --purple-400: #9b59b6;
+  --purple-500: #7d3ea6;
+  --purple-600: #6b2f8a;
+  --yellow-600: #d4a800;
+}
+
+.container {
+  min-height: 100vh;
+  background: var(--pink-100);
+  display: flex;
+  flex-direction: column;
+}
+
+.header {
+  background: var(--pink-300);
+  padding: 1rem 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 2px solid #ff90c7;
+  position: relative;
+}
+
+.headerInner {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.avatar {
+  width: 3rem;
+  height: 3rem;
+  background: #ff90c7;
+  border-radius: 9999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+}
+
+.brand {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--yellow-600);
+}
+
+.pageTitle {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 1.75rem;
+  font-weight: 800;
+}
+
+.userButton {
+  width: 2.5rem;
+  height: 2.5rem;
+  background: white;
+  border-radius: 9999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #000;
+}
+
+.filters {
+  padding: 1.5rem;
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.selectWrapper {
+  position: relative;
+}
+
+.select {
+  appearance: none;
+  background: var(--purple-500);
+  color: white;
+  padding: 0.625rem 1.25rem;
+  padding-right: 2.5rem;
+  border-radius: 9999px;
+  cursor: pointer;
+  transition: background .15s ease-in-out;
+  border: none;
+  font-size: 0.95rem;
+}
+
+.select:hover { background: var(--purple-600); }
+
+.selectArrow {
+  position: absolute;
+  right: 0.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: white;
+  pointer-events: none;
+}
+
+.actions {
+  margin-left: auto;
+  display: flex;
+  gap: 1rem;
+}
+
+.actionButton {
+  background: var(--purple-400);
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border-radius: 9999px;
+  transition: background .12s ease;
+  border: none;
+  cursor: pointer;
+}
+
+.actionButton:hover{ background: var(--purple-500); }
+
+.content {
+  padding: 0 1.5rem 1.5rem;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 1.25rem;
+}
+
+.card {
+  background: #fff;
+  border: 2px solid #000;
+  padding: 1.25rem;
+  border-radius: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.username {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.stars {
+  display: flex;
+  gap: 0.25rem;
+  margin-bottom: 0.75rem;
+  color: #f6c948; /* yellow */
+  font-size: 1.25rem;
+}
+
+.info {
+  width: 100%;
+  text-align: left;
+  margin-bottom: 0.75rem;
+  font-size: 0.9rem;
+}
+
+.viewButton {
+  background: var(--purple-500);
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  border: none;
+  cursor: pointer;
+  transition: background .12s ease;
+}
+
+.viewButton:hover{ background: var(--purple-600); }
+
+/* Small responsive tweaks */
+@media (max-width: 600px) {
+  .headerInner {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
+  }
+
+  .pageTitle {
+    position: static;
+    transform: none;
+    margin-top: 0.5rem;
+  }
+
+  .filters {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .actions {
+    margin-left: 0;
+  }
+}

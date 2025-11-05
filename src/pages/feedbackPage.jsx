@@ -1,0 +1,129 @@
+import React, { useState } from 'react';
+import { User } from 'lucide-react';
+import styles from '../common/styles/feedback.module.css';
+import NavbarLogado from '../common/components/NavbarLogado';
+import BotaoPrincipal from '../common/components/BotaoPrincipal';
+import api from '../services/api';
+
+const FeedbackCard = ({ item, onView }) => {
+  return (
+    <div className={styles.card}>
+      <h3 className={styles.username}>{item.clientName || 'Usuario'}</h3>
+      <div className={styles.stars}>
+        {Array.from({ length: 5 }).map((_, i) => (
+          <span key={i} style={{ color: i < (item.rating || 0) ? '#f6c948' : '#e5e7eb' }}>★</span>
+        ))}
+      </div>
+      <div className={styles.info}>
+        <p className="text-sm">Nota : {item.rating}/5</p>
+        <p className="text-sm">Data: {item.createdAt || item.date || '—'}</p>
+        <p className="text-sm">Tempo de duração: {item.duration || '—'}</p>
+      </div>
+      <button className={styles.viewButton} onClick={() => onView(item.id)}>
+        Ver comentário
+      </button>
+    </div>
+  );
+};
+
+export default function FeedbackScreen() {
+  const [selectedMonth, setSelectedMonth] = useState('Atual');
+  const [selectedService, setSelectedService] = useState('');
+  const [feedbacks, setFeedbacks] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  const [detailOpen, setDetailOpen] = useState(false);
+  const [detailLoading, setDetailLoading] = useState(false);
+  const [selectedDetail, setSelectedDetail] = useState(null);
+
+  // Load feedbacks (first page)
+  React.useEffect(() => {
+    let mounted = true;
+    const fetchFeedbacks = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const res = await api.get('/feedbacks?page=0');
+        // Controller returns a Page object; content usually in res.data.content
+        const data = res.data;
+        const items = data?.content ?? data; // fallback if not paged
+        if (mounted) setFeedbacks(items || []);
+      } catch (err) {
+        console.error('Erro ao buscar feedbacks', err);
+        setError('Não foi possível carregar feedbacks.');
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    };
+    fetchFeedbacks();
+    return () => { mounted = false; };
+  }, []);
+
+  // Fetch detail and show comment modal
+  const handleViewComment = async (id) => {
+    setDetailOpen(true);
+    setDetailLoading(true);
+    setSelectedDetail(null);
+    try {
+      const res = await api.get(`/feedbacks/${id}`);
+      setSelectedDetail(res.data);
+    } catch (err) {
+      console.error('Erro ao buscar detalhe do feedback', err);
+      setSelectedDetail({ error: 'Não foi possível carregar o comentário.' });
+    } finally {
+      setDetailLoading(false);
+    }
+  };
+
+  const closeDetail = () => {
+    setDetailOpen(false);
+    setSelectedDetail(null);
+  };
+
+  return (
+    <div className={styles.container}>
+      {/* Reuse global navbar */}
+      <NavbarLogado isAdmin={true} />
+
+      {/* Filters */}
+      <div className={styles.filters}>
+ 
+      </div>
+
+      {/* Feedback Cards Grid */}
+      <div className={styles.content}>
+        <div className={styles.grid}>
+          {loading && <div>Carregando feedbacks...</div>}
+          {error && <div style={{ color: 'red' }}>{error}</div>}
+          {!loading && feedbacks.length === 0 && <div>Nenhum feedback encontrado.</div>}
+          {!loading && feedbacks.map((feedback) => (
+            <FeedbackCard key={feedback.id} item={feedback} onView={handleViewComment} />
+          ))}
+        </div>
+
+        {/* Detail modal */}
+        {detailOpen && (
+          <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 2000 }}>
+            <div style={{ background: '#fff', borderRadius: 12, padding: 20, width: '90%', maxWidth: 600 }}>
+              <button onClick={closeDetail} style={{ float: 'right', background: 'transparent', border: 'none', fontSize: 18 }}>✕</button>
+              <h3 style={{ marginTop: 0 }}>Comentário</h3>
+              {detailLoading && <div>Carregando...</div>}
+              {!detailLoading && selectedDetail && (
+                <div>
+                  <p><strong>Usuário:</strong> {selectedDetail.clientName ?? selectedDetail.clientId ?? '—'}</p>
+                  <p><strong>Nota:</strong> {selectedDetail.rating ?? '—'}/5</p>
+                  <p><strong>Data:</strong> {selectedDetail.createdAt ?? selectedDetail.date ?? '—'}</p>
+                  <div style={{ marginTop: 12 }}>
+                    <strong>Comentário:</strong>
+                    <p style={{ background: '#f7f7f7', padding: 12, borderRadius: 8 }}>{selectedDetail.comment ?? selectedDetail.comentario ?? 'Sem comentário.'}</p>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
