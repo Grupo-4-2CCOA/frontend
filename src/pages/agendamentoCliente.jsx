@@ -106,12 +106,18 @@ const fetchSchedules = async (id, pageNum) => {
   }
 };
 
-  const handleDelete = (id) => {
-    setAgendamentos(agendamentos.filter(a => a.id !== id));
-    setAgendamentoParaDeletar(null);
-    setShowPopup(false);
+  const handleDelete = async (id) => {
+    try {
+      await api.delete(`/agendamentos/${id}`);
+      await fetchSchedules(page); // Refresh current page
+      setAgendamentoParaDeletar(null);
+      setShowPopup(false);
+      alert('Agendamento cancelado com sucesso!');
+    } catch (error) {
+      console.error('Erro ao cancelar agendamento:', error);
+      alert('Erro ao cancelar agendamento');
+    }
   };
-
   const handleConfirmDelete = () => {
     if (agendamentoParaDeletar) handleDelete(agendamentoParaDeletar);
   };

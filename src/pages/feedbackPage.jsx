@@ -6,9 +6,27 @@ import BotaoPrincipal from '../common/components/BotaoPrincipal';
 import api from '../services/api';
 
 const FeedbackCard = ({ item, onView }) => {
+  const formatDate = (dateStr) => {
+    if (!dateStr) return '—';
+    try {
+      const date = Array.isArray(dateStr) 
+        ? new Date(dateStr[0], dateStr[1] - 1, dateStr[2]) 
+        : new Date(dateStr);
+        
+      return date.toLocaleDateString('pt-BR', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
+      });
+    } catch (error) {
+      console.error('Erro ao formatar data:', error);
+      return '—';
+    }
+  };
+
   return (
     <div className={styles.card}>
-      <h3 className={styles.username}>{item.clientName || 'Usuario'}</h3>
+      <h3 className={styles.username}>{item.schedule.client.name || 'Usuario'}</h3>
       <div className={styles.stars}>
         {Array.from({ length: 5 }).map((_, i) => (
           <span key={i} style={{ color: i < (item.rating || 0) ? '#f6c948' : '#e5e7eb' }}>★</span>
@@ -16,7 +34,7 @@ const FeedbackCard = ({ item, onView }) => {
       </div>
       <div className={styles.info}>
         <p className="text-sm">Nota : {item.rating}/5</p>
-        <p className="text-sm">Data: {item.createdAt || item.date || '—'}</p>
+        <p className="text-sm">Data: {formatDate(item.createdAt || item.date || '—')}</p>
         <p className="text-sm">Tempo de duração: {item.duration || '—'}</p>
       </div>
       <button className={styles.viewButton} onClick={() => onView(item.id)}>
@@ -36,6 +54,24 @@ export default function FeedbackScreen() {
   const [detailOpen, setDetailOpen] = useState(false);
   const [detailLoading, setDetailLoading] = useState(false);
   const [selectedDetail, setSelectedDetail] = useState(null);
+
+    const formatDate = (dateStr) => {
+    if (!dateStr) return '—';
+    try {
+      const date = Array.isArray(dateStr) 
+        ? new Date(dateStr[0], dateStr[1] - 1, dateStr[2]) 
+        : new Date(dateStr);
+        
+      return date.toLocaleDateString('pt-BR', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
+      });
+    } catch (error) {
+      console.error('Erro ao formatar data:', error);
+      return '—';
+    }
+  };
 
   // Load feedbacks (first page)
   React.useEffect(() => {
@@ -111,9 +147,9 @@ export default function FeedbackScreen() {
               {detailLoading && <div>Carregando...</div>}
               {!detailLoading && selectedDetail && (
                 <div>
-                  <p><strong>Usuário:</strong> {selectedDetail.clientName ?? selectedDetail.clientId ?? '—'}</p>
+                  <p><strong>Usuário:</strong> {selectedDetail.schedule.client.name ?? selectedDetail.clientId ?? '—'}</p>
                   <p><strong>Nota:</strong> {selectedDetail.rating ?? '—'}/5</p>
-                  <p><strong>Data:</strong> {selectedDetail.createdAt ?? selectedDetail.date ?? '—'}</p>
+                  <p><strong>Data:</strong> {formatDate(selectedDetail.createdAt ?? selectedDetail.date ?? '—')}</p>
                   <div style={{ marginTop: 12 }}>
                     <strong>Comentário:</strong>
                     <p style={{ background: '#f7f7f7', padding: 12, borderRadius: 8 }}>{selectedDetail.comment ?? selectedDetail.comentario ?? 'Sem comentário.'}</p>
