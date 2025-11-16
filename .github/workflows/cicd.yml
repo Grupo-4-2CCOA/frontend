@@ -29,7 +29,6 @@ jobs:
 
       - name: Instalar Dependências e Fazer Build
         run: |
-             echo "VITE_API_URL=http://${{ secrets.VITE_API_URL }}" > .env.production
              npm install
              npm run build
 
