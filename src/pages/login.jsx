@@ -4,7 +4,6 @@ import { useNavigate } from "react-router-dom";
 import styles from "../common/styles/login.module.css";
 
 export default function LoginPage() {
-  
   return (
     <>
       <Navbar />
@@ -20,7 +19,7 @@ export default function LoginPage() {
           </div>
 
           <a 
-            href={`http://localhost:8080/oauth2/authorization/google`} 
+            href="http://localhost:8080/oauth2/authorization/google"
             className={styles.googleButton}
           >
             <img 

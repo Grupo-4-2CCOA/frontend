@@ -1,31 +1,27 @@
 import axios from 'axios';
 
-// Criação da instância do Axios
 const api = axios.create({
-  baseURL: "http://localhost:8080",
-  withCredentials: true, // só necessário se backend usar cookies de sessão
+  baseURL: 'http://localhost:8080',
+  withCredentials: true,
   headers: {
     'Content-Type': 'application/json',
   },
 });
 
-// Interceptor para adicionar o token JWT automaticamente
 api.interceptors.request.use(
   config => {
-    const userInfo = JSON.parse(localStorage.getItem('userInfo'));
-    const token = userInfo?.token;
-
-    if (token) {
-      config.headers['Authorization'] = `Bearer ${token}`;
+    const token = getCookie('AUTH_TOKEN');
+    if (token && !config.headers.Authorization) {
+      config.headers.Authorization = `Bearer ${token}`;
     }
-
-    // Log para debug
+    
     console.log('Request config:', {
       url: config.url,
       method: config.method,
-      headers: config.headers,
-      data: config.data,
-      withCredentials: config.withCredentials
+      baseURL: config.baseURL,
+      withCredentials: config.withCredentials,
+      hasToken: !!token,
+      cookies: document.cookie
     });
 
     return config;
@@ -49,13 +45,24 @@ api.interceptors.response.use(
   }
 );
 
-// Função para verificar se o usuário está autenticado
-export const isAuthenticated = () => {
-  const userInfo = JSON.parse(localStorage.getItem('userInfo'));
-  return !!userInfo?.token;
+const getCookie = (name) => {
+  const value = `; ${document.cookie}`;
+  const parts = value.split(`; ${name}=`);
+  if (parts.length === 2) return parts.pop().split(';').shift();
+  return null;
 };
 
-// Função para debug de autenticação
+export const setAuthCookie = (token, days = 1) => {
+  const expires = new Date();
+  expires.setTime(expires.getTime() + days * 24 * 60 * 60 * 1000);
+  document.cookie = `AUTH_TOKEN=${token}; Path=/; Expires=${expires.toUTCString()}; SameSite=Lax`;
+};
+
+export const isAuthenticated = () => {
+  const token = getCookie('AUTH_TOKEN');
+  return !!token;
+};
+
 export const getAuthDebugInfo = () => {
   return {
     cookies: document.cookie,
