@@ -20,7 +20,7 @@ export default function LoginPage() {
           </div>
 
           <a 
-            href={`${import.meta.env.VITE_API_URL}/oauth2/authorization/google`} 
+            href={`http://localhost:8080/oauth2/authorization/google`} 
             className={styles.googleButton}
           >
             <img 

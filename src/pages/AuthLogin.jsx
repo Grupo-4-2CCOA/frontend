@@ -11,7 +11,6 @@ export default function AuthLoading() {
         // 1. Verifica autenticação e obtém a role
         const response = await api.get('/auth/user-info');
         const { role } = response.data;
-
         // 2. Redireciona conforme a role
         switch(role) {
           case 'OWNER':
