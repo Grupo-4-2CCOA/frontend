@@ -30,7 +30,7 @@ jobs:
       - name: Instalar Dependências e Fazer Build
         run: |
              npm install
-             npm run build --if-present --mode production
+             npm run build
 
       - name: Copiar arquivos e Deploy (Usando SSH com rsync)
         uses: easingthemes/ssh-deploy@main
