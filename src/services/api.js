@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // Criação da instância do Axios
 const api = axios.create({
-  baseURL: 'http://localhost:8080',
+  baseURL: import.meta.env.VITE_API_URL,
   withCredentials: true, // só necessário se backend usar cookies de sessão
   headers: {
     'Content-Type': 'application/json',
