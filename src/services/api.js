@@ -43,7 +43,7 @@ api.interceptors.response.use(
       if (window.location.pathname !== '/login' && !window.location.href.includes('/login')) {
         console.log('Sessão expirada, redirecionando para login...');
         setTimeout(() => {
-          window.location.href = '/login?error=session_expired';
+          // window.location.href = '/login?error=session_expired';
         }, 100);
       }
       return Promise.reject(error);
