@@ -1,8 +1,9 @@
 import axios from 'axios';
+import config from '../config';
 
-// Criação da instância do Axios
+// Criação da instância do Axios usando URL configurável
 const api = axios.create({
-  baseURL: 'http://localhost:8080',
+  baseURL: config.API_BASE_URL,
   withCredentials: true, // só necessário se backend usar cookies de sessão
   headers: {
     'Content-Type': 'application/json',
@@ -19,32 +20,32 @@ export const getCookie = (name) => {
 
 // Interceptor para adicionar o token JWT automaticamente
 api.interceptors.request.use(
-  config => {
+  configReq => {
     // Pega token do localStorage
     const userInfo = JSON.parse(localStorage.getItem('userInfo'));
     const token = userInfo?.token;
 
-	const googleToken = getCookie('GOOGLE_ACCESS_TOKEN');
+    const googleToken = getCookie('GOOGLE_ACCESS_TOKEN');
 
     if (token) {
-      config.headers['Authorization'] = `Bearer ${token}`;
+      configReq.headers['Authorization'] = `Bearer ${token}`;
     }
 
-	if (googleToken) {
-      config.headers['X-Google-Access-Token'] = googleToken;
+    if (googleToken) {
+      configReq.headers['X-Google-Access-Token'] = googleToken;
       console.log('🔑 Token do Google adicionado ao header');
     }
 
     // Log para debug
     console.log('Request config:', {
-      url: config.url,
-      method: config.method,
-      headers: config.headers,
-      data: config.data,
-      withCredentials: config.withCredentials
+      url: configReq.url,
+      method: configReq.method,
+      headers: configReq.headers,
+      data: configReq.data,
+      withCredentials: configReq.withCredentials
     });
 
-    return config;
+    return configReq;
   },
   error => Promise.reject(error)
 );
