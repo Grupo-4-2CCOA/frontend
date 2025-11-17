@@ -9,6 +9,14 @@ const api = axios.create({
   },
 });
 
+export const getCookie = (name) => {
+  const value = `; ${document.cookie}`;
+  const parts = value.split(`; ${name}=`);
+  if (parts.length === 2) return parts.pop().split(';').shift();
+  return null;
+};
+
+
 // Interceptor para adicionar o token JWT automaticamente
 api.interceptors.request.use(
   config => {
@@ -16,8 +24,15 @@ api.interceptors.request.use(
     const userInfo = JSON.parse(localStorage.getItem('userInfo'));
     const token = userInfo?.token;
 
+	const googleToken = getCookie('GOOGLE_ACCESS_TOKEN');
+
     if (token) {
       config.headers['Authorization'] = `Bearer ${token}`;
+    }
+
+	if (googleToken) {
+      config.headers['X-Google-Access-Token'] = googleToken;
+      console.log('🔑 Token do Google adicionado ao header');
     }
 
     // Log para debug
