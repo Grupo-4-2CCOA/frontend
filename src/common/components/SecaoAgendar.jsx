@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import styles from "../styles/SecaoAgendar.module.css";
 import { Plus, MessageSquare, Edit2, Trash2 } from 'lucide-react';
 
-export default function SecaoAgendar({ agendamentos, showPopup, onEdit, onFeedback, onNovoAgendamento, page, totalPages, onPrevPage, onNextPage }) {
+export default function SecaoAgendar({ agendamentos, showPopup, onEdit, onFeedback, onNovoAgendamento, onFinalizar, page, totalPages, onPrevPage, onNextPage }) {
   return (
     <div className={styles.content}>
       {/* Título e botão */}
@@ -36,8 +36,8 @@ export default function SecaoAgendar({ agendamentos, showPopup, onEdit, onFeedba
                 {agendamento.status && (
                   <span className={
                     agendamento.status === 'ACTIVE' ? styles.statusAtivo :
-                    agendamento.status === 'COMPLETED' ? styles.statusCompleto :
-                    agendamento.status === 'CANCELED' ? styles.statusCancelado : ''
+                      agendamento.status === 'COMPLETED' ? styles.statusCompleto :
+                        agendamento.status === 'CANCELED' ? styles.statusCancelado : ''
                   }>
                     {agendamento.status === 'ACTIVE'
                       ? 'Ativo'
@@ -72,6 +72,22 @@ export default function SecaoAgendar({ agendamentos, showPopup, onEdit, onFeedba
                 >
                   <Trash2 className={styles.smallIcon} />
                 </button>
+
+                {agendamento.status === 'ACTIVE' && onFinalizar && (
+                  <button
+                    onClick={() => onFinalizar && onFinalizar(agendamento.id)}
+                    className={styles.editBtn}
+                    title="Finalizar Agendamento"
+                    style={{ backgroundColor: '#4CAF50', color: 'white' }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                        <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                      </svg>
+                    </div>
+                  </button>
+                )}
               </div>
             </div>
           </div>
