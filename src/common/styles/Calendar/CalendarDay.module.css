@@ -1,0 +1,14 @@
+.calendarDay {
+  flex: 1;
+  padding: 0.1em;
+  
+  &:not(:last-child) {
+    border-right: 1px solid var(--color-border);
+  }
+  &[disabled]:hover {
+    cursor: default;
+  }
+  &:not([disabled]):hover {
+    background-color: var(--color-border);
+  }
+}

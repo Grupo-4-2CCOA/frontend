@@ -1,0 +1,4 @@
+.calendarMonth {
+  align-items: stretch;
+  border-top: 1px solid var(--color-border);
+}
