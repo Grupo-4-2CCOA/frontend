@@ -8,8 +8,10 @@ import AdicionarInformacoes from "../pages/AdicionarInformacoes";
 import Unauthorized from "../pages/Unauthorized";
 import SystemDashboard from "../pages/SystemDashboard";
 import CadastroServico from "../pages/CadastroServico";
+import CadastroFuncionario from "../pages/CadastroFuncionario";
 import SellsDashboard from "../pages/SellsDashboard";
 import FeedbackScreen from "../pages/feedbackPage";
+
 
 export default function AppRoutes(){
     return(
@@ -23,8 +25,10 @@ export default function AppRoutes(){
             <Route path="/unauthorized" element={<Unauthorized/>}></Route>
             <Route path="/system-dashboard" element={<SystemDashboard/>}></Route>
             <Route path="/cadastro-servico" element={<CadastroServico/>}></Route>
+            <Route path="/cadastro-funcionario" element={<CadastroFuncionario/>}></Route>
             <Route path="/sells-dashboard" element={<SellsDashboard/>}></Route>
             <Route path="/feedback" element={<FeedbackScreen/>}></Route>
+            
         </Routes>
     )
 }
