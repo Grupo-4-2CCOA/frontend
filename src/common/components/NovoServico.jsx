@@ -1,11 +1,12 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from 'react';
+import config from '../../config';
 import Styles from "../styles/NovoServico.module.css";
 import BotaoPrincipal from "./BotaoPrincipal";
 import api from '../../services/api';
 import { useAuth } from '../../hooks/useAuth';
 
 export default function NovoServicoPopup({ onCancel, onConfirm, titulo, servicoParaEditar }) {
-	const BUCKET_URL = 'https://beauty-barreto-source.s3.us-east-1.amazonaws.com'; // added
+	const BUCKET_URL = config.S3_BUCKET_URL;
     const { userInfo } = useAuth();
     const [imagem, setImagem] = useState(null);
 	const [previewUrl, setPreviewUrl] = useState(null); 

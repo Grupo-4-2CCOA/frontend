@@ -2,9 +2,12 @@ import React from "react";
 import Navbar from "../common/components/Navbar";
 import { useNavigate } from "react-router-dom";
 import styles from "../common/styles/login.module.css";
+import config from "../config";
 
 export default function LoginPage() {
-  
+
+  const oauthHref = `${config.API_BASE_URL}${config.GOOGLE_OAUTH_PATH}`;
+
   return (
     <>
       <Navbar />
@@ -20,7 +23,7 @@ export default function LoginPage() {
           </div>
 
           <a 
-            href="http://localhost:8080/oauth2/authorization/google" 
+            href={oauthHref}
             className={styles.googleButton}
           >
             <img 
@@ -30,7 +33,6 @@ export default function LoginPage() {
             />
             Entrar com Google
           </a>
-
 
         </div>
       </main>
