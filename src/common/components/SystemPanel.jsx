@@ -261,6 +261,24 @@ export default function SystemPanel() {
                         <span className={styles.rankValueSpan}>59 atendimentos</span>
                     </div>
                 </div>
+
+                // TODO - Ajustar css
+                <div className={styles.kpiCard}>
+                    <div className={styles.kpiCardHeader}>
+                        <span className={styles.cardTitle}>Feedbacks recebidos</span>
+                        <InfoButton
+                            setShowPopup={setShowPopup}
+                            setPopupTitle={setPopupTitle}
+                            popupTitle={"Informação"}
+                            setPopupText={setPopupText}
+                            popupText={"Número total de feedbacks recebidos no período selecionado."}
+                        />
+                    </div>
+                    <div className={styles.kpiItem}>
+                        <span className={styles.rankValueSpan}>12 feedbacks</span>
+                    </div>
+                </div>
+
                 <div className={styles.kpiCard}>
                     <div className={styles.kpiCardHeader}>
                         <span className={styles.cardTitle}>Serviços mais vendidos</span>
