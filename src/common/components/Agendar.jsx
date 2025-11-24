@@ -85,9 +85,7 @@ const Agendar = ({ isOpen, onClose, onConfirm }) => {
   const calculateTotal = () => selectedServices.reduce((sum, s) => sum + (s.basePrice || 0), 0);
 
   const calculateDuration = () => {
-    // Calcula duração total estimada em minutos (baseado no número de serviços)
-    // Assumindo 60 minutos por serviço
-    return selectedServices.length * 60;
+    return selectedServices.reduce((total, service) => total + (service.baseDuration || 0), 0);
   };
 
   const handleSubmit = async () => {
