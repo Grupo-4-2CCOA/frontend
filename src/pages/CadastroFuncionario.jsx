@@ -6,11 +6,12 @@ import BotaoPrincipal from '../common/components/BotaoPrincipal';
 
 export default function CadastroFuncionario() {
   const [formData, setFormData] = useState({
-    nome: '',
+    name: '',
     email: '',
     cpf: '',
-    telefone: '',
+    phone: '',
     cep: '',
+    role: 3
   });
 
   const [loading, setLoading] = useState(false);
@@ -30,7 +31,7 @@ export default function CadastroFuncionario() {
 
     try {
       const response = await api.post('/funcionarios', formData);
-      
+
       setFeedback({
         type: 'success',
         message: 'Funcionário cadastrado com sucesso!'
@@ -38,10 +39,10 @@ export default function CadastroFuncionario() {
 
       // Limpar formulário
       setFormData({
-        nome: '',
+        name: '',
         email: '',
         cpf: '',
-        telefone: '',
+        phone: '',
         cep: '',
       });
 
@@ -60,7 +61,7 @@ export default function CadastroFuncionario() {
   return (
     <div className={styles.container}>
       <NavbarLogado isAdmin={true} />
-      
+
       <div className={styles.content}>
         <div className={styles.formWrapper}>
           <h1 className={styles.titulo}>Cadastrar Funcionário</h1>
@@ -76,14 +77,14 @@ export default function CadastroFuncionario() {
             {/* Seção de Informações Pessoais */}
             <fieldset className={styles.fieldset}>
               <legend className={styles.legend}>Informações Pessoais</legend>
-              
+
               <div className={styles.formGroup}>
                 <label htmlFor="nome" className={styles.label}>Nome Completo *</label>
                 <input
                   type="text"
                   id="nome"
-                  name="nome"
-                  value={formData.nome}
+                  name="name"
+                  value={formData.name}
                   onChange={handleChange}
                   required
                   className={styles.input}
@@ -127,8 +128,8 @@ export default function CadastroFuncionario() {
                   <input
                     type="tel"
                     id="telefone"
-                    name="telefone"
-                    value={formData.telefone}
+                    name="phone"
+                    value={formData.phone}
                     onChange={handleChange}
                     required
                     className={styles.input}
@@ -158,11 +159,12 @@ export default function CadastroFuncionario() {
                 {loading ? 'Cadastrando...' : 'Cadastrar Funcionário'}
               </button>
               <button type="reset" className={styles.resetBtn} onClick={() => setFormData({
-                nome: '',
+                name: '',
                 email: '',
                 cpf: '',
-                telefone: '',
+                phone: '',
                 cep: '',
+                role: 3
               })}>
                 Limpar Formulário
               </button>
