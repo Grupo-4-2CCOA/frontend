@@ -50,8 +50,3 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             docker compose up -d
-
-      - name: Obter endereços IP públicos das instâncias EC2
-        run: |
-          echo "Deploy de ${{ matrix.host.name }} concluído!"
-          echo "Acesso em: http://${{ matrix.host.remote_host }}:80"
