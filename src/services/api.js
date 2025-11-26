@@ -1,10 +1,9 @@
 import axios from 'axios';
 import config from '../config';
 
-// Criação da instância do Axios usando URL configurável
 const api = axios.create({
   baseURL: config.API_BASE_URL,
-  withCredentials: true, // só necessário se backend usar cookies de sessão
+  withCredentials: true,
   headers: {
     'Content-Type': 'application/json',
   },
@@ -18,12 +17,10 @@ export const getCookie = (name) => {
 };
 
 
-// Interceptor para adicionar o token JWT automaticamente
 api.interceptors.request.use(
   configReq => {
     let token = null;
     
-    // 1. Tenta pegar token do localStorage (prioridade)
     try {
       const userInfoStr = localStorage.getItem('userInfo');
       if (userInfoStr) {
@@ -34,23 +31,19 @@ api.interceptors.request.use(
       console.warn('Erro ao ler localStorage:', e);
     }
     
-    // 2. Se não encontrou no localStorage, tenta pegar do cookie AUTH_TOKEN
     if (!token) {
       token = getCookie('AUTH_TOKEN');
     }
 
-    // 3. Adiciona o token no header Authorization se encontrado
     if (token) {
       configReq.headers['Authorization'] = `Bearer ${token}`;
     }
-
-    // 4. Adiciona token do Google se disponível
+    
     const googleToken = getCookie('GOOGLE_ACCESS_TOKEN');
     if (googleToken) {
       configReq.headers['X-Google-Access-Token'] = googleToken;
     }
 
-    // Log para debug (apenas se não houver token para diagnosticar)
     if (!token) {
       console.warn('⚠️ Token não encontrado para a requisição:', {
         url: configReq.url,
@@ -65,12 +58,10 @@ api.interceptors.request.use(
   error => Promise.reject(error)
 );
 
-// Interceptor para tratar respostas
 api.interceptors.response.use(
   response => response,
   error => {
     if (error.response?.status === 401) {
-      // Evita loop de redirect
       if (window.location.pathname !== '/login' && !window.location.href.includes('/login')) {
         console.log('Sessão expirada, redirecionando para login...');
         setTimeout(() => {
@@ -83,7 +74,6 @@ api.interceptors.response.use(
   }
 );
 
-// Função para verificar se o usuário está autenticado
 export const isAuthenticated = () => {
   try {
     const userInfoStr = localStorage.getItem('userInfo');
@@ -95,7 +85,6 @@ export const isAuthenticated = () => {
   }
 };
 
-// Função para debug de autenticação
 export const getAuthDebugInfo = () => {
   return {
     cookies: document.cookie,
