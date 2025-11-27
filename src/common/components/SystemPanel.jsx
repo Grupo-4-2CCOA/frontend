@@ -18,8 +18,21 @@ export default function SystemPanel() {
     const [showPopup, setShowPopup] = useState(false);
     const [popupTitle, setPopupTitle] = useState("Informação")
     const [popupText, setPopupText] = useState("");
+    const [dashboardData, setDashboardData] = useState(null);
 
-    const chartsRef = useRef([]);
+    const chartsRef = useRef({});
+
+    const mesesLabels = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
+
+    function getSerieFromPairArray(array, indexValue = 1) {
+        if (!array) return [];
+        return array.map(item => item[indexValue]);
+    }
+
+    function getLabelFromPairArray(array) {
+        if (!array) return [];
+        return array.map(item => mesesLabels[(item[0] ?? 1) - 1]);
+    }
 
     const commonChartOptions = {
         chart: {
@@ -42,15 +55,6 @@ export default function SystemPanel() {
                 fontWeight: 'bold',
             }
         },
-        xaxis: {
-            categories: ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul"],
-            axisBorder: {
-                show: false
-            },
-            axisTicks: {
-                show: false
-            }
-        },
         fill: {
             type: 'gradient',
             colors: ["var(--ROSA-LOGO)"],
@@ -67,60 +71,34 @@ export default function SystemPanel() {
         }
     };
 
-    function generateCharts() {
-        if (chartsRef.current.cancelled) {
-            chartsRef.current.cancelled.destroy();
-        }
+    useEffect(() => {
+        const mes = 11;
+        const ano = 2025;
 
-        if (chartsRef.current.performance) {
-            chartsRef.current.performance.destroy();
-        }
+        fetch(`http://localhost:8080/dashboard/sistema?mes=${mes}&ano=${ano}`)
+            .then(response => response.json())
+            .then(data => setDashboardData(data))
+            .catch(error => {
+                console.error("Erro ao buscar dados do dashboard:", error);
+                setDashboardData(null);
+            });
+    }, []);
 
-        let cancelledChartOptions = {
-            ...commonChartOptions,
-            title: {
-                text: "Agendamentos Cancelados",
-                align: "center",
-                style: {
-                    fontSize: "23px",
-                    fontWeight: "bold",
-                    fontFamily: "Roboto",
-                    color: "var(--PRETO)"
-                }
-            },
-            stroke: {
-                curve: "smooth",
-                colors: ["var(--BRANCO)"]
-            },
-            series: [
-                {
-                    name: "Cancelled",
-                    data: [30, 40, 35, 50, 49, 60, 70]
-                }
-            ],
-            yaxis: {
-                title: {
-                    text: "Quantidade",
-                    style: {
-                        color: 'var(--CINZA-ESCURO)',
-                        fontSize: '14px',
-                        fontFamily: 'Roboto',
-                        fontWeight: '600'
-                    },
-                    offsetX: -10
-                },
-                labels: {
-                    style: {
-                        colors: "var(--CINZA-ESCURO)",
-                        fontSize: '12px',
-                        fontFamily: 'Roboto'
-                    }
-                }
-            }
-        };
+    useEffect(() => {
+        if (chartsRef.current.cancelled) chartsRef.current.cancelled.destroy();
+        if (chartsRef.current.performance) chartsRef.current.performance.destroy();
+
+        if (!dashboardData) return;
+
+        let rendimentoPorMes = getSerieFromPairArray(dashboardData.rendimentoTotal, 1);
+        let rendimentoLabels = getLabelFromPairArray(dashboardData.rendimentoTotal);
+
+        let cancelamentosPorMes = getSerieFromPairArray(dashboardData.taxaCancelamento, 1);
+        let cancelamentosLabels = getLabelFromPairArray(dashboardData.taxaCancelamento);
 
         let performanceChartOptions = {
             ...commonChartOptions,
+            xaxis: { ...commonChartOptions.xaxis, categories: rendimentoLabels },
             title: {
                 text: "Rendimento Total",
                 align: "center",
@@ -138,7 +116,7 @@ export default function SystemPanel() {
             series: [
                 {
                     name: "Rendimento",
-                    data: [150, 250, 444, 390, 754, 555, 458]
+                    data: rendimentoPorMes
                 }
             ],
             yaxis: {
@@ -162,65 +140,74 @@ export default function SystemPanel() {
             }
         };
 
-        const cancelledScheduleChart = new ApexCharts(
-            document.querySelector("#cancelled-schedule-chart"),
-            cancelledChartOptions
-        );
-        cancelledScheduleChart.render();
+        let cancelledChartOptions = {
+            ...commonChartOptions,
+            xaxis: { ...commonChartOptions.xaxis, categories: cancelamentosLabels },
+            title: {
+                text: "Agendamentos Cancelados",
+                align: "center",
+                style: {
+                    fontSize: "23px",
+                    fontWeight: "bold",
+                    fontFamily: "Roboto",
+                    color: "var(--PRETO)"
+                }
+            },
+            stroke: {
+                curve: "smooth",
+                colors: ["var(--BRANCO)"]
+            },
+            series: [
+                {
+                    name: "Cancelados",
+                    data: cancelamentosPorMes
+                }
+            ],
+            yaxis: {
+                title: {
+                    text: "Quantidade",
+                    style: {
+                        color: 'var(--CINZA-ESCURO)',
+                        fontSize: '14px',
+                        fontFamily: 'Roboto',
+                        fontWeight: '600'
+                    },
+                    offsetX: -10
+                },
+                labels: {
+                    style: {
+                        colors: "var(--CINZA-ESCURO)",
+                        fontSize: '12px',
+                        fontFamily: 'Roboto'
+                    }
+                }
+            }
+        };
 
-        const performanceScheduleChart = new ApexCharts(
+        chartsRef.current.performance = new ApexCharts(
             document.querySelector("#performance-schedule-chart"),
             performanceChartOptions
         );
-        performanceScheduleChart.render();
+        chartsRef.current.performance.render();
 
-        chartsRef.current = {
-            performance: performanceScheduleChart,
-            cancelled: cancelledScheduleChart
-        };
-    }
+        chartsRef.current.cancelled = new ApexCharts(
+            document.querySelector("#cancelled-schedule-chart"),
+            cancelledChartOptions
+        );
+        chartsRef.current.cancelled.render();
 
-    useEffect(() => {
-        generateCharts();
         return () => {
             chartsRef.current.performance?.destroy();
             chartsRef.current.cancelled?.destroy();
         };
-    }, [chartsRef]);
 
-    var mockValues = [
-        {
-            service: "Cabelo",
-            quantity: 150,
-            price: 10
-        },
-        {
-            service: "Sobrancelha",
-            quantity: 100,
-            price: 30
-        },
-        {
-            service: "Manicure",
-            quantity: 75,
-            price: 20
-        },
-        {
-            service: "Pedicure",
-            quantity: 50,
-            price: 22.45
-        },
-        {
-            service: "Unhas de Gel",
-            quantity: 25,
-            price: 111
-        }
-    ]
+    }, [dashboardData]);
+
+    const rankingServicos = dashboardData?.rankingServicos || [];
 
     return (
         <div className={styles.systemPanel}>
-            {
-                showPopup && <Popup title={popupTitle} text={popupText} setShowPopup={setShowPopup} />
-            }
+            {showPopup && <Popup title={popupTitle} text={popupText} setShowPopup={setShowPopup} />}
             <div className={styles.charts}>
                 <div className={styles.chart}>
                     <div id="performance-schedule-chart"></div>
@@ -258,7 +245,9 @@ export default function SystemPanel() {
                         />
                     </div>
                     <div className={styles.kpiItem}>
-                        <span className={styles.rankValueSpan}>59 atendimentos</span>
+                        <span className={styles.rankValueSpan}>
+                            {dashboardData ? `${dashboardData.totalAtendimentos} atendimentos` : "Carregando..."}
+                        </span>
                     </div>
                 </div>
                 <div className={styles.kpiCard}>
@@ -284,13 +273,13 @@ export default function SystemPanel() {
                             </TableHead>
                             <TableBody>
                                 {
-                                    mockValues.map((item, index) => (
-                                        <TableRow>
-                                            <TableCell sx={{ fontSize: 17 }}>{index + 1}º</TableCell>
-                                            <TableCell sx={{ fontSize: 17 }}>{item.service}</TableCell>
-                                            <TableCell sx={{ fontSize: 17 }}>{item.quantity}</TableCell>
+                                    rankingServicos.map((item, index) => (
+                                        <TableRow key={item.ranking}>
+                                            <TableCell sx={{ fontSize: 17 }}>{item.ranking}º</TableCell>
+                                            <TableCell sx={{ fontSize: 17 }}>{item.nomeServico}</TableCell>
+                                            <TableCell sx={{ fontSize: 17 }}>{item.quantidade}</TableCell>
                                             <TableCell sx={{ fontSize: 17 }}>
-                                                {(item.price * item.quantity).toLocaleString('pt-BR', {
+                                                {item.valorTotal.toLocaleString('pt-BR', {
                                                     style: 'currency',
                                                     currency: 'BRL'
                                                 })}
@@ -304,5 +293,5 @@ export default function SystemPanel() {
                 </div>
             </div>
         </div>
-    )
+    );
 }
