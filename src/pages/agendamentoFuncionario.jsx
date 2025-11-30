@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import NavbarLogado from "../common/components/NavbarLogado";
 import SecaoAgendar from "../common/components/SecaoAgendar";
@@ -15,23 +16,29 @@ export default function AgendamentoFuncionario() {
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
-
-  // New state for finalization modal
+  const [dataInicio, setDataInicio] = useState('');
+  const [dataFim, setDataFim] = useState('');
+  const [filtroAtivo, setFiltroAtivo] = useState(false);
   const [isFinalizarModalOpen, setIsFinalizarModalOpen] = useState(false);
   const [selectedAgendamentoId, setSelectedAgendamentoId] = useState(null);
 
-  const fetchAgendamentos = async (pageNum) => {
+  const fetchAgendamentos = async (pageNum, inicio = null, fim = null) => {
     try {
       setLoading(true);
-      const response = await api.get(`/agendamentos?page=${pageNum}`);
+      let url = `/agendamentos?page=${pageNum}`;
+      if (inicio && fim) {
+        url += `&dataInicio=${inicio}&dataFim=${fim}`;
+      }
+      
+      console.log('Fetching appointments with URL:', url);
+      const response = await api.get(url);
       const data = response.data;
+      console.log('Response data:', data);
 
-      console.log('API Response:', data);
-
-      // Handle paginated response
-      const content = data?.content || [];
+      const content = Array.isArray(data) ? data : (data.content || []);
+      const total = data?.totalPages ?? 0;
+      setTotalPages(total);
       setRawAgendamentos(content);
-      setTotalPages(data?.totalPages || 0);
 
       const formattedAppointments = content.map(apt => {
         const dateArr = apt?.appointmentDatetime;
@@ -50,17 +57,36 @@ export default function AgendamentoFuncionario() {
             });
 
             dataPt = `${day} de ${month} de ${year} às ${time}`;
+          } else if (typeof dateArr === 'string') {
+            // Se vir como string ISO
+            const d = new Date(dateArr);
+            if (!isNaN(d.getTime())) {
+              const day = d.getDate();
+              const month = d.toLocaleString('pt-BR', { month: 'long' });
+              const year = d.getFullYear();
+              const time = d.toLocaleTimeString('pt-BR', {
+                hour: '2-digit',
+                minute: '2-digit'
+              });
+              dataPt = `${day} de ${month} de ${year} às ${time}`;
+            }
           }
         } catch (error) {
           console.error('Error formatting date:', error, dateArr);
         }
 
+        const nomesServicos = apt?.items?.map(i => i.service?.name).filter(Boolean) || [];
+        const total = apt?.items?.reduce((sum, i) => sum + (i.finalPrice || 0), 0) || 0;
+
         return {
           id: apt?.id,
           data: dataPt || '-',
-          servico: apt.items?.map(item => item.service?.name).join(', ') || 'Sem serviços',
+          servico: nomesServicos.join(', '),
+          servicos: nomesServicos,
           cliente: apt.client?.name || 'Cliente não identificado',
-          status: apt?.status || 'PENDING'
+          status: apt?.status || 'PENDING',
+          total: total,
+          items: apt?.items || []
         };
       });
 
@@ -76,18 +102,21 @@ export default function AgendamentoFuncionario() {
   };
 
   useEffect(() => {
-    fetchAgendamentos(page);
-  }, [page]);
-
-  const handleShowDeletePopup = (id) => {
-    setAgendamentoParaDeletar(id);
-    setShowPopup(true);
-  };
+    if (filtroAtivo) {
+      fetchAgendamentos(page, dataInicio, dataFim);
+    } else {
+      fetchAgendamentos(page);
+    }
+  }, [page, filtroAtivo, dataInicio, dataFim]);
 
   const handleDelete = async (id) => {
     try {
       await api.delete(`/agendamentos/${id}`);
-      await fetchAgendamentos(page); // Refresh current page
+      if (filtroAtivo) {
+        await fetchAgendamentos(page, dataInicio, dataFim);
+      } else {
+        await fetchAgendamentos(page);
+      }
       setAgendamentoParaDeletar(null);
       setShowPopup(false);
       alert('Agendamento cancelado com sucesso!');
@@ -101,6 +130,11 @@ export default function AgendamentoFuncionario() {
     if (agendamentoParaDeletar) {
       handleDelete(agendamentoParaDeletar);
     }
+  };
+
+  const handleShowDeletePopup = (id) => {
+    setAgendamentoParaDeletar(id);
+    setShowPopup(true);
   };
 
   const handleEdit = (id) => {
@@ -117,12 +151,40 @@ export default function AgendamentoFuncionario() {
     setIsModalOpen(true);
   };
 
+  const handleAplicarFiltro = async () => {
+    if (!dataInicio || !dataFim) {
+      alert('Por favor, preencha ambas as datas');
+      return;
+    }
+
+    if (new Date(dataInicio) > new Date(dataFim)) {
+      alert('Data de início não pode ser maior que data de fim');
+      return;
+    }
+
+    setPage(0);
+    setFiltroAtivo(true);
+    await fetchAgendamentos(0, dataInicio, dataFim);
+  };
+
+  const handleLimparFiltro = async () => {
+    setDataInicio('');
+    setDataFim('');
+    setFiltroAtivo(false);
+    setPage(0);
+    await fetchAgendamentos(0);
+  };
+
   const onPrevPage = () => setPage((p) => Math.max(0, p - 1));
   const onNextPage = () => setPage((p) => (p + 1 < totalPages ? p + 1 : p));
 
   const handleConfirmarAgendamento = async (novoAgendamento) => {
     try {
-      await fetchAgendamentos(page); // Refresh current page
+      if (filtroAtivo) {
+        await fetchAgendamentos(0, dataInicio, dataFim);
+      } else {
+        await fetchAgendamentos(0);
+      }
       setIsModalOpen(false);
     } catch (error) {
       console.error('Erro ao atualizar lista de agendamentos:', error);
@@ -184,7 +246,11 @@ export default function AgendamentoFuncionario() {
 
       setIsFinalizarModalOpen(false);
       setSelectedAgendamentoId(null);
-      fetchAgendamentos(page); // Refresh list
+      if (filtroAtivo) {
+        await fetchAgendamentos(page, dataInicio, dataFim);
+      } else {
+        await fetchAgendamentos(page);
+      }
       alert('Agendamento finalizado com sucesso!');
     } catch (error) {
       console.error('Erro ao finalizar agendamento:', error);
@@ -222,6 +288,13 @@ export default function AgendamentoFuncionario() {
         totalPages={totalPages}
         onPrevPage={onPrevPage}
         onNextPage={onNextPage}
+        dataInicio={dataInicio}
+        onDataInicioChange={setDataInicio}
+        dataFim={dataFim}
+        onDataFimChange={setDataFim}
+        onFilter={handleAplicarFiltro}
+        onReset={handleLimparFiltro}
+        filtroAtivo={filtroAtivo}
       />
 
       <Agendar

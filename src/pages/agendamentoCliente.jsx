@@ -24,6 +24,7 @@ export default function AgendamentoCliente() {
   const [statusFilter, setStatusFilter] = useState('TODOS');
   const [dataInicio, setDataInicio] = useState("");
   const [dataFim, setDataFim] = useState("");
+  const [filtroAtivo, setFiltroAtivo] = useState(false);
 
   useEffect(() => {
     const loadUserAndSchedules = async () => {
@@ -49,12 +50,20 @@ export default function AgendamentoCliente() {
 
   useEffect(() => {
     if (clientId == null) return;
-    fetchSchedules(clientId, page);
-  }, [clientId, page]);
+    if (filtroAtivo) {
+      fetchSchedules(clientId, page, dataInicio, dataFim);
+    } else {
+      fetchSchedules(clientId, page);
+    }
+  }, [clientId, page, filtroAtivo, dataInicio, dataFim]);
 
-const fetchSchedules = async (id, pageNum) => {
+const fetchSchedules = async (id, pageNum, inicio = null, fim = null) => {
   try {
-    const resp = await api.get(`/agendamentos/agendamentos-por-cliente/${id}?page=${pageNum}`);
+    let url = `/agendamentos/agendamentos-por-cliente/${id}?page=${pageNum}`;
+    if (inicio && fim) {
+      url += `&dataInicio=${inicio}&dataFim=${fim}`;
+    }
+    const resp = await api.get(url);
     const data = resp.data;
     const content = data?.content || [];
     setTotalPages(data?.totalPages || 0);
@@ -112,7 +121,11 @@ const fetchSchedules = async (id, pageNum) => {
   const handleDelete = async (id) => {
     try {
       await api.delete(`/agendamentos/${id}`);
-      await fetchSchedules(page); // Refresh current page
+      if (filtroAtivo) {
+        await fetchSchedules(clientId, page, dataInicio, dataFim);
+      } else {
+        await fetchSchedules(clientId, page);
+      }
       setAgendamentoParaDeletar(null);
       setShowPopup(false);
       alert('Agendamento cancelado com sucesso!');
@@ -148,6 +161,30 @@ const fetchSchedules = async (id, pageNum) => {
 
   const handleNovoAgendamento = () => setIsModalOpen(true);
 
+  const handleAplicarFiltro = async () => {
+    if (!dataInicio || !dataFim) {
+      alert('Por favor, preencha ambas as datas');
+      return;
+    }
+
+    if (new Date(dataInicio) > new Date(dataFim)) {
+      alert('Data de início não pode ser maior que data de fim');
+      return;
+    }
+
+    setPage(0);
+    setFiltroAtivo(true);
+    await fetchSchedules(clientId, 0, dataInicio, dataFim);
+  };
+
+  const handleLimparFiltro = async () => {
+    setDataInicio('');
+    setDataFim('');
+    setFiltroAtivo(false);
+    setPage(0);
+    await fetchSchedules(clientId, 0);
+  };
+
   const handleConfirmarAgendamento = async (novoAgendamento) => {
     const dataFormatada = new Date(novoAgendamento.date).toLocaleDateString('pt-BR', {
       day: 'numeric', month: 'long', year: 'numeric'
@@ -170,7 +207,13 @@ const fetchSchedules = async (id, pageNum) => {
     setAgendamentos([...agendamentos, agendamentoFormatado]);
     setIsModalOpen(false);
     // Recarregar a página atual para refletir backend
-    if (clientId != null) await fetchSchedules(clientId, page);
+    if (clientId != null) {
+      if (filtroAtivo) {
+        await fetchSchedules(clientId, 0, dataInicio, dataFim);
+      } else {
+        await fetchSchedules(clientId, 0);
+      }
+    }
   };
 
   const onPrevPage = () => setPage((p) => Math.max(0, p - 1));
@@ -247,6 +290,9 @@ const fetchSchedules = async (id, pageNum) => {
         onDataInicioChange={setDataInicio}
         dataFim={dataFim}
         onDataFimChange={setDataFim}
+        onFilter={handleAplicarFiltro}
+        onReset={handleLimparFiltro}
+        filtroAtivo={filtroAtivo}
       />
 
       <Agendar

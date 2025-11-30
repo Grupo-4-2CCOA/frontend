@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import styles from "../styles/SecaoAgendar.module.css";
 import { Plus, MessageSquare, Edit2, Trash2 } from 'lucide-react';
 
-export default function SecaoAgendar({ agendamentos, showPopup, onEdit, onFeedback, onNovoAgendamento, onFinalizar, page, totalPages, onPrevPage, onNextPage, statusFilter, onStatusFilterChange, dataInicio, onDataInicioChange, dataFim, onDataFimChange }) {
+export default function SecaoAgendar({ agendamentos, showPopup, onEdit, onFeedback, onNovoAgendamento, onFinalizar, page, totalPages, onPrevPage, onNextPage, statusFilter, onStatusFilterChange, dataInicio, onDataInicioChange, dataFim, onDataFimChange, onFilter, onReset }) {
   return (
     <div className={styles.content}>
       {/* Título e botão */}
@@ -38,6 +38,14 @@ export default function SecaoAgendar({ agendamentos, showPopup, onEdit, onFeedba
                 className={styles.dateInput}
               />
             </div>
+            {dataInicio && dataFim && (
+              <button onClick={onFilter} className={styles.filterButton}>
+                Filtrar
+              </button>
+            )}
+            <button onClick={onReset} className={styles.resetButton}>
+              Resetar
+            </button>
           </div>
           <button
             onClick={onNovoAgendamento}
