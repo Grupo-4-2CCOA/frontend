@@ -11,8 +11,21 @@ export default function SellsPanel() {
     const [showPopup, setShowPopup] = useState(false);
     const [popupTitle, setPopupTitle] = useState("Informação")
     const [popupText, setPopupText] = useState("");
+    const [dashboardData, setDashboardData] = useState(null);
 
     const chartsRef = useRef([]);
+
+    const mesesLabels = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
+
+    function getSerieFromPairArray(array, indexValue = 1) {
+        if (!array) return [];
+        return array.map(item => item[indexValue]);
+    }
+
+    function getLabelFromPairArray(array) {
+        if (!array) return [];
+        return array.map(item => mesesLabels[(item[0] ?? 1) - 1]);
+    }
 
     const commonChartOptions = {
         chart: {
@@ -59,17 +72,44 @@ export default function SellsPanel() {
             }
         }
     };
+    
+    useEffect(() => {
+        const mes = 1;
+        const ano = 2025;
+
+        fetch(`http://localhost:8080/dashboard/vendas?mes=${mes}&ano=${ano}`)
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);
+                return setDashboardData(data);
+            })
+            .catch(error => {
+                console.error("Erro ao buscar dados do dashboard:", error);
+                setDashboardData(null);
+            });
+    }, []);
 
     function generateCharts() {
-        if (chartsRef.current.visitorQuantity) {
-            chartsRef.current.visitorQuantity.destroy();
+        if (chartsRef.current.leadQuantity) {
+            chartsRef.current.leadQuantity.destroy();
         }
 
         if (chartsRef.current.returnRate) {
             chartsRef.current.returnRate.destroy();
         }
 
-        let visitorQuantityChartOptions = {
+        if (!dashboardData) return;
+
+        const primeirosAgendamentosPorMes = getSerieFromPairArray(dashboardData.primeirosAgendamentos, 1);
+        const primeirosAgendamentosLabels = getLabelFromPairArray(dashboardData.primeirosAgendamentos);
+
+        const leadsPorMes = getSerieFromPairArray(dashboardData.leads, 1);
+        const leadsLabels = getLabelFromPairArray(dashboardData.leads);
+
+        const taxaRetornoPorMes = getSerieFromPairArray(dashboardData.taxaRetorno, 1);
+        const taxaRetornoLabels = getLabelFromPairArray(dashboardData.taxaRetorno);
+
+        let leadQuantityChartOptions = {
             ...commonChartOptions,
             title: {
                 text: "Taxa de retorno",
@@ -88,7 +128,7 @@ export default function SellsPanel() {
             series: [
                 {
                     name: "Rendimento",
-                    data: [150, 250, 444, 390, 754, 555, 458]
+                    data: leadsPorMes
                 }
             ],
             yaxis: {
@@ -112,10 +152,12 @@ export default function SellsPanel() {
             }
         };
 
+        leadQuantityChartOptions.xaxis.categories = leadsLabels;
+
         let returnRateChartOptions = {
             ...commonChartOptions,
             title: {
-                text: "Quantidade de visitantes no site",
+                text: "Quantidade de leads no site",
                 align: "center",
                 style: {
                     fontSize: "23px",
@@ -131,7 +173,7 @@ export default function SellsPanel() {
             series: [
                 {
                     name: "Cancelled",
-                    data: [30, 40, 35, 50, 49, 60, 70]
+                    data: taxaRetornoPorMes
                 }
             ],
             yaxis: {
@@ -155,11 +197,13 @@ export default function SellsPanel() {
             }
         };
 
-        const visitorQuantityChart = new ApexCharts(
-            document.querySelector("#visitor-quantity-chart"),
-            visitorQuantityChartOptions
+        returnRateChartOptions.xaxis.categories = taxaRetornoLabels;
+
+        const leadQuantityChart = new ApexCharts(
+            document.querySelector("#lead-quantity-chart"),
+            leadQuantityChartOptions
         );
-        visitorQuantityChart.render();
+        leadQuantityChart.render();
 
         const returnRateChart = new ApexCharts(
             document.querySelector("#return-rate-chart"),
@@ -169,17 +213,17 @@ export default function SellsPanel() {
 
         chartsRef.current = {
             returnRate: returnRateChart,
-            visitorQuantity: visitorQuantityChart,
+            leadQuantity: leadQuantityChart,
+        };
+        return () => {
+            chartsRef.current.leadQuantity?.destroy();
+            chartsRef.current.returnRate?.destroy();
         };
     }
 
     useEffect(() => {
-        generateCharts();
-        return () => {
-            chartsRef.current.visitorQuantity?.destroy();
-            chartsRef.current.returnRate?.destroy();
-        };
-    }, [chartsRef]);
+        return generateCharts();
+    }, [dashboardData]);
 
     return (
         <div className={styles.sellsPanel}>
@@ -217,13 +261,13 @@ export default function SellsPanel() {
             <div className={styles.panelChildren}>
                 <div className={styles.kpiCard}>
                     <div className={styles.kpiCardHeader}>
-                        <span className={styles.cardTitle}>Tempo médio dos visitantes no site</span>
+                        <span className={styles.cardTitle}>Tempo médio dos leads no site</span>
                         <InfoButton
                             setShowPopup={setShowPopup}
                             setPopupTitle={setPopupTitle}
                             popupTitle={"Informação"}
                             setPopupText={setPopupText}
-                            popupText={"Tempo médio que os visitantes passaram no site (durante o período selecionado)."}
+                            popupText={"Tempo médio que os leads passaram no site (durante o período selecionado)."}
                         />
                     </div>
                     <div className={styles.kpiItem}>
@@ -231,7 +275,7 @@ export default function SellsPanel() {
                     </div>
                 </div>
                 <div className={styles.chart}>
-                    <div id="visitor-quantity-chart"></div>
+                    <div id="lead-quantity-chart"></div>
                     <InfoButton
                         isAbsolute={true}
                         setShowPopup={setShowPopup}
