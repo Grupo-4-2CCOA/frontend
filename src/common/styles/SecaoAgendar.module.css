@@ -18,6 +18,73 @@
   color: #000000; /* gray-800 */
 }
 
+.headerControls {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.statusFilter {
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  border: 1px solid #db034b;
+  background-color: white;
+  color: #000000;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: border-color 0.2s, background-color 0.2s;
+}
+
+.statusFilter:hover {
+  border-color: #db034b;
+  background-color: #f5f5f5;
+}
+
+.statusFilter:focus {
+  outline: none;
+  border-color: #db034b;
+  box-shadow: 0 0 0 2px rgba(219, 3, 75, 0.1);
+}
+
+.dateFiltersContainer {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.75rem;
+}
+
+.dateInputGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.dateLabel {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #666;
+}
+
+.dateInput {
+  border: 1px solid #db034b;
+  border-radius: 0.5rem;
+  padding: 0.4rem 0.75rem;
+  font-size: 0.875rem;
+  background-color: white;
+  transition: border-color 0.2s, background-color 0.2s;
+  cursor: pointer;
+}
+
+.dateInput:hover {
+  border-color: #db034b;
+  background-color: #f5f5f5;
+}
+
+.dateInput:focus {
+  outline: none;
+  border-color: #db034b;
+  box-shadow: 0 0 0 2px rgba(219, 3, 75, 0.1);
+}
+
 .addButton {
   background-color: var(--ROSA-LOGO);
   color: white;

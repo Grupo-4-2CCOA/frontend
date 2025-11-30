@@ -2,19 +2,51 @@ import React, { useEffect } from "react";
 import styles from "../styles/SecaoAgendar.module.css";
 import { Plus, MessageSquare, Edit2, Trash2 } from 'lucide-react';
 
-export default function SecaoAgendar({ agendamentos, showPopup, onEdit, onFeedback, onNovoAgendamento, onFinalizar, page, totalPages, onPrevPage, onNextPage }) {
+export default function SecaoAgendar({ agendamentos, showPopup, onEdit, onFeedback, onNovoAgendamento, onFinalizar, page, totalPages, onPrevPage, onNextPage, statusFilter, onStatusFilterChange, dataInicio, onDataInicioChange, dataFim, onDataFimChange }) {
   return (
     <div className={styles.content}>
       {/* Título e botão */}
       <div className={styles.titleContainer}>
         <h1 className={styles.title}>Agendamento</h1>
-        <button
-          onClick={onNovoAgendamento}
-          className={styles.addButton}
-        >
-          <Plus className={styles.addIcon} />
-          <span>Realizar Agendamento</span>
-        </button>
+        <div className={styles.headerControls}>
+          <select
+            value={statusFilter}
+            onChange={(e) => onStatusFilterChange(e.target.value)}
+            className={styles.statusFilter}
+          >
+            <option value="TODOS">Todos</option>
+            <option value="ACTIVE">Ativo</option>
+            <option value="COMPLETED">Completo</option>
+            <option value="CANCELED">Cancelado</option>
+          </select>
+          <div className={styles.dateFiltersContainer}>
+            <div className={styles.dateInputGroup}>
+              <label className={styles.dateLabel}></label>
+              <input
+                type="date"
+                value={dataInicio}
+                onChange={(e) => onDataInicioChange(e.target.value)}
+                className={styles.dateInput}
+              />
+            </div>
+            <div className={styles.dateInputGroup}>
+              <label className={styles.dateLabel}></label>
+              <input
+                type="date"
+                value={dataFim}
+                onChange={(e) => onDataFimChange(e.target.value)}
+                className={styles.dateInput}
+              />
+            </div>
+          </div>
+          <button
+            onClick={onNovoAgendamento}
+            className={styles.addButton}
+          >
+            <Plus className={styles.addIcon} />
+            <span>Realizar Agendamento</span>
+          </button>
+        </div>
       </div>
 
       {/* Lista de agendamentos */}

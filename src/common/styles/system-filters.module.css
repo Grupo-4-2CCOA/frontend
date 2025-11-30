@@ -7,18 +7,50 @@
     align-items: center;
 }
 
-.filtersContainer select {
-    border: 2px solid var(--ROXO);
-    border-radius: 5px;
-    padding: 12px;
-    font-size: 16px;
-    background-color: transparent;
-    transition: all 0.3s ease;
+.leftFiltersGroup {
+    display: flex;
+    flex-direction: row;
+    gap: 30px;
+    align-items: flex-end;
 }
 
-.filtersContainer select:focus {
+.dateFiltersContainer {
+    display: flex;
+    flex-direction: row;
+    gap: 30px;
+    align-items: flex-end;
+}
+
+.dateInputGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.dateLabel {
+    font-size: 14px;
+    font-weight: 500;
+    color: #333;
+}
+
+.dateInput {
+    border: 2px solid var(--ROXO);
+    border-radius: 5px;
+    padding: 10px;
+    font-size: 14px;
+    background-color: white;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.dateInput:hover {
+    border-color: var(--DOURADO);
+}
+
+.dateInput:focus {
     outline: none;
     border-color: var(--ROSA-LOGO);
+    border-width: 2px;
 }
 
 .filtersContainer .buttons {

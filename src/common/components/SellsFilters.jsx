@@ -2,19 +2,12 @@ import React, { useState } from "react";
 import styles from "../styles/system-filters.module.css";
 import BotaoPrincipal from "./BotaoPrincipal";
 import BotaoSecundario from "./BotaoSecundario";
-import Select from "@mui/material/Select";
-import FormControl from "@mui/material/FormControl";
-import InputLabel from "@mui/material/InputLabel";
-import MenuItem from "@mui/material/MenuItem";
 import { useNavigate } from 'react-router-dom';
 
 export default function SystemFilters() {
-    const [periodo, setPeriodo] = useState("Semanal");
+    const [dataInicio, setDataInicio] = useState("");
+    const [dataFim, setDataFim] = useState("");
     const navigate = useNavigate();
-
-    const handleChange = (event) => {
-      setPeriodo(event.target.value);
-    };  
 
     const handleNavigate = (route) => {
         navigate(route);
@@ -22,43 +15,27 @@ export default function SystemFilters() {
 
     return (
         <div className={styles.filtersContainer}>
-            <div>
-                <FormControl fullWidth sx={{
-                    width: 300,
-                    "& .MuiOutlinedInput-root": {
-                        "&:hover fieldset": {
-                            borderColor: "var(--DOURADO)",
-                            color: "var(--DOURADO)"
-                        },
-                        "&.Mui-focused fieldset": {
-                            borderColor: "var(--ROSA-LOGO)",
-                            borderWidth: "3px",
-                            color: "var(--ROSA-LOGO)"
-                        },
-                    },
-                    "& .MuiInputLabel-root": {
-                        "&:hover": {
-                            borderColor: "var(--DOURADO)",
-                            color: "var(--DOURADO)"
-                        },
-                        "&.Mui-focused": {
-                            borderColor: "var(--ROSA-LOGO)",
-                            color: "var(--ROSA-LOGO)"
-                        }
-                    }
-                }}>
-                    <InputLabel id="demo-simple-select-label">Período</InputLabel>
-                    <Select
-                        labelId="demo-simple-select-label"
-                        id="demo-simple-select"
-                        value={periodo}
-                        label="Aql"
-                        onChange={handleChange}
-                    >
-                        <MenuItem value={"Semanal"}>Semanal</MenuItem>
-                        <MenuItem value={"Mensal"}>Mensal</MenuItem>
-                    </Select>
-                </FormControl>
+            <div className={styles.leftFiltersGroup}>
+                <div className={styles.dateFiltersContainer}>
+                    <div className={styles.dateInputGroup}>
+                        <label className={styles.dateLabel}>Data Início:</label>
+                        <input
+                            type="date"
+                            value={dataInicio}
+                            onChange={(e) => setDataInicio(e.target.value)}
+                            className={styles.dateInput}
+                        />
+                    </div>
+                    <div className={styles.dateInputGroup}>
+                        <label className={styles.dateLabel}>Data Fim:</label>
+                        <input
+                            type="date"
+                            value={dataFim}
+                            onChange={(e) => setDataFim(e.target.value)}
+                            className={styles.dateInput}
+                        />
+                    </div>
+                </div>
             </div>
             <span>Vendas</span>
             <div className={styles.buttons}>

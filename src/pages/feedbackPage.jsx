@@ -47,6 +47,7 @@ const FeedbackCard = ({ item, onView }) => {
 export default function FeedbackScreen() {
   const [selectedMonth, setSelectedMonth] = useState('Atual');
   const [selectedService, setSelectedService] = useState('');
+  const [selectedRating, setSelectedRating] = useState(null); // null = todos, 1-5 = estrelas
   const [feedbacks, setFeedbacks] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -117,6 +118,26 @@ export default function FeedbackScreen() {
     setSelectedDetail(null);
   };
 
+  // Função para filtrar feedbacks
+  const getFilteredFeedbacks = () => {
+    return feedbacks.filter(feedback => {
+      // Filtrar por estrelas
+      if (selectedRating !== null && feedback.rating !== selectedRating) {
+        return false;
+      }
+      
+      // Filtrar por categoria de serviço
+      if (selectedService) {
+        const hasService = feedback.schedule?.items?.some(item => 
+          item.service?.name?.toLowerCase().includes(selectedService.toLowerCase())
+        );
+        if (!hasService) return false;
+      }
+      
+      return true;
+    });
+  };
+
   return (
     <div className={styles.container}>
       {/* Reuse global navbar */}
@@ -124,7 +145,39 @@ export default function FeedbackScreen() {
 
       {/* Filters */}
       <div className={styles.filters}>
- 
+        <div className={styles.filtersGroup}>
+          <div className={styles.filterItem}>
+            <label className={styles.filterLabel}>Categoria:</label>
+            <input
+              type="text"
+              placeholder="Pesquisar serviço..."
+              value={selectedService}
+              onChange={(e) => setSelectedService(e.target.value)}
+              className={styles.filterInput}
+            />
+          </div>
+
+          <div className={styles.filterItem}>
+            <label className={styles.filterLabel}>Classificação:</label>
+            <div className={styles.starsFilter}>
+              <button
+                className={`${styles.starButton} ${selectedRating === null ? styles.active : ''}`}
+                onClick={() => setSelectedRating(null)}
+              >
+                Todas
+              </button>
+              {[1, 2, 3, 4, 5].map((star) => (
+                <button
+                  key={star}
+                  className={`${styles.starButton} ${selectedRating === star ? styles.active : ''}`}
+                  onClick={() => setSelectedRating(star)}
+                >
+                  {star}★
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Feedback Cards Grid */}
@@ -132,8 +185,8 @@ export default function FeedbackScreen() {
         <div className={styles.grid}>
           {loading && <div>Carregando feedbacks...</div>}
           {error && <div style={{ color: 'red' }}>{error}</div>}
-          {!loading && feedbacks.length === 0 && <div>Nenhum feedback encontrado.</div>}
-          {!loading && feedbacks.map((feedback) => (
+          {!loading && getFilteredFeedbacks().length === 0 && <div>Nenhum feedback encontrado.</div>}
+          {!loading && getFilteredFeedbacks().map((feedback) => (
             <FeedbackCard key={feedback.id} item={feedback} onView={handleViewComment} />
           ))}
         </div>

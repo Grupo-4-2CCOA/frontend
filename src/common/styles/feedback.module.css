@@ -80,6 +80,76 @@
   align-items: center;
 }
 
+.filtersGroup {
+  display: flex;
+  gap: 2rem;
+  align-items: flex-start;
+  width: 100%;
+  flex-wrap: wrap;
+}
+
+.filterItem {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.filterLabel {
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: #333;
+}
+
+.filterInput {
+  padding: 0.625rem 1rem;
+  border: 2px solid var(--purple-500);
+  border-radius: 0.5rem;
+  font-size: 0.95rem;
+  background: white;
+  cursor: text;
+  transition: border-color 0.2s;
+  min-width: 200px;
+}
+
+.filterInput:hover {
+  border-color: var(--purple-600);
+}
+
+.filterInput:focus {
+  outline: none;
+  border-color: var(--purple-400);
+  box-shadow: 0 0 0 3px rgba(155, 89, 182, 0.1);
+}
+
+.starsFilter {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.starButton {
+  padding: 0.5rem 0.75rem;
+  border: 2px solid var(--purple-500);
+  background: white;
+  color: var(--purple-500);
+  border-radius: 0.5rem;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+}
+
+.starButton:hover {
+  border-color: var(--purple-600);
+  background: #f5f5f5;
+}
+
+.starButton.active {
+  background: var(--purple-500);
+  color: white;
+  border-color: var(--purple-500);
+}
+
 .selectWrapper {
   position: relative;
 }

@@ -21,6 +21,9 @@ export default function AgendamentoCliente() {
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [userInfo, setUserInfo] = useState(null);
+  const [statusFilter, setStatusFilter] = useState('TODOS');
+  const [dataInicio, setDataInicio] = useState("");
+  const [dataFim, setDataFim] = useState("");
 
   useEffect(() => {
     const loadUserAndSchedules = async () => {
@@ -173,6 +176,46 @@ const fetchSchedules = async (id, pageNum) => {
   const onPrevPage = () => setPage((p) => Math.max(0, p - 1));
   const onNextPage = () => setPage((p) => (p + 1 < totalPages ? p + 1 : p));
 
+  const getFilteredAgendamentos = () => {
+    let filtered = agendamentos;
+
+    // Filtrar por status
+    if (statusFilter !== 'TODOS') {
+      filtered = filtered.filter(agendamento => agendamento.status === statusFilter);
+    }
+
+    // Filtrar por data
+    if (dataInicio || dataFim) {
+      filtered = filtered.filter(agendamento => {
+        const agendamentoDate = agendamento.appointmentDatetime;
+        let agendDate = null;
+
+        if (Array.isArray(agendamentoDate) && agendamentoDate.length >= 3) {
+          agendDate = new Date(agendamentoDate[0], agendamentoDate[1] - 1, agendamentoDate[2]);
+        } else if (agendamentoDate) {
+          agendDate = new Date(agendamentoDate);
+        }
+
+        if (!agendDate || isNaN(agendDate.getTime())) return true;
+
+        if (dataInicio) {
+          const startDate = new Date(dataInicio);
+          if (agendDate < startDate) return false;
+        }
+
+        if (dataFim) {
+          const endDate = new Date(dataFim);
+          endDate.setHours(23, 59, 59, 999);
+          if (agendDate > endDate) return false;
+        }
+
+        return true;
+      });
+    }
+
+    return filtered;
+  };
+
   return (
     <>
       {showPopup && (
@@ -188,7 +231,7 @@ const fetchSchedules = async (id, pageNum) => {
       <NavbarLogado />
 
       <SecaoAgendar
-        agendamentos={agendamentos}
+        agendamentos={getFilteredAgendamentos()}
         showPopup={handleShowDeletePopup}
         onEdit={handleEdit}
         onDelete={handleDelete}
@@ -198,6 +241,12 @@ const fetchSchedules = async (id, pageNum) => {
         totalPages={totalPages}
         onPrevPage={onPrevPage}
         onNextPage={onNextPage}
+        statusFilter={statusFilter}
+        onStatusFilterChange={setStatusFilter}
+        dataInicio={dataInicio}
+        onDataInicioChange={setDataInicio}
+        dataFim={dataFim}
+        onDataFimChange={setDataFim}
       />
 
       <Agendar
