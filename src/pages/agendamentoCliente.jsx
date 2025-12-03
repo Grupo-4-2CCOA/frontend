@@ -7,7 +7,7 @@ import Popup from '../common/components/Popup';
 import api from '../services/api';
 import EditarAgendar from "../common/components/EditarAgendar";
 import { useNavigate } from 'react-router-dom';
-import { useModal } from '../common/hooks/useModal';
+import { useModal } from '../hooks/useModal';
 import Modal from '../common/components/Modal';
 
 export default function AgendamentoCliente() {
