@@ -25,20 +25,29 @@ export default function Modal({ open, type, message, onClose }) {
   }
 
   return (
-    <div className="modal-bg" onClick={type !== "loading" ? onClose : undefined}>
-      <div className="modal-box">
+    <div
+      className={Styles["modal-bg"]}
+      onClick={type !== "loading" ? onClose : undefined}
+    >
+      <div
+        className={Styles["modal-box"]}
+        onClick={e => e.stopPropagation()}
+      >
         {type !== "loading" && (
-          <span className="modal-close" onClick={onClose}>
+          <span className={Styles["modal-close"]} onClick={onClose}>
             &times;
           </span>
         )}
-        <div className="modal-icon" style={{ color, fontSize: "3rem", marginBottom: "1rem" }}>
+        <div
+          className={Styles["modal-icon"]}
+          style={{ color, fontSize: "3rem", marginBottom: "1rem" }}
+        >
           {icon}
         </div>
-        <div className="modal-msg">{message}</div>
+        <div className={Styles["modal-msg"]}>{message}</div>
         {type === "loading" && (
-          <div className="modal-loader">
-            <div className="loader"></div>
+          <div className={Styles["modal-loader"]}>
+            <div className={Styles["loader"]}></div>
           </div>
         )}
       </div>
