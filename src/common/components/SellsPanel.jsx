@@ -75,10 +75,18 @@ export default function SellsPanel() {
     };
     
     useEffect(() => {
-        const mes = 1;
+        const mes = 10;
         const ano = 2025;
 
-        api.get(`http://localhost:8080/dashboard/vendas?mes=${mes}&ano=${ano}`).then((response) => setDashboardData(response.data));
+        api.get(`http://localhost:8080/dashboard/vendas?mes=${mes}&ano=${ano}`)
+            .then((response) => {
+                setDashboardData(response.data);
+                console.log(response.data)
+            })
+            .catch(error => {
+                console.error("Erro ao buscar dados do dashboard:", error);
+                setDashboardData(null);
+            });
     }, []);
 
     function generateCharts() {

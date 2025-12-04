@@ -10,6 +10,7 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TablePagination from '@mui/material/TablePagination';
 import TableRow from '@mui/material/TableRow';
+import api from '../../services/api';
 
 // import { useAuth } from '../hooks/useAuth';
 
@@ -70,21 +71,23 @@ export default function SystemPanel() {
             }
         }
     };
-
+    
     useEffect(() => {
-        const mes = 11;
+        const mes = 10;
         const ano = 2025;
 
-        fetch(`http://localhost:8080/dashboard/sistema?mes=${mes}&ano=${ano}`)
-            .then(response => response.json())
-            .then(data => setDashboardData(data))
+        api.get(`http://localhost:8080/dashboard/sistema?mes=${mes}&ano=${ano}`)
+            .then((response) => {
+                setDashboardData(response.data);
+                console.log(response.data)
+            })
             .catch(error => {
                 console.error("Erro ao buscar dados do dashboard:", error);
                 setDashboardData(null);
             });
     }, []);
-
-    useEffect(() => {
+    
+    function generateCharts() {
         if (chartsRef.current.cancelled) chartsRef.current.cancelled.destroy();
         if (chartsRef.current.performance) chartsRef.current.performance.destroy();
 
@@ -201,6 +204,10 @@ export default function SystemPanel() {
             chartsRef.current.cancelled?.destroy();
         };
 
+    }
+
+    useEffect(() => {
+        return generateCharts();
     }, [dashboardData]);
 
     const rankingServicos = dashboardData?.rankingServicos || [];
