@@ -51,6 +51,8 @@ export default function FeedbackScreen() {
   const [feedbacks, setFeedbacks] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 20;
 
   const [detailOpen, setDetailOpen] = useState(false);
   const [detailLoading, setDetailLoading] = useState(false);
@@ -138,6 +140,25 @@ export default function FeedbackScreen() {
     });
   };
 
+  // Função para obter feedbacks paginados
+  const getPaginatedFeedbacks = () => {
+    const filtered = getFilteredFeedbacks();
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    return filtered.slice(startIndex, endIndex);
+  };
+
+  // Função para calcular total de páginas
+  const getTotalPages = () => {
+    const filtered = getFilteredFeedbacks();
+    return Math.ceil(filtered.length / itemsPerPage);
+  };
+
+  // Reset para primeira página quando filtros mudam
+  React.useEffect(() => {
+    setCurrentPage(1);
+  }, [selectedService, selectedRating]);
+
   return (
     <div className={styles.container}>
       {/* Reuse global navbar */}
@@ -186,10 +207,63 @@ export default function FeedbackScreen() {
           {loading && <div>Carregando feedbacks...</div>}
           {error && <div style={{ color: 'red' }}>{error}</div>}
           {!loading && getFilteredFeedbacks().length === 0 && <div>Nenhum feedback encontrado.</div>}
-          {!loading && getFilteredFeedbacks().map((feedback) => (
+          {!loading && getPaginatedFeedbacks().map((feedback) => (
             <FeedbackCard key={feedback.id} item={feedback} onView={handleViewComment} />
           ))}
         </div>
+
+        {/* Pagination - Only show if more than 20 items */}
+        {!loading && getFilteredFeedbacks().length > 20 && (
+          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 8, marginTop: 32, paddingBottom: 20 }}>
+            <button
+              onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+              disabled={currentPage === 1}
+              style={{
+                padding: '8px 12px',
+                border: '1px solid #ccc',
+                borderRadius: 4,
+                cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
+                opacity: currentPage === 1 ? 0.5 : 1
+              }}
+            >
+              ← Anterior
+            </button>
+            
+            <div style={{ display: 'flex', gap: 4 }}>
+              {Array.from({ length: getTotalPages() }, (_, i) => i + 1).map((page) => (
+                <button
+                  key={page}
+                  onClick={() => setCurrentPage(page)}
+                  style={{
+                    padding: '8px 12px',
+                    border: currentPage === page ? '2px solid #f6c948' : '1px solid #ccc',
+                    borderRadius: 4,
+                    cursor: 'pointer',
+                    background: currentPage === page ? '#f6c948' : '#fff',
+                    fontWeight: currentPage === page ? 'bold' : 'normal',
+                    color: currentPage === page ? '#000' : '#333'
+                  }}
+                >
+                  {page}
+                </button>
+              ))}
+            </div>
+
+            <button
+              onClick={() => setCurrentPage(prev => Math.min(prev + 1, getTotalPages()))}
+              disabled={currentPage === getTotalPages()}
+              style={{
+                padding: '8px 12px',
+                border: '1px solid #ccc',
+                borderRadius: 4,
+                cursor: currentPage === getTotalPages() ? 'not-allowed' : 'pointer',
+                opacity: currentPage === getTotalPages() ? 0.5 : 1
+              }}
+            >
+              Próxima →
+            </button>
+          </div>
+        )}
 
         {/* Detail modal */}
         {detailOpen && (
