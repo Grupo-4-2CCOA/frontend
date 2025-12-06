@@ -30,6 +30,7 @@ export default function CadastroFuncionario() {
     setLoading(true);
 
     try {
+      console.log(formData);
       const response = await api.post('/funcionarios', formData);
 
       setFeedback({
@@ -44,6 +45,7 @@ export default function CadastroFuncionario() {
         cpf: '',
         phone: '',
         cep: '',
+        role: 3
       });
 
       // Remover mensagem após 3 segundos

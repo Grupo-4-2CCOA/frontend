@@ -1,7 +1,7 @@
 
 .content {
   padding: 1rem;
-  max-width: 55rem;
+  max-width: 68rem;
   margin: 0 auto;
 }
 
@@ -22,6 +22,18 @@
   display: flex;
   align-items: center;
   gap: 1rem;
+}
+
+.filterGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.filterLabel {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #666;
 }
 
 .statusFilter {
@@ -48,7 +60,7 @@
 
 .dateFiltersContainer {
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   gap: 0.75rem;
 }
 
@@ -67,7 +79,7 @@
 .dateInput {
   border: 1px solid #db034b;
   border-radius: 0.5rem;
-  padding: 0.4rem 0.75rem;
+  padding: 0.5rem 1rem;
   font-size: 0.875rem;
   background-color: white;
   transition: border-color 0.2s, background-color 0.2s;
@@ -93,13 +105,14 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  transition: background-color 0.2s;
+  transition: all 0.2s ease-in-out;
   border: none;
   
 }
 
 .addButton:hover {
   background-color: #db034b;
+  transform: scale(1.1);
 }
 
 .addIcon {
@@ -156,49 +169,69 @@
   display: flex;
   align-items: center;
   gap: 1rem;
+  transition: all 0.2s ease;
 }
 
 .feedbackBtn {
   background-color: var(--ROSA-LOGO);
   display: flex;
   align-items: center;
+  border-radius: 8px;
   gap: 0.25rem;
   font-size: 0.875rem;
   color: #ffffff; 
-  transition: color 1s;
+  transition: all 0.2s ease-in-out;
   padding: 7px;
   border: none;
 }
 
 .feedbackBtn:hover {
-    background-color: #db034b;
+  background-color: #db034b;
+  transform: scale(1.1);
 }
 
 .editBtn {
   padding: 0.5rem;
   border-radius: 0.5rem;
   color: #000000;   
-  transition: all 0.2s;
+  transition: all 0.2s ease-in-out;
   background-color: white;
-  border: 0.5px solid ;
+  border: 0.5px solid;
 }
 
 .editBtn:hover {
-  color: #3b82f6; /* blue-500 */
-  background-color: #e6f1ff; /* blue-50 */
+  background-color: var(--DOURADO);
+  color: white;
+  transform: scale(1.1);
 }
 
 .deleteBtn {
   padding: 0.5rem;
   border-radius: 0.5rem;
   color: black;
-  transition: all 0.2s;
+  transition: all 0.2s ease-in-out;
   background-color: white;
-  border: 0.5px solid ;
+  border: 0.5px solid;
+  transform: scale(1);
 }
 
 .deleteBtn:hover {
-  color: #ef4444; /* red-500 */
+  background-color: #ef4444;
+  color: white;
+  transform: scale(1.1);
+}
+
+.completeBtn {
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  background-color: #1b8f3a;
+  color: white;
+  transition: all 0.2s ease-in-out;
+  border: 0.5px solid;
+}
+
+.completeBtn:hover {
+  transform: scale(1.1);
 }
 
 .smallIcon {
@@ -281,11 +314,11 @@
   padding: 0.5rem 1rem;
   border-radius: 9999px;
   cursor: pointer;
-  transition: background 0.2s, transform 0.1s;
+  transition: all 0.2s ease-in-out;
 }
 .pageButton:hover {
   background: #db034b;
-  transform: translateY(-1px);
+  transform: scale(1.1);
 }
 .pageButton:disabled {
   background: #f2b3c4;
@@ -304,11 +337,27 @@
   margin-top: 0.5rem;
 }
 .serviceChip {
-  background: #fff1f5; /* tom claro relacionado ao rosa */
+  background: #fff1f5;
   color: var(--ROSA-LOGO);
   border: 1px solid var(--ROSA-LOGO);
   border-radius: 9999px;
   padding: 0.25rem 0.6rem;
   font-size: 0.85rem;
   font-weight: 500;
+}
+
+.filterButton {
+  background-color: var(--DOURADO);
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.2s ease-in-out;
+  border: none;
+}
+
+.filterButton:hover {
+  transform: scale(1.1);
 }

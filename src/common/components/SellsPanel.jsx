@@ -75,7 +75,7 @@ export default function SellsPanel() {
     };
     
     useEffect(() => {
-        const mes = 10;
+        const mes = 11;
         const ano = 2025;
 
         api.get(`http://localhost:8080/dashboard/vendas?mes=${mes}&ano=${ano}`)

@@ -14,6 +14,8 @@ export default function AgendamentoCliente() {
   const [showFeedback, setShowFeedback] = useState(false);
   const [selectedAgendamento, setSelectedAgendamento] = useState(null);
   const [agendamentos, setAgendamentos] = useState([]);
+  const [rawAgendamentos, setRawAgendamentos] = useState([]);
+  const [allAgendamentos, setAllAgendamentos] = useState([]); // Para armazenar todos os agendamentos quando filtro de status está ativo
   const [page, setPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
   const [clientId, setClientId] = useState(null);
@@ -55,7 +57,102 @@ export default function AgendamentoCliente() {
     } else {
       fetchSchedules(clientId, page);
     }
-  }, [clientId, page, filtroAtivo, dataInicio, dataFim]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [clientId, page, filtroAtivo]);
+
+  // Buscar todos os dados quando filtro de status muda (para poder filtrar e paginar no frontend)
+  // Só busca todos se não houver filtro de data ativo
+  useEffect(() => {
+    if (clientId == null) return;
+    if (statusFilter !== 'TODOS' && !filtroAtivo) {
+      fetchAllSchedules(clientId);
+    } else if (statusFilter === 'TODOS' && allAgendamentos.length > 0 && !filtroAtivo) {
+      // Se voltou para TODOS, limpar dados acumulados e voltar à paginação normal
+      setAllAgendamentos([]);
+      fetchSchedules(clientId, page);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [statusFilter, clientId]);
+
+const fetchAllSchedules = async (id) => {
+  try {
+    setLoading(true);
+    let allData = [];
+    let currentPage = 0;
+    let hasMore = true;
+
+    while (hasMore) {
+      const url = `/agendamentos/agendamentos-por-cliente/${id}?page=${currentPage}`;
+      const resp = await api.get(url);
+      const data = resp.data;
+      const content = data?.content || [];
+      
+      if (content.length === 0) {
+        hasMore = false;
+      } else {
+        allData = [...allData, ...content];
+        const total = data?.totalPages || 0;
+        if (currentPage >= total - 1) {
+          hasMore = false;
+        } else {
+          currentPage++;
+        }
+      }
+    }
+
+    setRawAgendamentos(allData);
+
+    const mapped = allData.map((item) => {
+      const dt = item?.appointmentDatetime;
+      let dataPt = '';
+
+      try {
+        let d = null;
+        if (Array.isArray(dt) && dt.length >= 5) {
+          d = new Date(dt[0], dt[1] - 1, dt[2], dt[3], dt[4]);
+        } else if (dt) {
+          d = new Date(dt);
+        }
+
+        if (d && !isNaN(d.getTime())) {
+          const dStr = d.toLocaleDateString('pt-BR', {
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric'
+          });
+          const tStr = d.toLocaleTimeString('pt-BR', {
+            hour: '2-digit',
+            minute: '2-digit'
+          });
+          dataPt = `${dStr} às ${tStr}`;
+        }
+      } catch (e) {
+        console.error('Erro ao formatar data do agendamento:', e, dt);
+      }
+
+      const nomesServicos = item?.items?.map(i => i.service?.name).filter(Boolean) || [];
+      const total = item?.items?.reduce((sum, i) => sum + (i.finalPrice || 0), 0) || 0;
+
+      return {
+        id: item?.id,
+        data: dataPt || '-',
+        cliente: item?.client?.name || 'Você',
+        servico: nomesServicos.join(', '),
+        servicos: nomesServicos,
+        status: item?.status,
+        total: total,
+        items: item?.items || []
+      };
+    });
+
+    setAllAgendamentos(mapped);
+    setAgendamentos(mapped);
+  } catch (e) {
+    console.error('Erro ao buscar todos os agendamentos:', e);
+  } finally {
+    setLoading(false);
+  }
+};
 
 const fetchSchedules = async (id, pageNum, inicio = null, fim = null) => {
   try {
@@ -67,6 +164,7 @@ const fetchSchedules = async (id, pageNum, inicio = null, fim = null) => {
     const data = resp.data;
     const content = data?.content || [];
     setTotalPages(data?.totalPages || 0);
+    setRawAgendamentos(content);
 
     const mapped = content.map((item) => {
       const dt = item?.appointmentDatetime;
@@ -220,20 +318,29 @@ const fetchSchedules = async (id, pageNum, inicio = null, fim = null) => {
   const onNextPage = () => setPage((p) => (p + 1 < totalPages ? p + 1 : p));
 
   const getFilteredAgendamentos = () => {
-    let filtered = agendamentos;
+    // Se filtro de status está ativo, usar allAgendamentos, senão usar agendamentos da página atual
+    const sourceData = (statusFilter !== 'TODOS' && allAgendamentos.length > 0) ? allAgendamentos : agendamentos;
+    let filtered = sourceData;
 
     // Filtrar por status
     if (statusFilter !== 'TODOS') {
       filtered = filtered.filter(agendamento => agendamento.status === statusFilter);
     }
 
-    // Filtrar por data
-    if (dataInicio || dataFim) {
+    // Não filtrar por data quando filtroAtivo é true, pois o backend já retornou os dados filtrados
+    // O filtro de data no frontend só é necessário quando o usuário está visualizando sem aplicar o filtro
+    if (!filtroAtivo && (dataInicio || dataFim)) {
       filtered = filtered.filter(agendamento => {
-        const agendamentoDate = agendamento.appointmentDatetime;
+        // Buscar o agendamento original para pegar appointmentDatetime
+        const rawAppointment = rawAgendamentos.find(a => a.id === agendamento.id);
+        if (!rawAppointment) return true;
+
+        const agendamentoDate = rawAppointment.appointmentDatetime;
         let agendDate = null;
 
-        if (Array.isArray(agendamentoDate) && agendamentoDate.length >= 3) {
+        if (Array.isArray(agendamentoDate) && agendamentoDate.length >= 5) {
+          agendDate = new Date(agendamentoDate[0], agendamentoDate[1] - 1, agendamentoDate[2], agendamentoDate[3], agendamentoDate[4]);
+        } else if (Array.isArray(agendamentoDate) && agendamentoDate.length >= 3) {
           agendDate = new Date(agendamentoDate[0], agendamentoDate[1] - 1, agendamentoDate[2]);
         } else if (agendamentoDate) {
           agendDate = new Date(agendamentoDate);
@@ -241,15 +348,19 @@ const fetchSchedules = async (id, pageNum, inicio = null, fim = null) => {
 
         if (!agendDate || isNaN(agendDate.getTime())) return true;
 
+        // Comparar apenas a parte de data (ano, mês, dia) para evitar problemas de timezone
+        const agendDateOnly = new Date(agendDate.getFullYear(), agendDate.getMonth(), agendDate.getDate());
+
         if (dataInicio) {
-          const startDate = new Date(dataInicio);
-          if (agendDate < startDate) return false;
+          const startDateParts = dataInicio.split('-');
+          const startDate = new Date(parseInt(startDateParts[0]), parseInt(startDateParts[1]) - 1, parseInt(startDateParts[2]));
+          if (agendDateOnly < startDate) return false;
         }
 
         if (dataFim) {
-          const endDate = new Date(dataFim);
-          endDate.setHours(23, 59, 59, 999);
-          if (agendDate > endDate) return false;
+          const endDateParts = dataFim.split('-');
+          const endDate = new Date(parseInt(endDateParts[0]), parseInt(endDateParts[1]) - 1, parseInt(endDateParts[2]));
+          if (agendDateOnly > endDate) return false;
         }
 
         return true;
@@ -257,6 +368,25 @@ const fetchSchedules = async (id, pageNum, inicio = null, fim = null) => {
     }
 
     return filtered;
+  };
+
+  // Calcular paginação baseada nos dados filtrados quando filtro de status está ativo
+  const getPaginatedData = () => {
+    const filtered = getFilteredAgendamentos();
+    const itemsPerPage = 10; // Ajuste conforme necessário
+    
+    // Se não há filtro de status, usa paginação do backend
+    if (statusFilter === 'TODOS') {
+      return { data: filtered, totalPages: totalPages };
+    }
+    
+    // Se há filtro de status, pagina no frontend
+    const calculatedTotalPages = Math.ceil(filtered.length / itemsPerPage);
+    const startIndex = page * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    const paginatedData = filtered.slice(startIndex, endIndex);
+    
+    return { data: paginatedData, totalPages: calculatedTotalPages };
   };
 
   return (
@@ -274,18 +404,21 @@ const fetchSchedules = async (id, pageNum, inicio = null, fim = null) => {
       <NavbarLogado />
 
       <SecaoAgendar
-        agendamentos={getFilteredAgendamentos()}
+        agendamentos={getPaginatedData().data}
         showPopup={handleShowDeletePopup}
         onEdit={handleEdit}
         onDelete={handleDelete}
         onFeedback={handleFeedback}
         onNovoAgendamento={handleNovoAgendamento}
         page={page}
-        totalPages={totalPages}
+        totalPages={getPaginatedData().totalPages}
         onPrevPage={onPrevPage}
         onNextPage={onNextPage}
         statusFilter={statusFilter}
-        onStatusFilterChange={setStatusFilter}
+        onStatusFilterChange={(value) => {
+          setStatusFilter(value);
+          setPage(0); // Resetar para primeira página ao mudar filtro
+        }}
         dataInicio={dataInicio}
         onDataInicioChange={setDataInicio}
         dataFim={dataFim}
@@ -293,6 +426,7 @@ const fetchSchedules = async (id, pageNum, inicio = null, fim = null) => {
         onFilter={handleAplicarFiltro}
         onReset={handleLimparFiltro}
         filtroAtivo={filtroAtivo}
+        isEmployee={false}
       />
 
       <Agendar

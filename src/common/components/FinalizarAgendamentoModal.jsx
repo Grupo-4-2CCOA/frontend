@@ -2,16 +2,14 @@ import React, { useState } from 'react';
 import styles from '../styles/Agendar.module.css';
 
 const FinalizarAgendamentoModal = ({ isOpen, onClose, onConfirm }) => {
-    const [hash, setHash] = useState('');
     const [paymentMethod, setPaymentMethod] = useState('');
 
     const handleSubmit = () => {
-        if (!hash || !paymentMethod) {
-            alert('Por favor, preencha todos os campos.');
+        if (!paymentMethod) {
+            alert('Por favor, preencha o tipo de pagamento.');
             return;
         }
-        onConfirm({ hash, paymentMethod });
-        setHash('');
+        onConfirm({ paymentMethod });
         setPaymentMethod('');
     };
 
@@ -21,7 +19,7 @@ const FinalizarAgendamentoModal = ({ isOpen, onClose, onConfirm }) => {
         <div className={styles["modal-overlay"]}>
             <div className={styles["modal-content"]}>
                 <h2>Finalizar Agendamento</h2>
-
+{/* 
                 <div className={styles["form-group"]}>
                     <label>Hash da Operação:</label>
                     <input
@@ -31,7 +29,7 @@ const FinalizarAgendamentoModal = ({ isOpen, onClose, onConfirm }) => {
                         className={styles["date-field"]}
                         placeholder="Insira o hash da operação"
                     />
-                </div>
+                </div> */}
 
                 <div className={styles["form-group"]}>
                     <label>Método de Pagamento:</label>

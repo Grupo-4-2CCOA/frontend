@@ -31,7 +31,6 @@ export default function NavbarLogado(props) {
         )
       }
       <div className={styles.headerIcons}>
-        <Eye className={styles.icon} />
         <div className={styles.profileMenu}>
           <User className={styles.icon} onClick={() => setShowMenu(!showMenu)} />
           {showMenu && (
