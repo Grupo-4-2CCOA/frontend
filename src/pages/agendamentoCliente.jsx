@@ -61,31 +61,51 @@ export default function AgendamentoCliente() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Efeito para mudanças de página - só buscar se não houver filtro de status
   useEffect(() => {
     if (clientId == null) return;
-    if (filtroAtivo) {
-      fetchSchedules(clientId, page, dataInicio, dataFim);
+    // Só buscar quando não há filtro de status ativo (para evitar conflitos)
+    // Quando há filtro de status, os dados já foram buscados e a paginação é feita no frontend
+    if (statusFilter === 'TODOS') {
+      if (filtroAtivo) {
+        fetchSchedules(clientId, page, dataInicio, dataFim);
+      } else {
+        fetchSchedules(clientId, page);
+      }
+    }
+    // Se statusFilter !== 'TODOS', não buscar aqui pois já foi buscado no useEffect do statusFilter
+    // e a paginação é feita no frontend através do getPaginatedData()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page]);
+
+  // Efeito para mudanças de filtro de status
+  useEffect(() => {
+    if (clientId == null) return;
+    // Sempre resetar para primeira página ao mudar o filtro de status
+    setPage(0);
+    
+    if (statusFilter !== 'TODOS') {
+      // Se há filtro de status, buscar TODOS os agendamentos para filtrar no frontend
+      // Se há filtro de data ativo, buscar todos os agendamentos com filtro de data
+      if (filtroAtivo && dataInicio && dataFim) {
+        fetchAllSchedules(clientId, dataInicio, dataFim);
+      } else {
+        fetchAllSchedules(clientId);
+      }
     } else {
-      fetchSchedules(clientId, page);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [clientId, page, filtroAtivo]);
-
-  // Buscar todos os dados quando filtro de status muda (para poder filtrar e paginar no frontend)
-  // Só busca todos se não houver filtro de data ativo
-  useEffect(() => {
-    if (clientId == null) return;
-    if (statusFilter !== 'TODOS' && !filtroAtivo) {
-      fetchAllSchedules(clientId);
-    } else if (statusFilter === 'TODOS' && allAgendamentos.length > 0 && !filtroAtivo) {
-      // Se voltou para TODOS, limpar dados acumulados e voltar à paginação normal
+      // Quando voltar para TODOS, limpar allAgendamentos e buscar normalmente
       setAllAgendamentos([]);
-      fetchSchedules(clientId, page);
+      // Buscar página 0 - o useEffect de page não vai disparar porque setPage(0) não muda o estado se já for 0
+      if (filtroAtivo && dataInicio && dataFim) {
+        fetchSchedules(clientId, 0, dataInicio, dataFim);
+      } else {
+        fetchSchedules(clientId, 0);
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [statusFilter, clientId]);
+  }, [statusFilter]);
 
-const fetchAllSchedules = async (id) => {
+const fetchAllSchedules = async (id, inicio = null, fim = null) => {
   try {
     setLoading(true);
     let allData = [];
@@ -93,7 +113,10 @@ const fetchAllSchedules = async (id) => {
     let hasMore = true;
 
     while (hasMore) {
-      const url = `/agendamentos/agendamentos-por-cliente/${id}?page=${currentPage}`;
+      let url = `/agendamentos/agendamentos-por-cliente/${id}?page=${currentPage}`;
+      if (inicio && fim) {
+        url += `&dataInicio=${inicio}&dataFim=${fim}`;
+      }
       const resp = await api.get(url);
       const data = resp.data;
       const content = data?.content || [];
@@ -326,13 +349,39 @@ const fetchSchedules = async (id, pageNum, inicio = null, fim = null) => {
     }
   };
 
-  const onPrevPage = () => setPage((p) => Math.max(0, p - 1));
-  const onNextPage = () => setPage((p) => (p + 1 < totalPages ? p + 1 : p));
-  const onPageChange = (newPage) => setPage(newPage); // newPage já vem 0-based do componente Pagination
+  const onPrevPage = () => {
+    setPage((p) => {
+      const effectiveTotalPages = getEffectiveTotalPages();
+      return Math.max(0, p - 1);
+    });
+  };
+  
+  const onNextPage = () => {
+    setPage((p) => {
+      const effectiveTotalPages = getEffectiveTotalPages();
+      return (p + 1 < effectiveTotalPages ? p + 1 : p);
+    });
+  };
+  
+  const onPageChange = (newPage) => {
+    const effectiveTotalPages = getEffectiveTotalPages();
+    setPage(Math.min(newPage, effectiveTotalPages - 1));
+  };
 
   const getFilteredAgendamentos = () => {
-    // Se filtro de status está ativo, usar allAgendamentos, senão usar agendamentos da página atual
-    const sourceData = (statusFilter !== 'TODOS' && allAgendamentos.length > 0) ? allAgendamentos : agendamentos;
+    // Quando há filtro de status, usar allAgendamentos (que já foram buscados todos)
+    // Quando não há filtro de status, usar agendamentos (paginação do backend)
+    let sourceData;
+    
+    if (statusFilter !== 'TODOS' && allAgendamentos.length > 0) {
+      sourceData = allAgendamentos;
+    } else if (statusFilter === 'TODOS') {
+      sourceData = agendamentos;
+    } else {
+      // Caso intermediário: filtro de status ativo mas ainda não carregou todos
+      sourceData = agendamentos;
+    }
+    
     let filtered = sourceData;
 
     // Filtrar por status
@@ -386,20 +435,28 @@ const fetchSchedules = async (id, pageNum, inicio = null, fim = null) => {
   // Calcular paginação baseada nos dados filtrados quando filtro de status está ativo
   const getPaginatedData = () => {
     const filtered = getFilteredAgendamentos();
-    const itemsPerPage = 10; // Ajuste conforme necessário
+    const itemsPerPage = 5; // Máximo de 5 agendamentos por página
     
-    // Se não há filtro de status, usa paginação do backend
+    // Se não há filtro de status (TODOS), usa paginação do backend
     if (statusFilter === 'TODOS') {
       return { data: filtered, totalPages: totalPages };
     }
     
-    // Se há filtro de status, pagina no frontend
+    // Se há filtro de status, faz paginação no frontend com 5 itens por página
     const calculatedTotalPages = Math.ceil(filtered.length / itemsPerPage);
     const startIndex = page * itemsPerPage;
     const endIndex = startIndex + itemsPerPage;
     const paginatedData = filtered.slice(startIndex, endIndex);
     
-    return { data: paginatedData, totalPages: calculatedTotalPages };
+    // Garantir que totalPages seja pelo menos 1 mesmo se não houver dados
+    const finalTotalPages = calculatedTotalPages === 0 ? 1 : calculatedTotalPages;
+    
+    return { data: paginatedData, totalPages: finalTotalPages };
+  };
+
+  const getEffectiveTotalPages = () => {
+    const paginatedData = getPaginatedData();
+    return paginatedData.totalPages;
   };
 
   return (
@@ -410,7 +467,7 @@ const fetchSchedules = async (id, pageNum, inicio = null, fim = null) => {
           hasButtons
           onClick={handleConfirmDelete}
           title="Atenção!"
-          text="Tem certeza que deseja cancelar o seu agendamento?\nVocê não conseguirá reverter esta ação."
+          text="Tem certeza que deseja cancelar o seu agendamento? Você não conseguirá reverter esta ação."
           setShowPopup={setShowPopup}
         />
       )}

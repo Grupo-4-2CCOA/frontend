@@ -3,6 +3,7 @@ import { Plus } from 'lucide-react';
 import styles from '../common/styles/feedback.module.css';
 import NavbarLogado from '../common/components/NavbarLogado';
 import Pagination from '../common/components/Pagination';
+import Modal from '../common/components/Modal';
 import api from '../services/api';
 
 const FeedbackCard = ({ item, onView }) => {
@@ -103,7 +104,6 @@ export default function FeedbackScreen() {
             allFeedbacks = [...allFeedbacks, ...data];
             break;
           } else {
-            // Formato inesperado
             console.warn('Formato de resposta inesperado:', data);
             break;
           }
@@ -182,12 +182,10 @@ export default function FeedbackScreen() {
 
   const getFilteredFeedbacks = () => {
     return feedbacks.filter(feedback => {
-      // Filtrar por estrelas
       if (selectedRating !== null && feedback.rating !== selectedRating) {
         return false;
       }
       
-      // Filtrar por categoria de serviço
       if (selectedService) {
         const hasService = feedback.schedule?.items?.some(item => 
           item.service?.name === selectedService
@@ -195,7 +193,6 @@ export default function FeedbackScreen() {
         if (!hasService) return false;
       }
       
-      // Filtrar por funcionário
       if (selectedEmployee) {
         const employeeId = feedback.schedule?.employee?.id;
         if (!employeeId || employeeId.toString() !== selectedEmployee) {
@@ -283,7 +280,9 @@ export default function FeedbackScreen() {
 
       <div className={styles.content}>
         <div className={styles.grid}>
-          {loading && <div>Carregando feedbacks...</div>}
+          {loading && (
+            <Modal open={true} type="loading" message="Carregando comentários..." onClose={() => {}} />
+          )}
           {error && <div style={{ color: 'red' }}>{error}</div>}
           {!loading && getFilteredFeedbacks().length === 0 && (
             <div className={styles.empty}>
@@ -298,7 +297,7 @@ export default function FeedbackScreen() {
           ))}
         </div>
 
-        {!loading && getFilteredFeedbacks().length > 10 && (
+        {!loading && getTotalPages() > 1 && (
           <Pagination
             currentPage={currentPage}
             totalPages={getTotalPages()}
