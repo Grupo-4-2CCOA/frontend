@@ -52,19 +52,18 @@
   justify-content: center;
 }
 
-.x {
-  font-size: 48px;
-  font-weight: bold;
-  color: #ccc;
-}
-
 .texto .caixa-texto {
-  width: 400px;
-  height: 220px;
+  width: 500px;
+  height: 180px;
   background: #fafafa;
   border: 2px solid #f0c0d0;
   border-radius: 12px;
   box-shadow: inset 0 2px 6px rgba(0,0,0,0.05);
+  padding: 0 20px;
+  font-size: 17px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
 }
 
 .desconto {
@@ -112,4 +111,22 @@
 .formulario input:focus {
     border-color: var(--ROSA-LOGO);
     box-shadow: 0 0 6px rgba(255,103,197,0.4);
+}
+
+.contato-item {
+    display: flex;
+    flex-direction: row;
+}
+
+.contato-item-label {
+    font-weight: bold;
+    margin-right: 10px;
+    color: var(--ROSA-LOGO);
+    font-size: 19px;
+}
+
+.contato-item-icon {
+    font-size: 20px;
+    color: var(--ROSA-LOGO);
+    margin-right: 10px;
 }

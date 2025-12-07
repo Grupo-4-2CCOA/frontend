@@ -1,8 +1,9 @@
 import React, { useEffect } from "react";
 import styles from "../styles/SecaoAgendar.module.css";
 import { Plus, MessageSquare, Edit2, Trash2 } from 'lucide-react';
+import Pagination from './Pagination';
 
-export default function SecaoAgendar({ agendamentos, showPopup, onEdit, onFeedback, onNovoAgendamento, onFinalizar, page, totalPages, onPrevPage, onNextPage, statusFilter, onStatusFilterChange, dataInicio, onDataInicioChange, dataFim, onDataFimChange, onFilter, onReset, isEmployee }) {
+export default function SecaoAgendar({ agendamentos, showPopup, onEdit, onFeedback, onNovoAgendamento, onFinalizar, page, totalPages, onPrevPage, onNextPage, onPageChange, statusFilter, onStatusFilterChange, dataInicio, onDataInicioChange, dataFim, onDataFimChange, onFilter, onReset, isEmployee }) {
   const isPeriodValid = dataInicio && dataFim && dataInicio <= dataFim;
   return (
     <div className={styles.content}>
@@ -72,17 +73,12 @@ export default function SecaoAgendar({ agendamentos, showPopup, onEdit, onFeedba
         {agendamentos.map((agendamento) => (
           <div key={agendamento.id} className={styles.card}>
             <div className={styles.cardHeader}>
-              <div>
+              <div style={{flex: 4}}>
                 <p className={styles.date}>{agendamento.data}</p>
                 <p className={styles.clientName}>{agendamento.cliente}</p>
                 <p className={styles.service}>{agendamento.servico}</p>
-                {/* {Array.isArray(agendamento.servicos) && agendamento.servicos.length > 0 && (
-                  <div className={styles.servicesChips}>
-                    {agendamento.servicos.map((nome) => (
-                      <span key={nome} className={styles.serviceChip}>{nome}</span>
-                    ))}
-                  </div>
-                )} */}
+                <p className={styles.price}>R$ {agendamento.total},00</p>
+              </div>
                 {agendamento.status && (
                   <span className={
                     agendamento.status === 'ACTIVE' ? styles.statusAtivo :
@@ -98,9 +94,7 @@ export default function SecaoAgendar({ agendamentos, showPopup, onEdit, onFeedba
                           : agendamento.status}
                   </span>
                 )}
-              </div>
-
-              <div className={styles.cardActions}>
+              <div style={{flex: 0.75}} className={styles.cardActions}>
                 {
                   !isEmployee && agendamento.status === 'COMPLETED' && (
                     <button
@@ -108,7 +102,7 @@ export default function SecaoAgendar({ agendamentos, showPopup, onEdit, onFeedba
                       className={styles.feedbackBtn}
                       >
                       <MessageSquare className={styles.smallIcon} />
-                      <span>Dar feedback</span>
+                      <span>Comentar</span>
                     </button>
                   )
                 }
@@ -150,27 +144,13 @@ export default function SecaoAgendar({ agendamentos, showPopup, onEdit, onFeedba
       </div>
 
       {/* Paginação */}
-      {typeof totalPages === 'number' && totalPages > 1 && (
-        <div className={styles.pagination}>
-          <button
-            className={styles.pageButton}
-            onClick={onPrevPage}
-            disabled={page <= 0}
-          >
-            Anterior
-          </button>
-          <span className={styles.pageIndicator}>
-            Página {page + 1} de {totalPages}
-          </span>
-          <button
-            className={styles.pageButton}
-            onClick={onNextPage}
-            disabled={page >= totalPages - 1}
-          >
-            Próxima
-          </button>
-        </div>
-      )}
+      <Pagination
+        currentPage={page + 1}
+        totalPages={totalPages}
+        onPageChange={onPageChange}
+        onPrevPage={onPrevPage}
+        onNextPage={onNextPage}
+      />
 
       {/* Estado vazio */}
       {agendamentos.length === 0 && (

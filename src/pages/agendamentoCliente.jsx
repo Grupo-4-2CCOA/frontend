@@ -15,7 +15,7 @@ export default function AgendamentoCliente() {
   const [selectedAgendamento, setSelectedAgendamento] = useState(null);
   const [agendamentos, setAgendamentos] = useState([]);
   const [rawAgendamentos, setRawAgendamentos] = useState([]);
-  const [allAgendamentos, setAllAgendamentos] = useState([]); // Para armazenar todos os agendamentos quando filtro de status está ativo
+  const [allAgendamentos, setAllAgendamentos] = useState([]);
   const [page, setPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
   const [clientId, setClientId] = useState(null);
@@ -316,6 +316,7 @@ const fetchSchedules = async (id, pageNum, inicio = null, fim = null) => {
 
   const onPrevPage = () => setPage((p) => Math.max(0, p - 1));
   const onNextPage = () => setPage((p) => (p + 1 < totalPages ? p + 1 : p));
+  const onPageChange = (newPage) => setPage(newPage); // newPage já vem 0-based do componente Pagination
 
   const getFilteredAgendamentos = () => {
     // Se filtro de status está ativo, usar allAgendamentos, senão usar agendamentos da página atual
@@ -414,6 +415,7 @@ const fetchSchedules = async (id, pageNum, inicio = null, fim = null) => {
         totalPages={getPaginatedData().totalPages}
         onPrevPage={onPrevPage}
         onNextPage={onNextPage}
+        onPageChange={onPageChange}
         statusFilter={statusFilter}
         onStatusFilterChange={(value) => {
           setStatusFilter(value);

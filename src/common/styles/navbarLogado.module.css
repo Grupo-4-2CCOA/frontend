@@ -76,12 +76,13 @@
   top: 2.5rem;
   right: 0;
   background-color: var(--BRANCO);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  box-shadow: 5px 5px 10px 0 rgba(0, 0, 0, 0.3);
   border-radius: 6px;
   padding: 0.5rem;
   display: flex;
   flex-direction: column;
   z-index: 20;
+  
 }
 
 .dropdown button {
@@ -92,9 +93,11 @@
   font-weight: 600;
   color: var(--DOURADO);
   cursor: pointer;
+  transition: all 0.2s ease-in-out;
 }
 
 .dropdown button:hover {
   color: var(--ROSA-LOGO);
   background-color: rgba(0, 0, 0, 0.05);
+  transform: scale(1.1, 1.1);
 }

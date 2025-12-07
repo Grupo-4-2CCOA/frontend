@@ -11,13 +11,13 @@ export default function Footer() {
                     <img src={logo} alt="Logo Beauty Barreto" className={style.footerLogo} />
                 </div>
                 <div className={style.footerSocialIcons}>
-                    <a href="https://wa.me/11973833005" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp">
+                    <a href="https://wa.me/5511971465871" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp">
                         <FaWhatsapp className={style.socialIcon} />
                     </a>
-                    <a href="https://facebook.com/murilo" target="_blank" rel="noopener noreferrer" aria-label="Facebook">
+                    <a href="https://www.facebook.com/vilma.barreto.144" target="_blank" rel="noopener noreferrer" aria-label="Facebook">
                         <FaFacebookF className={style.socialIcon} />
                     </a>
-                    <a href="https://instagram.com/mumartinezz" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
+                    <a href="https://www.instagram.com/espacovilmabarreto" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
                         <FaInstagram className={style.socialIcon} />
                     </a>
                 </div>

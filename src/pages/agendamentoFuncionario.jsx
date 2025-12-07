@@ -295,6 +295,7 @@ export default function AgendamentoFuncionario() {
 
   const onPrevPage = () => setPage((p) => Math.max(0, p - 1));
   const onNextPage = () => setPage((p) => (p + 1 < totalPages ? p + 1 : p));
+  const onPageChange = (newPage) => setPage(newPage); // newPage já vem 0-based do componente Pagination
 
   const handleConfirmarAgendamento = async (novoAgendamento) => {
     try {
@@ -479,6 +480,7 @@ export default function AgendamentoFuncionario() {
         totalPages={getPaginatedData().totalPages}
         onPrevPage={onPrevPage}
         onNextPage={onNextPage}
+        onPageChange={onPageChange}
         statusFilter={statusFilter}
         onStatusFilterChange={(value) => {
           setStatusFilter(value);
