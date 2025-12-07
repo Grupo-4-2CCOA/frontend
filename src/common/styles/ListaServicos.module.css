@@ -8,3 +8,30 @@
     padding: 40px 0;
     margin: 40px 40px 0 40px;
 }
+
+/* Responsividade */
+@media (max-width: 1024px) {
+    .listaContainer {
+        border-radius: 30px;
+        padding: 35px 0;
+        margin: 35px 30px 0 30px;
+    }
+}
+
+@media (max-width: 768px) {
+    .listaContainer {
+        flex-direction: column;
+        border-radius: 25px;
+        padding: 30px 0;
+        margin: 30px 20px 0 20px;
+        align-items: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .listaContainer {
+        border-radius: 20px;
+        padding: 25px 0;
+        margin: 25px 15px 0 15px;
+    }
+}

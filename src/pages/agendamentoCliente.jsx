@@ -6,6 +6,9 @@ import FeedbackModal from "../common/components/FeedbackModal";
 import Popup from '../common/components/Popup';
 import api from '../services/api';
 import EditarAgendar from "../common/components/EditarAgendar";
+import { useNavigate } from 'react-router-dom';
+import { useModal } from '../hooks/useModal';
+import Modal from '../common/components/Modal';
 
 export default function AgendamentoCliente() {
   const [showPopup, setShowPopup] = useState(false);
@@ -27,6 +30,14 @@ export default function AgendamentoCliente() {
   const [dataInicio, setDataInicio] = useState("");
   const [dataFim, setDataFim] = useState("");
   const [filtroAtivo, setFiltroAtivo] = useState(false);
+
+  const {
+      open: modalOpen,
+      type: modalType,
+      message: modalMessage,
+      showModal,
+      closeModal,
+    } = useModal();
 
   useEffect(() => {
     const loadUserAndSchedules = async () => {
@@ -216,7 +227,7 @@ const fetchSchedules = async (id, pageNum, inicio = null, fim = null) => {
   }
 };
 
-  const handleDelete = async (id) => {
+    const handleDelete = async (id) => {
     try {
       await api.delete(`/agendamentos/${id}`);
       if (filtroAtivo) {
@@ -226,12 +237,13 @@ const fetchSchedules = async (id, pageNum, inicio = null, fim = null) => {
       }
       setAgendamentoParaDeletar(null);
       setShowPopup(false);
-      alert('Agendamento cancelado com sucesso!');
+      showModal('success', 'Agendamento cancelado com sucesso!');
     } catch (error) {
       console.error('Erro ao cancelar agendamento:', error);
-      alert('Erro ao cancelar agendamento');
+      showModal('error', 'Erro ao cancelar agendamento');
     }
   };
+
   const handleConfirmDelete = () => {
     if (agendamentoParaDeletar) handleDelete(agendamentoParaDeletar);
   };
@@ -261,12 +273,12 @@ const fetchSchedules = async (id, pageNum, inicio = null, fim = null) => {
 
   const handleAplicarFiltro = async () => {
     if (!dataInicio || !dataFim) {
-      alert('Por favor, preencha ambas as datas');
+      showModal('error', 'Por favor, preencha ambas as datas');
       return;
     }
 
     if (new Date(dataInicio) > new Date(dataFim)) {
-      alert('Data de início não pode ser maior que data de fim');
+      showModal('error', 'Data de início não pode ser maior que data de fim');
       return;
     }
 
@@ -392,6 +404,7 @@ const fetchSchedules = async (id, pageNum, inicio = null, fim = null) => {
 
   return (
     <>
+      <Modal open={modalOpen} type={modalType} message={modalMessage} onClose={closeModal}/>
       {showPopup && (
         <Popup
           hasButtons

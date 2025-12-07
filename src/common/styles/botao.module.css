@@ -39,3 +39,22 @@
     color: var(--BRANCO);
     border-color: var(--ROSA-LOGO);
 }
+
+/* Responsividade */
+@media (max-width: 768px) {
+    .botaoPrincipal,
+    .botaoSecundario {
+        padding: 7px 10px;
+        height: 36px;
+        font-size: 0.95rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .botaoPrincipal,
+    .botaoSecundario {
+        padding: 6px 8px;
+        height: 34px;
+        font-size: 0.9rem;
+    }
+}

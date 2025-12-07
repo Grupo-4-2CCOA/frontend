@@ -75,3 +75,67 @@
   transform: scale(1.05);
 }
 
+/* Responsividade */
+@media (max-width: 768px) {
+  .pagination {
+    gap: 0.4rem;
+    margin-top: 1.5rem;
+    padding-bottom: 1rem;
+    flex-wrap: wrap;
+  }
+  
+  .pageNavButton {
+    padding: 0.4rem 0.6rem;
+  }
+  
+  .pageNavIcon {
+    width: 1.1rem;
+    height: 1.1rem;
+  }
+  
+  .pageNumbers {
+    gap: 0.2rem;
+  }
+  
+  .pageNumberButton {
+    padding: 0.4rem 0.6rem;
+    min-width: 2.25rem;
+    font-size: 0.8rem;
+  }
+  
+  .pageNumberButtonActive {
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .pagination {
+    gap: 0.3rem;
+    margin-top: 1.25rem;
+    padding-bottom: 0.875rem;
+  }
+  
+  .pageNavButton {
+    padding: 0.35rem 0.5rem;
+  }
+  
+  .pageNavIcon {
+    width: 1rem;
+    height: 1rem;
+  }
+  
+  .pageNumbers {
+    gap: 0.15rem;
+  }
+  
+  .pageNumberButton {
+    padding: 0.35rem 0.5rem;
+    min-width: 2rem;
+    font-size: 0.75rem;
+  }
+  
+  .pageNumberButtonActive {
+    font-size: 0.85rem;
+  }
+}
+

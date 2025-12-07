@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import styles from '../styles/Agendar.module.css';
 import api from '../../services/api';
 import { useNavigate } from 'react-router-dom';
+import Modal from './Modal';
 
 const Agendar = ({ isOpen, onClose, onConfirm }) => {
   const [selectedDate, setSelectedDate] = useState('');
@@ -12,6 +13,7 @@ const Agendar = ({ isOpen, onClose, onConfirm }) => {
   const [selectedEmployee, setSelectedEmployee] = useState(null);
   const [userInfo, setUserInfo] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [modal, setModal] = useState({ open: false, type: 'loading', message: '', cb: null });
   const navigate = useNavigate();
 
   const timeSlots = ['08:00', '09:00', '10:00', '11:00', '14:00', '15:00', '16:00', '17:00'];
@@ -31,7 +33,7 @@ const Agendar = ({ isOpen, onClose, onConfirm }) => {
         const employeesResponse = await api.get('/funcionarios');
         const employeesList = employeesResponse.data;
 
-		const filteredEmployees = employeesList.filter(emp => {
+        const filteredEmployees = employeesList.filter(emp => {
           const roleName = emp?.role?.name || emp?.role;
           if (!roleName) return false;
           const normalized = String(roleName)
@@ -41,8 +43,8 @@ const Agendar = ({ isOpen, onClose, onConfirm }) => {
           return normalized === 'funcionario';
         });
 
-		setEmployees(filteredEmployees);
-        
+        setEmployees(filteredEmployees);
+
         // Selecionar o primeiro funcionário automaticamente
         if (filteredEmployees.length > 0) {
           setSelectedEmployee(filteredEmployees[0]);
@@ -62,10 +64,22 @@ const Agendar = ({ isOpen, onClose, onConfirm }) => {
       } catch (error) {
         console.error('Erro ao buscar dados:', error);
         if (error.response?.status === 401) {
-          alert('Sua sessão expirou. Faça login novamente.');
-          navigate('/login');
+          setModal({
+            open: true,
+            type: 'error',
+            message: 'Sua sessão expirou. Faça login novamente.',
+            cb: () => {
+              setModal(modal => ({ ...modal, open: false }));
+              navigate('/login');
+            }
+          });
         } else {
-          alert('Não foi possível carregar os dados necessários.');
+          setModal({
+            open: true,
+            type: 'error',
+            message: 'Não foi possível carregar os dados necessários.',
+            cb: () => setModal(modal => ({ ...modal, open: false }))
+          });
         }
       } finally {
         setLoading(false);
@@ -90,18 +104,35 @@ const Agendar = ({ isOpen, onClose, onConfirm }) => {
 
   const handleSubmit = async () => {
     if (!selectedDate || !selectedTime || selectedServices.length === 0) {
-      alert('Preencha todos os campos');
+      setModal({
+        open: true,
+        type: 'error',
+        message: 'Preencha todos os campos',
+        cb: () => setModal(modal => ({ ...modal, open: false }))
+      });
       return;
     }
 
     if (!userInfo?.id) {
-      alert('Não foi possível identificar o cliente. Faça login novamente.');
-      navigate('/login');
+      setModal({
+        open: true,
+        type: 'error',
+        message: 'Não foi possível identificar o cliente. Faça login novamente.',
+        cb: () => {
+          setModal(modal => ({ ...modal, open: false }));
+          navigate('/login');
+        }
+      });
       return;
     }
 
     if (!selectedEmployee?.id) {
-      alert('Não foi possível selecionar um funcionário.');
+      setModal({
+        open: true,
+        type: 'error',
+        message: 'Não foi possível selecionar um funcionário.',
+        cb: () => setModal(modal => ({ ...modal, open: false }))
+      });
       return;
     }
 
@@ -127,36 +158,73 @@ const Agendar = ({ isOpen, onClose, onConfirm }) => {
 
     console.log('Enviando agendamento:', appointment);
 
+    setModal({
+      open: true,
+      type: 'loading',
+      message: 'Realizando agendamento...',
+      cb: null
+    });
+
     try {
       await api.post('/agendamentos', appointment);
-      alert('Agendamento realizado com sucesso!');
-      
-      // Passar dados formatados para o callback
-      const formattedData = {
-        date: selectedDate,
-        time: selectedTime,
-        services: selectedServices,
-        total: calculateTotal(),
-        appointmentDatetime: appointmentDatetime
-      };
-      
-      onConfirm(formattedData);
-      setSelectedDate('');
-      setSelectedTime('');
-      setSelectedServices([]);
-      onClose();
+
+      setModal({
+        open: true,
+        type: 'success',
+        message: 'Agendamento realizado com sucesso!',
+        cb: () => {
+          setModal(modal => ({ ...modal, open: false }));
+          // Passar dados formatados para o callback
+          const formattedData = {
+            date: selectedDate,
+            time: selectedTime,
+            services: selectedServices,
+            total: calculateTotal(),
+            appointmentDatetime: appointmentDatetime
+          };
+          onConfirm(formattedData);
+          setSelectedDate('');
+          setSelectedTime('');
+          setSelectedServices([]);
+          onClose();
+        }
+      });
     } catch (error) {
+      setModal({ open: false, type: '', message: '', cb: null }); // fecha loading caso erro
+
       console.error('Erro ao criar agendamento:', error);
       console.error('Detalhes do erro:', error.response?.data);
       if (error.response?.status === 401) {
-        alert('Sua sessão expirou. Faça login novamente.');
-        navigate('/login');
+        setModal({
+          open: true,
+          type: 'error',
+          message: 'Sua sessão expirou. Faça login novamente.',
+          cb: () => {
+            setModal(modal => ({ ...modal, open: false }));
+            navigate('/login');
+          }
+        });
       } else if (error.response?.status === 409) {
-        alert('Horário indisponível!');
+        setModal({
+          open: true,
+          type: 'error',
+          message: 'Horário indisponível!',
+          cb: () => setModal(modal => ({ ...modal, open: false }))
+        });
       } else if (error.response?.data) {
-        alert(`Erro ao criar agendamento: ${JSON.stringify(error.response.data)}`);
+        setModal({
+          open: true,
+          type: 'error',
+          message: `Erro ao criar agendamento: ${JSON.stringify(error.response.data)}`,
+          cb: () => setModal(modal => ({ ...modal, open: false }))
+        });
       } else {
-        alert('Erro ao criar agendamento.');
+        setModal({
+          open: true,
+          type: 'error',
+          message: 'Erro ao criar agendamento.',
+          cb: () => setModal(modal => ({ ...modal, open: false }))
+        });
       }
     }
   };
@@ -165,92 +233,100 @@ const Agendar = ({ isOpen, onClose, onConfirm }) => {
 
   if (loading) {
     return (
-      <div className={styles["modal-overlay"]}>
-        <div className={styles["modal-content"]}>
-          <h2>Carregando...</h2>
-          <p>Por favor, aguarde...</p>
-        </div>
-      </div>
+      <>
+        <Modal open={true} type="loading" message="Carregando dados..." onClose={() => {}} />
+      </>
     );
   }
 
   return (
-    <div className={styles["modal-overlay"]}>
-      <div className={styles["modal-content"]}>
-        <h2>Realizar Agendamento</h2>
+    <>
+      <Modal
+        open={modal.open}
+        type={modal.type}
+        message={modal.message}
+        onClose={() => {
+          setModal(modal => ({ ...modal, open: false }));
+          modal.cb && modal.cb();
+        }}
+      />
+      <div className={styles["modal-overlay"]}>
+        <div className={styles["modal-content"]}>
+          <h2>Realizar Agendamento</h2>
 
-        <div className={styles["form-group"]}>
-          <label>Funcionário:</label>
-          <select
-            value={selectedEmployee?.id || ''}
-            onChange={e => {
-              const emp = employees.find(employee => employee.id === parseInt(e.target.value));
-              setSelectedEmployee(emp);
-            }}
-            className={styles["time-select"]}
-          >
-            {employees.map(emp => (
-              <option key={emp.id} value={emp.id}>
-                {emp.name}
-              </option>
-            ))}
-          </select>
-        </div>
+          <div className={styles["form-group"]}>
+            <label>Funcionário:</label>
+            <select
+              value={selectedEmployee?.id || ''}
+              onChange={e => {
+                const emp = employees.find(employee => employee.id === parseInt(e.target.value));
+                setSelectedEmployee(emp);
+              }}
+              className={styles["time-select"]}
+            >
+              {employees.map(emp => (
+                <option key={emp.id} value={emp.id}>
+                  {emp.name}
+                </option>
+              ))}
+            </select>
+          </div>
 
-        <div className={styles["form-group"]}>
-          <label>Data:</label>
-          <input
-            type="date"
-            value={selectedDate}
-            onChange={e => setSelectedDate(e.target.value)}
-            className={styles["date-field"]}
-          />
-        </div>
+          <div className={styles["form-group"]}>
+            <label>Data:</label>
+            <input
+              type="date"
+              value={selectedDate}
+              onChange={e => setSelectedDate(e.target.value)}
+              className={styles["date-field"]}
+            />
+          </div>
 
-        <div className={styles["form-group"]}>
-          <label>Hora:</label>
-          <select
-            value={selectedTime}
-            onChange={e => setSelectedTime(e.target.value)}
-            className={styles["time-select"]}
-          >
-            <option value="">--:--</option>
-            {timeSlots.map(time => (
-              <option key={time} value={time}>{time}</option>
-            ))}
-          </select>
-        </div>
+          <div className={styles["form-group"]}>
+            <label>Hora:</label>
+            <select
+              value={selectedTime}
+              onChange={e => setSelectedTime(e.target.value)}
+              className={styles["time-select"]}
+            >
+              <option value="">--:--</option>
+              {timeSlots.map(time => (
+                <option key={time} value={time}>{time}</option>
+              ))}
+            </select>
+          </div>
 
-        <div className={styles["form-group"]}>
-          <label>Serviços:</label>
-          <div className={styles["services-list"]}>
-            {services.map(service => (
-              <div key={service.id} className={styles["service-item"]}>
-                <label className={styles["service-label"]}>
-                  <input
-                    type="checkbox"
-                    checked={selectedServices.some(s => s.id === service.id)}
-                    onChange={() => handleServiceChange(service)}
-                  />
-                  <span>{service.name} - R$ {service.basePrice?.toFixed(2)}</span>
-                </label>
-              </div>
-            ))}
+          <div className={styles["form-group"]}>
+            <label>Serviços:</label>
+            <div className={styles["services-list"]}>
+              {services.map(service => (
+                <div key={service.id} className={styles["service-item"]}>
+                  <label className={styles["service-label"]}>
+                    <input
+                      type="checkbox"
+                      checked={selectedServices.some(s => s.id === service.id)}
+                      onChange={() => handleServiceChange(service)}
+                    />
+                    <span>{service.name} - R$ {service.basePrice?.toFixed(2)}</span>
+                  </label>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className={styles["total-section"]}>
+            <strong>Total: R$ {calculateTotal().toFixed(2)}</strong>
+          </div>
+
+          <div className={styles["button-group"]}>
+            <button className={styles["btn-back"]} onClick={onClose}>Voltar</button>
+            <button className={styles["btn-confirm"]} onClick={handleSubmit}>
+              + Realizar Agendamento
+            </button>
           </div>
         </div>
-
-        <div className={styles["total-section"]}>
-          <strong>Total: R$ {calculateTotal().toFixed(2)}</strong>
-        </div>
-
-        <div className={styles["button-group"]}>
-          <button className={styles["btn-back"]} onClick={onClose}>Voltar</button>
-          <button className={styles["btn-confirm"]} onClick={handleSubmit}>
-            + Realizar Agendamento
-          </button>
-        </div>
       </div>
-    </div>
+    </>
   );
 };
 

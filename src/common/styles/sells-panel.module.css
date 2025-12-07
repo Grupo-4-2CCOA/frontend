@@ -54,3 +54,85 @@
 .rankValueSpan {
     font-size: 20px;
 }
+
+/* Responsividade */
+@media (max-width: 1024px) {
+    .sellsPanel {
+        flex-direction: column;
+        padding: 30px;
+        gap: 30px;
+    }
+    
+    .panelChildren,
+    .kpiCard {
+        flex: 1;
+    }
+}
+
+@media (max-width: 768px) {
+    .sellsPanel {
+        width: 98%;
+        padding: 25px;
+        gap: 25px;
+        border-radius: 15px;
+    }
+    
+    .panelChildren {
+        gap: 25px;
+    }
+    
+    .chart {
+        padding: 12px;
+        border-radius: 12px;
+    }
+    
+    .kpiCard {
+        padding: 25px;
+        border-radius: 12px;
+    }
+    
+    .cardTitle {
+        font-size: 20px;
+    }
+    
+    .rankValueSpan {
+        font-size: 18px;
+    }
+}
+
+@media (max-width: 480px) {
+    .sellsPanel {
+        padding: 20px;
+        gap: 20px;
+        border-radius: 12px;
+    }
+    
+    .panelChildren {
+        gap: 20px;
+    }
+    
+    .chart {
+        padding: 10px;
+        border-radius: 10px;
+    }
+    
+    .kpiCard {
+        padding: 20px;
+        border-radius: 10px;
+        gap: 20px;
+    }
+    
+    .kpiCardHeader {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+    
+    .cardTitle {
+        font-size: 18px;
+    }
+    
+    .rankValueSpan {
+        font-size: 16px;
+    }
+}

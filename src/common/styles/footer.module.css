@@ -89,3 +89,84 @@
 .socialIcon:hover {
     color: var(--ROSA);
 }
+
+/* Responsividade */
+@media (max-width: 1024px) {
+    .footer {
+        padding: 35px 60px;
+    }
+    
+    .footerLogo {
+        height: 90px;
+    }
+}
+
+@media (max-width: 768px) {
+    .footer {
+        padding: 30px 40px;
+    }
+    
+    .footerTop {
+        flex-direction: column;
+        gap: 20px;
+        align-items: center;
+        text-align: center;
+    }
+    
+    .footerLogo {
+        height: 80px;
+    }
+    
+    .footerLogoText span {
+        font-size: 16px;
+    }
+    
+    .footerBottom {
+        flex-direction: column;
+        gap: 15px;
+        text-align: center;
+    }
+    
+    .footerLinksBottom {
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 15px;
+    }
+    
+    .footerSocialIcons {
+        justify-content: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .footer {
+        padding: 25px 20px;
+    }
+    
+    .footerLogo {
+        height: 70px;
+    }
+    
+    .footerLogoText span {
+        font-size: 14px;
+    }
+    
+    .footerSocialIcons {
+        gap: 15px;
+    }
+    
+    .socialIcon {
+        width: 20px;
+        height: 20px;
+        font-size: 20px;
+    }
+    
+    .footerBottom {
+        font-size: 12px;
+    }
+    
+    .footerLinksBottom {
+        flex-direction: column;
+        gap: 10px;
+    }
+}

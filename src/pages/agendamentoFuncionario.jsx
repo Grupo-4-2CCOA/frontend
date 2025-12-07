@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import NavbarLogado from "../common/components/NavbarLogado";
 import SecaoAgendar from "../common/components/SecaoAgendar";
@@ -7,6 +6,7 @@ import EditarAgendar from "../common/components/EditarAgendar";
 import Popup from '../common/components/Popup';
 import api from '../services/api';
 import FinalizarAgendamentoModal from '../common/components/FinalizarAgendamentoModal';
+import Modal from '../common/components/Modal';
 
 export default function AgendamentoFuncionario() {
   const [showPopup, setShowPopup] = useState(false);
@@ -24,6 +24,7 @@ export default function AgendamentoFuncionario() {
   const [filtroAtivo, setFiltroAtivo] = useState(false);
   const [isFinalizarModalOpen, setIsFinalizarModalOpen] = useState(false);
   const [selectedAgendamentoId, setSelectedAgendamentoId] = useState(null);
+  const [modal, setModal] = useState({ open: false, type: '', message: '', cb: null });
   const [editingId, setEditingId] = useState(null);
   const [isEditOpen, setIsEditOpen] = useState(false);
 
@@ -35,10 +36,8 @@ export default function AgendamentoFuncionario() {
         url += `&dataInicio=${inicio}&dataFim=${fim}`;
       }
       
-      console.log('Fetching appointments with URL:', url);
       const response = await api.get(url);
       const data = response.data;
-      console.log('Response data:', data);
 
       const content = Array.isArray(data) ? data : (data.content || []);
       const total = data?.totalPages ?? 0;
@@ -52,7 +51,6 @@ export default function AgendamentoFuncionario() {
         try {
           if (Array.isArray(dateArr) && dateArr.length >= 5) {
             const d = new Date(dateArr[0], dateArr[1] - 1, dateArr[2], dateArr[3], dateArr[4]);
-
             const day = d.getDate();
             const month = d.toLocaleString('pt-BR', { month: 'long' });
             const year = d.getFullYear();
@@ -60,10 +58,8 @@ export default function AgendamentoFuncionario() {
               hour: '2-digit',
               minute: '2-digit'
             });
-
             dataPt = `${day} de ${month} de ${year} às ${time}`;
           } else if (typeof dateArr === 'string') {
-            // Se vir como string ISO
             const d = new Date(dateArr);
             if (!isNaN(d.getTime())) {
               const day = d.getDate();
@@ -99,14 +95,25 @@ export default function AgendamentoFuncionario() {
     } catch (error) {
       console.error('Erro ao buscar agendamentos:', error);
       if (error.response?.status === 401) {
-        alert('Sessão expirada. Por favor, faça login novamente.');
+        setModal({
+          open: true,
+          type: 'error',
+          message: 'Sessão expirada. Por favor, faça login novamente.',
+          cb: () => setModal(modal => ({ ...modal, open: false }))
+        });
+      } else {
+        setModal({
+          open: true,
+          type: 'error',
+          message: 'Erro ao buscar agendamentos. Tente novamente.',
+          cb: () => setModal(modal => ({ ...modal, open: false }))
+        });
       }
     } finally {
       setLoading(false);
     }
   };
 
-  // Função para buscar todas as páginas quando necessário
   const fetchAllAgendamentos = async (inicio = null, fim = null) => {
     try {
       setLoading(true);
@@ -191,40 +198,44 @@ export default function AgendamentoFuncionario() {
     } catch (error) {
       console.error('Erro ao buscar todos os agendamentos:', error);
       if (error.response?.status === 401) {
-        alert('Sessão expirada. Por favor, faça login novamente.');
+        setModal({
+          open: true,
+          type: 'error',
+          message: 'Sessão expirada. Por favor, faça login novamente.',
+          cb: () => setModal(modal => ({ ...modal, open: false }))
+        });
+      } else {
+        setModal({
+          open: true,
+          type: 'error',
+          message: 'Erro ao buscar agendamentos. Tente novamente.',
+          cb: () => setModal(modal => ({ ...modal, open: false }))
+        });
       }
     } finally {
       setLoading(false);
     }
   };
 
-  // Carregar dados iniciais
   useEffect(() => {
     fetchAgendamentos(0);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Atualizar quando página ou filtro mudar
   useEffect(() => {
     if (filtroAtivo) {
       fetchAgendamentos(page, dataInicio, dataFim);
     } else {
       fetchAgendamentos(page);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page, filtroAtivo]);
 
-  // Buscar todos os dados quando filtro de status muda (para poder filtrar e paginar no frontend)
-  // Só busca todos se não houver filtro de data ativo
   useEffect(() => {
     if (statusFilter !== 'TODOS' && !filtroAtivo) {
       fetchAllAgendamentos();
     } else if (statusFilter === 'TODOS' && allAgendamentos.length > 0 && !filtroAtivo) {
-      // Se voltou para TODOS, limpar dados acumulados e voltar à paginação normal
       setAllAgendamentos([]);
       fetchAgendamentos(page);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [statusFilter]);
 
   const handleDelete = async (id) => {
@@ -237,10 +248,20 @@ export default function AgendamentoFuncionario() {
       }
       setAgendamentoParaDeletar(null);
       setShowPopup(false);
-      alert('Agendamento cancelado com sucesso!');
+      setModal({
+        open: true,
+        type: 'success',
+        message: 'Agendamento cancelado com sucesso!',
+        cb: () => setModal(modal => ({ ...modal, open: false }))
+      });
     } catch (error) {
       console.error('Erro ao cancelar agendamento:', error);
-      alert('Erro ao cancelar agendamento');
+      setModal({
+        open: true,
+        type: 'error',
+        message: 'Erro ao cancelar agendamento.',
+        cb: () => setModal(modal => ({ ...modal, open: false }))
+      });
     }
   };
 
@@ -261,7 +282,6 @@ export default function AgendamentoFuncionario() {
   };
 
   const handleFeedback = (id) => {
-    // Implement feedback functionality if needed
     console.log('Feedback para agendamento:', id);
   };
 
@@ -271,12 +291,22 @@ export default function AgendamentoFuncionario() {
 
   const handleAplicarFiltro = async () => {
     if (!dataInicio || !dataFim) {
-      alert('Por favor, preencha ambas as datas');
+      setModal({
+        open: true,
+        type: 'error',
+        message: 'Por favor, preencha ambas as datas',
+        cb: () => setModal(modal => ({ ...modal, open: false }))
+      });
       return;
     }
 
     if (new Date(dataInicio) > new Date(dataFim)) {
-      alert('Data de início não pode ser maior que data de fim');
+      setModal({
+        open: true,
+        type: 'error',
+        message: 'Data de início não pode ser maior que data de fim',
+        cb: () => setModal(modal => ({ ...modal, open: false }))
+      });
       return;
     }
 
@@ -295,7 +325,7 @@ export default function AgendamentoFuncionario() {
 
   const onPrevPage = () => setPage((p) => Math.max(0, p - 1));
   const onNextPage = () => setPage((p) => (p + 1 < totalPages ? p + 1 : p));
-  const onPageChange = (newPage) => setPage(newPage); // newPage já vem 0-based do componente Pagination
+  const onPageChange = (newPage) => setPage(newPage);
 
   const handleConfirmarAgendamento = async (novoAgendamento) => {
     try {
@@ -307,7 +337,12 @@ export default function AgendamentoFuncionario() {
       setIsModalOpen(false);
     } catch (error) {
       console.error('Erro ao atualizar lista de agendamentos:', error);
-      alert('Erro ao atualizar lista de agendamentos');
+      setModal({
+        open: true,
+        type: 'error',
+        message: 'Erro ao atualizar lista de agendamentos.',
+        cb: () => setModal(modal => ({ ...modal, open: false }))
+      });
     }
   };
 
@@ -317,11 +352,6 @@ export default function AgendamentoFuncionario() {
   };
 
   const formatDateTimeForAPI = (dateArr) => {
-    // if (!Array.isArray(dateArr) || dateArr.length < 5) return null;
-    // const [year, month, day, hour, minute] = dateArr;
-    // // Format to YYYY-MM-DDTHH:mm:ss
-    // const pad = (n) => n.toString().padStart(2, '0');
-    // return `${year}-${pad(month)}-${pad(day)}T${pad(hour)}:${pad(minute)}:00`;
     return dateArr;
   };
 
@@ -330,7 +360,12 @@ export default function AgendamentoFuncionario() {
       const rawAppointment = rawAgendamentos.find(a => a.id === selectedAgendamentoId);
 
       if (!rawAppointment) {
-        alert('Erro ao encontrar dados do agendamento.');
+        setModal({
+          open: true,
+          type: 'error',
+          message: 'Erro ao encontrar dados do agendamento.',
+          cb: () => setModal(modal => ({ ...modal, open: false }))
+        });
         return;
       }
 
@@ -341,7 +376,6 @@ export default function AgendamentoFuncionario() {
         'CASH': 4
       };
 
-      console.log("Finalizing appointment:", rawAppointment);
 
       const payload = {
         client: rawAppointment.client?.id,
@@ -360,8 +394,6 @@ export default function AgendamentoFuncionario() {
         })) || []
       };
 
-      console.log('Sending payload:', payload);
-
       await api.put(`/agendamentos/${selectedAgendamentoId}`, payload);
 
       setIsFinalizarModalOpen(false);
@@ -371,17 +403,25 @@ export default function AgendamentoFuncionario() {
       } else {
         await fetchAgendamentos(page);
       }
-      alert('Agendamento finalizado com sucesso!');
+      setModal({
+        open: true,
+        type: 'success',
+        message: 'Agendamento finalizado com sucesso!',
+        cb: () => setModal(modal => ({ ...modal, open: false }))
+      });
     } catch (error) {
       console.error('Erro ao finalizar agendamento:', error);
-      console.error('Response data:', error.response?.data);
       const msg = error.response?.data?.message || 'Erro ao finalizar agendamento.';
-      alert(`Erro: ${msg}`);
+      setModal({
+        open: true,
+        type: 'error',
+        message: `Erro: ${msg}`,
+        cb: () => setModal(modal => ({ ...modal, open: false }))
+      });
     }
   };
 
   const getFilteredAgendamentos = () => {
-    // Se filtro de status está ativo, usar allAgendamentos, senão usar agendamentos da página atual
     const sourceData = (statusFilter !== 'TODOS' && allAgendamentos.length > 0) ? allAgendamentos : agendamentos;
     let filtered = sourceData;
 
@@ -411,7 +451,6 @@ export default function AgendamentoFuncionario() {
 
         if (!agendDate || isNaN(agendDate.getTime())) return true;
 
-        // Comparar apenas a parte de data (ano, mês, dia) para evitar problemas de timezone
         const agendDateOnly = new Date(agendDate.getFullYear(), agendDate.getMonth(), agendDate.getDate());
 
         if (dataInicio) {
@@ -433,17 +472,14 @@ export default function AgendamentoFuncionario() {
     return filtered;
   };
 
-  // Calcular paginação baseada nos dados filtrados quando filtro de status está ativo
   const getPaginatedData = () => {
     const filtered = getFilteredAgendamentos();
-    const itemsPerPage = 10; // Ajuste conforme necessário
+    const itemsPerPage = 10; 
     
-    // Se não há filtro de status, usa paginação do backend
     if (statusFilter === 'TODOS') {
       return { data: filtered, totalPages: totalPages };
     }
     
-    // Se há filtro de status, pagina no frontend
     const calculatedTotalPages = Math.ceil(filtered.length / itemsPerPage);
     const startIndex = page * itemsPerPage;
     const endIndex = startIndex + itemsPerPage;
@@ -453,11 +489,22 @@ export default function AgendamentoFuncionario() {
   };
 
   if (loading) {
-    return <div>Carregando agendamentos...</div>;
+    return (
+      <Modal open={true} type="loading" message="Carregando agendamentos..." onClose={() => {}} />
+    );
   }
 
   return (
     <>
+      <Modal
+        open={modal.open}
+        type={modal.type}
+        message={modal.message}
+        onClose={() => {
+          setModal(modal => ({ ...modal, open: false }));
+          modal.cb && modal.cb();
+        }}
+      />
       {showPopup && (
         <Popup
           hasButtons={true}

@@ -58,3 +58,66 @@
   justify-content: flex-end;
   gap: 10px;
 }
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .popup {
+    padding: 18px;
+    min-width: 280px;
+    max-width: 85%;
+  }
+  
+  .popup .popupTitle {
+    font-size: 20px;
+  }
+  
+  .popup .popupInfo {
+    font-size: 16px;
+    margin-top: 18px;
+    line-height: 28px;
+  }
+  
+  .popup .svgButton {
+    right: 18px;
+    top: 18px;
+  }
+  
+  .optionalButtons {
+    gap: 8px;
+    margin-top: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .popup {
+    padding: 15px;
+    min-width: 260px;
+    max-width: 90%;
+  }
+  
+  .popup .popupTitle {
+    font-size: 18px;
+    padding-right: 30px;
+  }
+  
+  .popup .popupInfo {
+    font-size: 15px;
+    margin-top: 15px;
+    line-height: 24px;
+  }
+  
+  .popup .svgButton {
+    right: 15px;
+    top: 15px;
+  }
+  
+  .optionalButtons {
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 15px;
+  }
+  
+  .optionalButtons button {
+    width: 100%;
+  }
+}

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { User } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import styles from '../common/styles/feedback.module.css';
 import NavbarLogado from '../common/components/NavbarLogado';
 import Pagination from '../common/components/Pagination';
@@ -285,7 +285,14 @@ export default function FeedbackScreen() {
         <div className={styles.grid}>
           {loading && <div>Carregando feedbacks...</div>}
           {error && <div style={{ color: 'red' }}>{error}</div>}
-          {!loading && getFilteredFeedbacks().length === 0 && <div>Nenhum feedback encontrado.</div>}
+          {!loading && getFilteredFeedbacks().length === 0 && (
+            <div className={styles.empty}>
+              <div className={styles.emptyIconContainer}>
+                <Plus className={styles.emptyIcon} />
+              </div>
+              <h3 className={styles.emptyTitle}>Nenhum comentário encontrado</h3>
+            </div>
+          )}
           {!loading && getPaginatedFeedbacks().map((feedback) => (
             <FeedbackCard key={feedback.id} item={feedback} onView={handleViewComment} />
           ))}

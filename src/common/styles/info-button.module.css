@@ -13,3 +13,12 @@
 button:hover {
     transform: scale(1.2, 1.2);
 }
+
+/* Responsividade */
+@media (max-width: 480px) {
+    .button {
+        width: 20px;
+        height: 20px;
+        font-size: 0.85rem;
+    }
+}
