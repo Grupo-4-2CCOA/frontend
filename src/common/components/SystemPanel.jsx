@@ -14,10 +14,18 @@ import api from '../../services/api';
 
 // import { useAuth } from '../hooks/useAuth';
 
-export default function SystemPanel() {
+/**
+ * 
+ * @param {{
+ *   dataInicio: string,
+ *   dataFim: string,
+ * }} param0 props
+ * @returns 
+ */
+export default function SystemPanel({ dataInicio, dataFim }) {
     // const { userInfo } = useAuth('ADMIN', "FUNC");
     const [showPopup, setShowPopup] = useState(false);
-    const [popupTitle, setPopupTitle] = useState("Informação")
+    const [popupTitle, setPopupTitle] = useState("Informação");
     const [popupText, setPopupText] = useState("");
     const [dashboardData, setDashboardData] = useState(null);
 
@@ -71,22 +79,19 @@ export default function SystemPanel() {
             }
         }
     };
-    
-    useEffect(() => {
-        const mes = 10;
-        const ano = 2025;
 
-        api.get(`http://localhost:8080/dashboard/sistema?mes=${mes}&ano=${ano}`)
+    useEffect(() => {
+        api.get(`http://localhost:8080/dashboard/sistema?startDate=${dataInicio}&endDate=${dataFim}`)
             .then((response) => {
                 setDashboardData(response.data);
-                console.log(response.data)
+                console.log(response.data);
             })
             .catch(error => {
                 console.error("Erro ao buscar dados do dashboard:", error);
                 setDashboardData(null);
             });
-    }, []);
-    
+    }, [dataInicio, dataFim]);
+
     function generateCharts() {
         if (chartsRef.current.cancelled) chartsRef.current.cancelled.destroy();
         if (chartsRef.current.performance) chartsRef.current.performance.destroy();
@@ -263,7 +268,7 @@ export default function SystemPanel() {
                         <InfoButton
                             setShowPopup={setShowPopup}
                             setPopupTitle={setPopupTitle}
-                            popupTitle={"Informação"}   
+                            popupTitle={"Informação"}
                             setPopupText={setPopupText}
                             popupText={"Lista dos serviços mais vendidos no período selecionado."}
                         />

@@ -7,12 +7,21 @@ import api from '../../services/api';
 
 // import { useAuth } from '../hooks/useAuth';
 
-export default function SellsPanel() {
+/**
+ * 
+ * @param {{
+ *   dataInicio: string,
+ *   dataFim: string,
+ * }} param0 props
+ * @returns 
+ */
+export default function SellsPanel({ dataInicio, dataFim }) {
     // const { userInfo } = useAuth('ADMIN', "FUNC");
     const [showPopup, setShowPopup] = useState(false);
-    const [popupTitle, setPopupTitle] = useState("Informação")
+    const [popupTitle, setPopupTitle] = useState("Informação");
     const [popupText, setPopupText] = useState("");
     const [dashboardData, setDashboardData] = useState(null);
+    const [primeirosAgendamentos, setPrimeirosAgendamentos] = useState(0);
 
     const chartsRef = useRef([]);
 
@@ -73,21 +82,18 @@ export default function SellsPanel() {
             }
         }
     };
-    
-    useEffect(() => {
-        const mes = 11;
-        const ano = 2025;
 
-        api.get(`http://localhost:8080/dashboard/vendas?mes=${mes}&ano=${ano}`)
+    useEffect(() => {
+        api.get(`http://localhost:8080/dashboard/vendas?startDate=${dataInicio}&endDate=${dataFim}`)
             .then((response) => {
                 setDashboardData(response.data);
-                console.log(response.data)
+                console.log(response.data);
             })
             .catch(error => {
                 console.error("Erro ao buscar dados do dashboard:", error);
                 setDashboardData(null);
             });
-    }, []);
+    }, [dataInicio, dataFim]);
 
     function generateCharts() {
         if (chartsRef.current.leadQuantity) {
@@ -100,8 +106,8 @@ export default function SellsPanel() {
 
         if (!dashboardData) return;
 
-        const primeirosAgendamentosPorMes = getSerieFromPairArray(dashboardData.primeirosAgendamentos, 1);
-        const primeirosAgendamentosLabels = getLabelFromPairArray(dashboardData.primeirosAgendamentos);
+        setPrimeirosAgendamentos(getSerieFromPairArray(dashboardData.primeirosAgendamentos, 1));
+        // const primeirosAgendamentosLabels = getLabelFromPairArray(dashboardData.primeirosAgendamentos);
 
         const leadsPorMes = getSerieFromPairArray(dashboardData.leads, 1);
         const leadsLabels = getLabelFromPairArray(dashboardData.leads);
@@ -112,7 +118,7 @@ export default function SellsPanel() {
         let leadQuantityChartOptions = {
             ...commonChartOptions,
             title: {
-                text: "Taxa de retorno",
+                text: "Quantidade de leads no site",
                 align: "center",
                 style: {
                     fontSize: "23px",
@@ -127,13 +133,13 @@ export default function SellsPanel() {
             },
             series: [
                 {
-                    name: "Rendimento",
+                    name: "Cancelled",
                     data: leadsPorMes
                 }
             ],
             yaxis: {
                 title: {
-                    text: "Rendimento (R$)",
+                    text: "Quantidade",
                     style: {
                         color: 'var(--CINZA-ESCURO)',
                         fontSize: '14px',
@@ -157,7 +163,7 @@ export default function SellsPanel() {
         let returnRateChartOptions = {
             ...commonChartOptions,
             title: {
-                text: "Quantidade de leads no site",
+                text: "Taxa de retorno",
                 align: "center",
                 style: {
                     fontSize: "23px",
@@ -172,13 +178,13 @@ export default function SellsPanel() {
             },
             series: [
                 {
-                    name: "Cancelled",
+                    name: "Rendimento",
                     data: taxaRetornoPorMes
                 }
             ],
             yaxis: {
                 title: {
-                    text: "Quantidade",
+                    text: "Taxa",
                     style: {
                         color: 'var(--CINZA-ESCURO)',
                         fontSize: '14px',
@@ -243,11 +249,11 @@ export default function SellsPanel() {
                         />
                     </div>
                     <div className={styles.kpiItem}>
-                        <span className={styles.rankValueSpan}>210 agendamentos</span>
+                        <span className={styles.rankValueSpan}>{primeirosAgendamentos.length} agendamentos</span>
                     </div>
                 </div>
                 <div className={styles.chart}>
-                    <div id="return-rate-chart"></div>
+                    <div id="lead-quantity-chart"></div>
                     <InfoButton
                         isAbsolute={true}
                         setShowPopup={setShowPopup}
@@ -261,21 +267,21 @@ export default function SellsPanel() {
             <div className={styles.panelChildren}>
                 <div className={styles.kpiCard}>
                     <div className={styles.kpiCardHeader}>
-                        <span className={styles.cardTitle}>Tempo médio dos leads no site</span>
+                        <span className={styles.cardTitle}>???????????????</span>
                         <InfoButton
                             setShowPopup={setShowPopup}
                             setPopupTitle={setPopupTitle}
                             popupTitle={"Informação"}
                             setPopupText={setPopupText}
-                            popupText={"Tempo médio que os leads passaram no site (durante o período selecionado)."}
+                            popupText={"???????????????"}
                         />
                     </div>
                     <div className={styles.kpiItem}>
-                        <span className={styles.rankValueSpan}>2 Minutos e 20 segundos</span>
+                        <span className={styles.rankValueSpan}>???????????????</span>
                     </div>
                 </div>
                 <div className={styles.chart}>
-                    <div id="lead-quantity-chart"></div>
+                    <div id="return-rate-chart"></div>
                     <InfoButton
                         isAbsolute={true}
                         setShowPopup={setShowPopup}
@@ -287,5 +293,5 @@ export default function SellsPanel() {
                 </div>
             </div>
         </div>
-    )
+    );
 }
