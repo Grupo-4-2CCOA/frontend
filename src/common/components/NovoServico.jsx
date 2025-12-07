@@ -4,6 +4,7 @@ import Styles from "../styles/NovoServico.module.css";
 import BotaoPrincipal from "./BotaoPrincipal";
 import api from '../../services/api';
 import { useAuth } from '../../hooks/useAuth';
+import Modal from './Modal';
 
 export default function NovoServicoPopup({ onCancel, onConfirm, titulo, servicoParaEditar }) {
 	const BUCKET_URL = config.S3_BUCKET_URL;
@@ -20,6 +21,7 @@ export default function NovoServicoPopup({ onCancel, onConfirm, titulo, servicoP
     const [loading, setLoading] = useState(false);
     const [precoDesconto, setPrecoDesconto] = useState("");
     const [descontoHabilitado, setDescontoHabilitado] = useState(false);
+    const [modal, setModal] = useState({ open: false, type: '', message: '', cb: null });
 
     useEffect(() => {
         if (servicoParaEditar) {
@@ -77,7 +79,12 @@ export default function NovoServicoPopup({ onCancel, onConfirm, titulo, servicoP
                 setCategorias(response.data);
             } catch (error) {
                 console.error('Erro ao buscar categorias:', error);
-                alert('Erro ao carregar categorias');
+                setModal({
+                    open: true,
+                    type: 'error',
+                    message: 'Erro ao carregar categorias',
+                    cb: () => setModal(modal => ({ ...modal, open: false }))
+                });
             }
         };
 
@@ -86,7 +93,12 @@ export default function NovoServicoPopup({ onCancel, onConfirm, titulo, servicoP
 
     const handleSubmit = async () => {
         if (!nome || !preco || !duracao || !categoriaId) {
-            alert('Por favor, preencha todos os campos obrigatórios');
+            setModal({
+                open: true,
+                type: 'error',
+                message: 'Por favor, preencha todos os campos obrigatórios',
+                cb: () => setModal(modal => ({ ...modal, open: false }))
+            });
             return;
         }
 
@@ -130,114 +142,151 @@ export default function NovoServicoPopup({ onCancel, onConfirm, titulo, servicoP
                 }
             }
 
+            setModal({
+                open: true,
+                type: 'loading',
+                message: (servicoParaEditar && servicoParaEditar.id) ? 'Editando serviço...' : 'Cadastrando serviço...',
+                cb: null
+            });
+
             if (servicoParaEditar && servicoParaEditar.id) {
                 // Editar serviço existente
                 await api.put(`/servicos/${servicoParaEditar.id}`, formData, {
                     headers: { 'Content-Type': 'multipart/form-data' }
                 });
-                alert('Serviço editado com sucesso!');
+                setModal({
+                    open: true,
+                    type: 'success',
+                    message: 'Serviço editado com sucesso!',
+                    cb: () => {
+                        setModal(modal => ({ ...modal, open: false }));
+                        onConfirm();
+                    }
+                });
             } else {
                 // Criar novo serviço
                 await api.post('/servicos', formData, {
                     headers: { 'Content-Type': 'multipart/form-data' }
                 });
-                alert('Serviço cadastrado com sucesso!');
+                setModal({
+                    open: true,
+                    type: 'success',
+                    message: 'Serviço cadastrado com sucesso!',
+                    cb: () => {
+                        setModal(modal => ({ ...modal, open: false }));
+                        onConfirm();
+                    }
+                });
             }
-
-            onConfirm();
-
         } catch (error) {
+            setLoading(false);
             console.error('Erro ao salvar serviço:', error);
             const errorMessage = error.response?.data || 'Erro ao salvar serviço';
-            alert(errorMessage);
+            setModal({
+                open: true,
+                type: 'error',
+                message: typeof errorMessage === 'string' ? errorMessage : JSON.stringify(errorMessage),
+                cb: () => setModal(modal => ({ ...modal, open: false }))
+            });
         } finally {
             setLoading(false);
         }
     };
 
     return (
-        <div className={Styles.popupOverlay}>
-            <div className={Styles.popupContainer}>
-                <h2>{titulo}</h2>
-                <div className={Styles.popupForm}>			
-                    <label>
-                        Nome:
-                        <input
-                            type="text"
-                            placeholder="Nome do serviço"
-                            value={nome}
-                            onChange={e => setNome(e.target.value)}
-                            required
-                        />
-                    </label>
-                    <label>
-                        Categoria:
-                        <select 
-                            value={categoriaId} 
-                            onChange={e => setCategoriaId(e.target.value)}
-                            required
+        <>
+            <Modal
+                open={modal.open}
+                type={modal.type}
+                message={modal.message}
+                onClose={() => {
+                    setModal(modal => ({ ...modal, open: false }));
+                    modal.cb && modal.cb();
+                }}
+            />
+            <div className={Styles.popupOverlay}>
+                <div className={Styles.popupContainer}>
+                    <h2>{titulo}</h2>
+                    <div className={Styles.popupForm}>			
+                        <label>
+                            Nome:
+                            <input
+                                type="text"
+                                placeholder="Nome do serviço"
+                                value={nome}
+                                onChange={e => setNome(e.target.value)}
+                                required
+                            />
+                        </label>
+                        <label>
+                            Categoria:
+                            <select 
+                                value={categoriaId} 
+                                onChange={e => setCategoriaId(e.target.value)}
+                                required
+                            >
+                                <option value="">Selecione uma categoria</option>
+                                {categorias.map(categoria => (
+                                    <option key={categoria.id} value={categoria.id}>
+                                        {categoria.name}
+                                    </option>
+                                ))}
+                            </select>
+                        </label>
+                        <label>
+                            Imagem:
+                            <input
+                                type="file"
+                                accept="image/*"
+                                onChange={handleFileChange}
+                            />
+                        </label>
+                        <label>
+                            Descrição:
+                            <textarea
+                                placeholder="Descrição do serviço"
+                                value={descricao}
+                                onChange={e => setDescricao(e.target.value)}
+                            />
+                        </label>
+                        <label>
+                            Preço Base:
+                            <input
+                                type="number"
+                                step="0.01"
+                                placeholder="Preço"
+                                value={preco}
+                                onChange={e => setPreco(e.target.value)}
+                                required
+                            />
+                        </label>
+                        <label>
+                            Duração (minutos):
+                            <input
+                                type="number"
+                                placeholder="Duração em minutos"
+                                value={duracao}
+                                onChange={e => setDuracao(e.target.value)}
+                                required
+                            />
+                        </label>
+                    </div>
+                    <div className={Styles.popupActions}>
+                        <BotaoPrincipal 
+                            onClick={onCancel} 
+                            disabled={loading}
                         >
-                            <option value="">Selecione uma categoria</option>
-                            {categorias.map(categoria => (
-                                <option key={categoria.id} value={categoria.id}>
-                                    {categoria.name}
-                                </option>
-                            ))}
-                        </select>
-                    </label>
-                    <label>
-                        Imagem:
-                        <input
-                            type="file"
-                            accept="image/*"
-                            onChange={handleFileChange}
-                        />
-                    </label>
-                    <label>
-                        Descrição:
-                        <textarea
-                            placeholder="Descrição do serviço"
-                            value={descricao}
-                            onChange={e => setDescricao(e.target.value)}
-                        />
-                    </label>
-                    <label>
-                        Preço Base:
-                        <input
-                            type="number"
-                            step="0.01"
-                            placeholder="Preço"
-                            value={preco}
-                            onChange={e => setPreco(e.target.value)}
-                            required
-                        />
-                    </label>
-                    <label>
-                        Duração (minutos):
-                        <input
-                            type="number"
-                            placeholder="Duração em minutos"
-                            value={duracao}
-                            onChange={e => setDuracao(e.target.value)}
-                            required
-                        />
-                    </label>
-                </div>
-                <div className={Styles.popupActions}>
-                    <BotaoPrincipal 
-                        onClick={onCancel} 
-                        disabled={loading}
-                    >
-                        Cancelar
-                    </BotaoPrincipal>
-                    <BotaoPrincipal
-                        onClick={handleSubmit}
-                        disabled={loading}
-                    >
-                        {loading ? 'Salvando...' : 'Confirmar'}
-                    </BotaoPrincipal>
+                            Cancelar
+                        </BotaoPrincipal>
+                        <BotaoPrincipal
+                            onClick={handleSubmit}
+                            disabled={loading}
+                        >
+                            {loading ? 'Salvando...' : 'Confirmar'}
+                        </BotaoPrincipal>
+                    </div>
                 </div>
             </div>
-        </div>
+        </>
     );
 }

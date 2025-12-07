@@ -3,6 +3,7 @@ import NavbarLogado from "../common/components/NavbarLogado";
 import { useAuth } from '../hooks/useAuth';
 import api from '../services/api';
 import styles from '../common/styles/Informacoes.module.css';
+import Modal from '../common/components/Modal';
 
 function SuccessPopup({ show, onClose }) {
   if (!show) return null;
@@ -53,6 +54,7 @@ export default function AdicionarInformacoes() {
   const [clientData, setClientData] = useState(null);
   const [successPopupVisible, setSuccessPopupVisible] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [modal, setModal] = useState({ open: false, type: '', message: '', cb: null });
 
   // Funções de formatação
   const formatCPF = (value) => {
@@ -124,8 +126,6 @@ export default function AdicionarInformacoes() {
         const dados = res.data || {};
         setClientData(dados);
 
-        console.log('Dados carregados do banco:', dados);
-
         // Aplica formatação aos dados carregados
         setFormData(prev => ({
           ...prev,
@@ -136,13 +136,15 @@ export default function AdicionarInformacoes() {
           cidade: dados.cidade || '',
           estado: dados.estado || ''
         }));
-
-        if (dados.cep && dados.cep.length === 8) {
-          buscarEnderecoPorCEPCarregado(dados.cep);
-        }
       } catch (error) {
         console.error('Erro ao carregar dados do cliente:', error);
         setClientData(null);
+        setModal({
+          open: true,
+          type: 'error',
+          message: 'Erro ao carregar dados do cliente.',
+          cb: () => setModal(modal => ({ ...modal, open: false }))
+        });
       } finally {
         if (!isCancelled) {
           setLoadingData(false);
@@ -157,8 +159,6 @@ export default function AdicionarInformacoes() {
   if (!userInfo) return <div className={styles.loading}>Carregando...</div>;
 
   if (loadingData) return <div className={styles.loading}>Carregando dados do cliente...</div>;
-
-  
 
   const handleInputChange = (field, value) => {
     let formattedValue = value;
@@ -213,8 +213,6 @@ export default function AdicionarInformacoes() {
       newErrors.cep = 'CEP deve ter 8 dígitos';
     }
 
-    // Campos de endereço não são validados pois são apenas para exibição
-
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -227,7 +225,12 @@ export default function AdicionarInformacoes() {
     }
 
     if (!userInfo?.id) {
-      alert('Usuário não identificado. Faça login novamente.');
+      setModal({
+        open: true,
+        type: 'error',
+        message: 'Usuário não identificado. Faça login novamente.',
+        cb: () => setModal(modal => ({ ...modal, open: false }))
+      });
       return;
     }
 
@@ -235,42 +238,35 @@ export default function AdicionarInformacoes() {
 
     try {
       const dadosAtualizar = {
-        // Campos obrigatórios do backend
         name: clientData?.name || userInfo?.name || '',
         email: userInfo?.email || '',
-
-        // Campos que estamos atualizando
-        cpf: formData.cpf.replace(/\D/g, ''), // Remove formatação
-        phone: formData.telefone.replace(/\D/g, ''), // Remove formatação e usa 'phone'
+        cpf: formData.cpf.replace(/\D/g, ''),
+        phone: formData.telefone.replace(/\D/g, ''),
         cep: formData.cep.replace(/\D/g, ''),
-		role: 2
+        role: 2
       };
-
-      console.log('Enviando dados:', dadosAtualizar);
-      console.log('Endpoint:', `/clientes/${userInfo.id}`);
 
       const cpfLimpo = formData.cpf.replace(/\D/g, '');
       if (cpfLimpo === '12342323233' || cpfLimpo === '12345678901') {
-        alert('CPF inválido! Use um CPF válido para teste. Exemplo: 11144477735');
+        setModal({
+          open: true,
+          type: 'error',
+          message: 'CPF inválido! Use um CPF válido para teste. Exemplo: 11144477735',
+          cb: () => setModal(modal => ({ ...modal, open: false }))
+        });
+        setLoading(false);
         return;
       }
 
-      console.log('Fazendo PUT...');
       const response = await api.put(`/clientes/${userInfo.id}`, dadosAtualizar);
-      console.log('Resposta da API:', response.data);
 
       setSuccessPopupVisible(true);
       setShowSuccess(true);
-      // Aguarda 1.5s e recarrega os dados do cliente
       setTimeout(() => {
         setShowSuccess(false);
-        window.location.reload(); // recarrega a página para mostrar as informações atualizadas
+        window.location.reload();
       }, 1500);
     } catch (error) {
-      console.error('Erro detalhado ao salvar:', error);
-      console.error('Status:', error.response?.status);
-      console.error('Dados do erro:', error.response?.data);
-
       let errorMessage = 'Erro ao salvar informações. Tente novamente.';
 
       if (error.response?.status === 400) {
@@ -280,8 +276,12 @@ export default function AdicionarInformacoes() {
       } else if (error.response?.status === 500) {
         errorMessage = 'Erro interno do servidor. Tente novamente mais tarde.';
       }
-
-      alert(errorMessage);
+      setModal({
+        open: true,
+        type: 'error',
+        message: errorMessage,
+        cb: () => setModal(modal => ({ ...modal, open: false }))
+      });
     } finally {
       setLoading(false);
     }
@@ -289,12 +289,19 @@ export default function AdicionarInformacoes() {
 
   return (
     <>
+      <Modal
+        open={modal.open}
+        type={modal.type}
+        message={modal.message}
+        onClose={() => {
+          setModal(modal => ({ ...modal, open: false }));
+          modal.cb && modal.cb();
+        }}
+      />
       <SuccessPopup show={showSuccess} />
       <NavbarLogado />
       <div className={styles.adicionarInfoContainer}>
         <div className={styles.adicionarInfoContent}>
-
-
           <form onSubmit={handleSubmit} className={styles.infoForm}>
             <div className={styles.existingInfoSection}>
               <h3>Informações já cadastradas</h3>
@@ -309,10 +316,8 @@ export default function AdicionarInformacoes() {
                 </div>
               </div>
             </div>
-
             <div className={styles.newInfoSection}>
               <h3>Complete suas informações</h3>
-
               <div className={styles.formGroup}>
                 <label htmlFor="cpf">CPF *</label>
                 <input
@@ -326,7 +331,6 @@ export default function AdicionarInformacoes() {
                 />
                 {errors.cpf && <span className={styles.errorMessage}>{errors.cpf}</span>}
               </div>
-
               <div className={styles.formGroup}>
                 <label htmlFor="telefone">Telefone *</label>
                 <input
@@ -340,7 +344,6 @@ export default function AdicionarInformacoes() {
                 />
                 {errors.telefone && <span className={styles.errorMessage}>{errors.telefone}</span>}
               </div>
-
               <div className={styles.formGroup}>
                 <label htmlFor="cep">CEP *</label>
                 <input
@@ -355,7 +358,6 @@ export default function AdicionarInformacoes() {
                 {errors.cep && <span className={styles.errorMessage}>{errors.cep}</span>}
               </div>
             </div>
-
             <div className={styles.formActions}>
               <button
                 type="submit"
@@ -376,7 +378,6 @@ export default function AdicionarInformacoes() {
               </button>
             </div>
           </form>
-
           <SuccessPopup show={successPopupVisible} onClose={() => setSuccessPopupVisible(false)} />
         </div>
       </div>
