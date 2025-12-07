@@ -5,6 +5,20 @@
   gap: 0.5rem;
   margin-top: 2rem;
   padding-bottom: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.pageInfo {
+  display: flex;
+  align-items: center;
+  margin-right: 0.5rem;
+}
+
+.totalPagesLabel {
+  font-size: 0.875rem;
+  color: #666;
+  font-weight: 500;
+  white-space: nowrap;
 }
 
 .pageNavButton {
@@ -75,6 +89,58 @@
   transform: scale(1.05);
 }
 
+.pageJumpForm {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin-left: 0.5rem;
+}
+
+.pageJumpLabel {
+  font-size: 0.875rem;
+  color: #666;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.pageJumpInput {
+  width: 3.5rem;
+  padding: 0.4rem 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 0.25rem;
+  font-size: 0.875rem;
+  text-align: center;
+  outline: none;
+  transition: all 0.2s ease-in-out;
+}
+
+.pageJumpInput:focus {
+  border-color: var(--ROSA-LOGO);
+  box-shadow: 0 0 0 2px rgba(255, 54, 120, 0.1);
+}
+
+.pageJumpButton {
+  padding: 0.4rem 0.75rem;
+  background: var(--ROSA-LOGO);
+  color: white;
+  border: none;
+  border-radius: 0.25rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  white-space: nowrap;
+}
+
+.pageJumpButton:hover {
+  background: var(--ROSA);
+  transform: scale(1.05);
+}
+
+.pageJumpButton:active {
+  transform: scale(0.98);
+}
+
 /* Responsividade */
 @media (max-width: 768px) {
   .pagination {
@@ -82,6 +148,18 @@
     margin-top: 1.5rem;
     padding-bottom: 1rem;
     flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .pageInfo {
+    width: 100%;
+    justify-content: center;
+    margin-right: 0;
+    margin-bottom: 0.5rem;
+  }
+
+  .totalPagesLabel {
+    font-size: 0.8rem;
   }
   
   .pageNavButton {
@@ -95,6 +173,8 @@
   
   .pageNumbers {
     gap: 0.2rem;
+    flex-wrap: wrap;
+    justify-content: center;
   }
   
   .pageNumberButton {
@@ -106,6 +186,28 @@
   .pageNumberButtonActive {
     font-size: 0.9rem;
   }
+
+  .pageJumpForm {
+    width: 100%;
+    justify-content: center;
+    margin-left: 0;
+    margin-top: 0.5rem;
+  }
+
+  .pageJumpLabel {
+    font-size: 0.8rem;
+  }
+
+  .pageJumpInput {
+    width: 3rem;
+    padding: 0.35rem 0.5rem;
+    font-size: 0.8rem;
+  }
+
+  .pageJumpButton {
+    padding: 0.35rem 0.6rem;
+    font-size: 0.8rem;
+  }
 }
 
 @media (max-width: 480px) {
@@ -113,6 +215,17 @@
     gap: 0.3rem;
     margin-top: 1.25rem;
     padding-bottom: 0.875rem;
+  }
+
+  .pageInfo {
+    width: 100%;
+    justify-content: center;
+    margin-right: 0;
+    margin-bottom: 0.4rem;
+  }
+
+  .totalPagesLabel {
+    font-size: 0.75rem;
   }
   
   .pageNavButton {
@@ -126,6 +239,8 @@
   
   .pageNumbers {
     gap: 0.15rem;
+    flex-wrap: wrap;
+    justify-content: center;
   }
   
   .pageNumberButton {
@@ -136,6 +251,28 @@
   
   .pageNumberButtonActive {
     font-size: 0.85rem;
+  }
+
+  .pageJumpForm {
+    width: 100%;
+    justify-content: center;
+    margin-left: 0;
+    margin-top: 0.4rem;
+  }
+
+  .pageJumpLabel {
+    font-size: 0.75rem;
+  }
+
+  .pageJumpInput {
+    width: 2.5rem;
+    padding: 0.3rem 0.4rem;
+    font-size: 0.75rem;
+  }
+
+  .pageJumpButton {
+    padding: 0.3rem 0.5rem;
+    font-size: 0.75rem;
   }
 }
 
