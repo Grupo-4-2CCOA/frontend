@@ -4,6 +4,19 @@
 	position: relative;
 }
 
+/* Responsividade */
+@media (max-width: 768px) {
+	.servicoSecao {
+		padding: 60px 30px;
+	}
+}
+
+@media (max-width: 480px) {
+	.servicoSecao {
+		padding: 50px 20px;
+	}
+}
+
 .carouselContainer {
 	max-width: 1400px;
 	margin: 0 auto;

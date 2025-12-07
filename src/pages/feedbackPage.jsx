@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { User } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import styles from '../common/styles/feedback.module.css';
 import NavbarLogado from '../common/components/NavbarLogado';
-import BotaoPrincipal from '../common/components/BotaoPrincipal';
+import Pagination from '../common/components/Pagination';
 import api from '../services/api';
 
 const FeedbackCard = ({ item, onView }) => {
@@ -26,16 +26,16 @@ const FeedbackCard = ({ item, onView }) => {
 
   return (
     <div className={styles.card}>
-      <h3 className={styles.username}>{item.schedule.client.name || 'Usuario'}</h3>
-      <div className={styles.stars}>
-        {Array.from({ length: 5 }).map((_, i) => (
-          <span key={i} style={{ color: i < (item.rating || 0) ? '#f6c948' : '#e5e7eb' }}>★</span>
-        ))}
-      </div>
-      <div className={styles.info}>
-        <p className="text-sm">Nota : {item.rating}/5</p>
-        <p className="text-sm">Data: {formatDate(item.createdAt || item.date || '—')}</p>
-        <p className="text-sm">Tempo de duração: {item.duration || '—'}</p>
+      <div className={styles.cardContent}>
+        <div className={styles.cardPrincipal}>
+          <h3 className={styles.username}>{item.schedule?.client?.name || 'Usuario'}</h3>
+          <div className={styles.stars}>
+            {Array.from({ length: 5 }).map((_, i) => (
+              <span key={i} style={{ color: i < (item.rating || 0) ? '#f6c948' : '#e5e7eb' }}>★</span>
+            ))}
+          </div>
+        </div>
+        <p className={styles.date}>Data: {formatDate(item.createdAt || item.date || '—')}</p>
       </div>
       <button className={styles.viewButton} onClick={() => onView(item.id)}>
         Ver comentário
@@ -45,12 +45,16 @@ const FeedbackCard = ({ item, onView }) => {
 };
 
 export default function FeedbackScreen() {
-  const [selectedMonth, setSelectedMonth] = useState('Atual');
   const [selectedService, setSelectedService] = useState('');
-  const [selectedRating, setSelectedRating] = useState(null); // null = todos, 1-5 = estrelas
+  const [selectedRating, setSelectedRating] = useState(null);
+  const [selectedEmployee, setSelectedEmployee] = useState('');
+  const [employees, setEmployees] = useState([]);
+  const [services, setServices] = useState([]);
   const [feedbacks, setFeedbacks] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 8;
 
   const [detailOpen, setDetailOpen] = useState(false);
   const [detailLoading, setDetailLoading] = useState(false);
@@ -74,30 +78,87 @@ export default function FeedbackScreen() {
     }
   };
 
-  // Load feedbacks (first page)
   React.useEffect(() => {
     let mounted = true;
-    const fetchFeedbacks = async () => {
+    const fetchAllFeedbacks = async () => {
       setLoading(true);
       setError(null);
       try {
-        const res = await api.get('/feedbacks?page=0');
-        // Controller returns a Page object; content usually in res.data.content
-        const data = res.data;
-        const items = data?.content ?? data; // fallback if not paged
-        if (mounted) setFeedbacks(items || []);
+        let allFeedbacks = [];
+        let currentPage = 0;
+        let totalPagesFetched = 1;
+
+        while (currentPage < totalPagesFetched) {
+          const res = await api.get(`/feedbacks?page=${currentPage}`);
+          const data = res.data;
+          console.log(data);
+          
+          if (data?.content !== undefined) {
+            const pageContent = data.content || [];
+            allFeedbacks = [...allFeedbacks, ...pageContent];
+            
+            totalPagesFetched = data.totalPages || 0;
+            currentPage++;
+          } else if (Array.isArray(data)) {
+            allFeedbacks = [...allFeedbacks, ...data];
+            break;
+          } else {
+            // Formato inesperado
+            console.warn('Formato de resposta inesperado:', data);
+            break;
+          }
+        }
+
+        if (mounted) setFeedbacks(allFeedbacks);
       } catch (err) {
         console.error('Erro ao buscar feedbacks', err);
         setError('Não foi possível carregar feedbacks.');
+        if (mounted) setFeedbacks([]);
       } finally {
         if (mounted) setLoading(false);
       }
     };
-    fetchFeedbacks();
+    fetchAllFeedbacks();
     return () => { mounted = false; };
   }, []);
 
-  // Fetch detail and show comment modal
+  React.useEffect(() => {
+    const fetchEmployees = async () => {
+      try {
+        const res = await api.get('/funcionarios');
+        const employeesList = res.data || [];
+        
+        const filteredEmployees = employeesList.filter(emp => {
+          const roleName = emp?.role?.name || emp?.role;
+          if (!roleName) return false;
+          const normalized = String(roleName)
+            .toLowerCase()
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '');
+          return normalized === 'funcionario' || normalized === 'administrador';
+        });
+        
+        setEmployees(filteredEmployees);
+      } catch (err) {
+        console.error('Erro ao buscar funcionários', err);
+      }
+    };
+    fetchEmployees();
+  }, []);
+
+  React.useEffect(() => {
+    const fetchServices = async () => {
+      try {
+        const res = await api.get('/servicos');
+        const servicesList = res.data || [];
+        setServices(servicesList);
+      } catch (err) {
+        console.error('Erro ao buscar serviços', err);
+      }
+    };
+    fetchServices();
+  }, []);
+
   const handleViewComment = async (id) => {
     setDetailOpen(true);
     setDetailLoading(true);
@@ -105,6 +166,7 @@ export default function FeedbackScreen() {
     try {
       const res = await api.get(`/feedbacks/${id}`);
       setSelectedDetail(res.data);
+      console.log(res.data);
     } catch (err) {
       console.error('Erro ao buscar detalhe do feedback', err);
       setSelectedDetail({ error: 'Não foi possível carregar o comentário.' });
@@ -118,7 +180,6 @@ export default function FeedbackScreen() {
     setSelectedDetail(null);
   };
 
-  // Função para filtrar feedbacks
   const getFilteredFeedbacks = () => {
     return feedbacks.filter(feedback => {
       // Filtrar por estrelas
@@ -129,34 +190,74 @@ export default function FeedbackScreen() {
       // Filtrar por categoria de serviço
       if (selectedService) {
         const hasService = feedback.schedule?.items?.some(item => 
-          item.service?.name?.toLowerCase().includes(selectedService.toLowerCase())
+          item.service?.name === selectedService
         );
         if (!hasService) return false;
+      }
+      
+      // Filtrar por funcionário
+      if (selectedEmployee) {
+        const employeeId = feedback.schedule?.employee?.id;
+        if (!employeeId || employeeId.toString() !== selectedEmployee) {
+          return false;
+        }
       }
       
       return true;
     });
   };
 
+  const getPaginatedFeedbacks = () => {
+    const filtered = getFilteredFeedbacks();
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    return filtered.slice(startIndex, endIndex);
+  };
+
+  const getTotalPages = () => {
+    const filtered = getFilteredFeedbacks();
+    return Math.ceil(filtered.length / itemsPerPage);
+  };
+
+  React.useEffect(() => {
+    setCurrentPage(1);
+  }, [selectedService, selectedRating, selectedEmployee]);
+
   return (
     <div className={styles.container}>
-      {/* Reuse global navbar */}
       <NavbarLogado isAdmin={true} />
-
-      {/* Filters */}
       <div className={styles.filters}>
         <div className={styles.filtersGroup}>
           <div className={styles.filterItem}>
             <label className={styles.filterLabel}>Categoria:</label>
-            <input
-              type="text"
-              placeholder="Pesquisar serviço..."
+            <select
               value={selectedService}
               onChange={(e) => setSelectedService(e.target.value)}
-              className={styles.filterInput}
-            />
+              className={styles.filterSelect}
+            >
+              <option value="">Todas</option>
+              {services.map((service) => (
+                <option key={service.id} value={service.name}>
+                  {service.name}
+                </option>
+              ))}
+            </select>
           </div>
-
+          <div className={styles.filterItem}>
+            <label className={styles.filterLabel}>Funcionário:</label>
+            <select
+              value={selectedEmployee}
+              onChange={(e) => setSelectedEmployee(e.target.value)}
+              className={styles.filterSelect}
+            >
+              <option value="">Todos</option>
+              {employees.map((employee) => (
+                <option key={employee.id} value={employee.id}>
+                  {employee.name}
+                </option>
+              ))}
+            </select>
+          </div>
           <div className={styles.filterItem}>
             <label className={styles.filterLabel}>Classificação:</label>
             <div className={styles.starsFilter}>
@@ -180,35 +281,51 @@ export default function FeedbackScreen() {
         </div>
       </div>
 
-      {/* Feedback Cards Grid */}
       <div className={styles.content}>
         <div className={styles.grid}>
           {loading && <div>Carregando feedbacks...</div>}
           {error && <div style={{ color: 'red' }}>{error}</div>}
-          {!loading && getFilteredFeedbacks().length === 0 && <div>Nenhum feedback encontrado.</div>}
-          {!loading && getFilteredFeedbacks().map((feedback) => (
+          {!loading && getFilteredFeedbacks().length === 0 && (
+            <div className={styles.empty}>
+              <div className={styles.emptyIconContainer}>
+                <Plus className={styles.emptyIcon} />
+              </div>
+              <h3 className={styles.emptyTitle}>Nenhum comentário encontrado</h3>
+            </div>
+          )}
+          {!loading && getPaginatedFeedbacks().map((feedback) => (
             <FeedbackCard key={feedback.id} item={feedback} onView={handleViewComment} />
           ))}
         </div>
 
-        {/* Detail modal */}
+        {!loading && getFilteredFeedbacks().length > 10 && (
+          <Pagination
+            currentPage={currentPage}
+            totalPages={getTotalPages()}
+            onPageChange={(page) => setCurrentPage(page + 1)}
+            onPrevPage={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+            onNextPage={() => setCurrentPage(prev => Math.min(prev + 1, getTotalPages()))}
+          />
+        )}
+
         {detailOpen && (
           <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 2000 }}>
             <div style={{ background: '#fff', borderRadius: 12, padding: 20, width: '90%', maxWidth: 600 }}>
               <button onClick={closeDetail} style={{ float: 'right', background: 'transparent', border: 'none', fontSize: 18 }}>✕</button>
-              <h3 style={{ marginTop: 0 }}>Comentário</h3>
-              {detailLoading && <div>Carregando...</div>}
-              {!detailLoading && selectedDetail && (
-                <div>
-                  <p><strong>Usuário:</strong> {selectedDetail.schedule.client.name ?? selectedDetail.clientId ?? '—'}</p>
-                  <p><strong>Nota:</strong> {selectedDetail.rating ?? '—'}/5</p>
-                  <p><strong>Data:</strong> {formatDate(selectedDetail.createdAt ?? selectedDetail.date ?? '—')}</p>
-                  <div style={{ marginTop: 12 }}>
-                    <strong>Comentário:</strong>
-                    <p style={{ background: '#f7f7f7', padding: 12, borderRadius: 8 }}>{selectedDetail.comment ?? selectedDetail.comentario ?? 'Sem comentário.'}</p>
+              <h3 style={{ marginBottom: 10, color: 'var(--ROSA-LOGO)' }}>Comentário</h3>
+                {detailLoading && <div>Carregando...</div>}
+                {!detailLoading && selectedDetail && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                    <p><strong>Cliente:</strong> {selectedDetail.schedule.client.name ?? selectedDetail.clientId ?? '—'}</p>
+                    <p><strong>Funcionário:</strong> {selectedDetail.schedule.employee.name ?? selectedDetail.clientId ?? '—'}</p>
+                    <p><strong>Nota:</strong> {selectedDetail.rating ?? '—'}/5</p>
+                    <p><strong>Data:</strong> {formatDate(selectedDetail.createdAt ?? selectedDetail.date ?? '—')}</p>
+                    <div style={{ marginTop: 12 }}>
+                      <strong style={{ color: 'var(--ROSA-LOGO)' }}>Comentário:</strong>
+                      <p style={{ background: '#f7f7f7', padding: 12, borderRadius: 8 }}>{selectedDetail.comment ?? selectedDetail.comentario ?? 'Sem comentário.'}</p>
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
             </div>
           </div>
         )}

@@ -27,3 +27,62 @@
     height: 250px;
     object-fit: cover;
 }
+
+/* Responsividade */
+@media (max-width: 1024px) {
+    .heroSection {
+        padding: 0 80px;
+    }
+    
+    .heroContent {
+        max-width: 65%;
+    }
+    
+    .heroContent p {
+        font-size: 42px;
+    }
+    
+    .heroImage {
+        width: 220px;
+        height: 220px;
+    }
+}
+
+@media (max-width: 768px) {
+    .heroSection {
+        padding: 40px 40px;
+        flex-direction: column;
+        max-height: none;
+        gap: 30px;
+    }
+    
+    .heroContent {
+        max-width: 100%;
+        text-align: center;
+    }
+    
+    .heroContent p {
+        font-size: 32px;
+    }
+    
+    .heroImage {
+        width: 200px;
+        height: 200px;
+    }
+}
+
+@media (max-width: 480px) {
+    .heroSection {
+        padding: 30px 20px;
+        gap: 20px;
+    }
+    
+    .heroContent p {
+        font-size: 24px;
+    }
+    
+    .heroImage {
+        width: 180px;
+        height: 180px;
+    }
+}

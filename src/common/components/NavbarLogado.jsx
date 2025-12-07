@@ -1,7 +1,7 @@
 import logo from "../../assets/logo-vb.png";
 import styles from "../styles/navbarLogado.module.css";
 import { Link } from "react-router-dom";
-import { Eye, User } from 'lucide-react';
+import { User } from 'lucide-react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -24,19 +24,18 @@ export default function NavbarLogado(props) {
               <Link to="/cadastro-servico">Serviços</Link>
               <Link to="/cadastro-funcionario">Funcionários</Link>
               <Link to="/agendamentoFunc">Agendamentos</Link>
-              <Link to="/feedback">Feedbacks</Link>
+              <Link to="/feedback">Comentários</Link>
               <Link to="/system-dashboard">Dashboards</Link>
             </ul>
           </div>
         )
       }
       <div className={styles.headerIcons}>
-        <Eye className={styles.icon} />
         <div className={styles.profileMenu}>
           <User className={styles.icon} onClick={() => setShowMenu(!showMenu)} />
           {showMenu && (
             <div className={styles.dropdown}>
-              <button onClick={() => handleNavigate("/agendamento")}>Agendamento</button>
+              <button onClick={() => handleNavigate("/agendamento")}>Agendamentos</button>
               <button onClick={() => handleNavigate("/informacoes")}>Informações adicionais</button>
               <button onClick={() => handleNavigate("/login")}>Sair</button>
             </div>

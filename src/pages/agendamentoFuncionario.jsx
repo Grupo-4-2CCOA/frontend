@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import NavbarLogado from "../common/components/NavbarLogado";
 import SecaoAgendar from "../common/components/SecaoAgendar";
 import Agendar from "../common/components/AgendarFunc";
+import EditarAgendar from "../common/components/EditarAgendar";
 import Popup from '../common/components/Popup';
 import api from '../services/api';
 import FinalizarAgendamentoModal from '../common/components/FinalizarAgendamentoModal';
@@ -13,15 +14,19 @@ export default function AgendamentoFuncionario() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [agendamentos, setAgendamentos] = useState([]);
   const [rawAgendamentos, setRawAgendamentos] = useState([]);
+  const [allAgendamentos, setAllAgendamentos] = useState([]); // Para armazenar todos os agendamentos quando filtro de status está ativo
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
   const [dataInicio, setDataInicio] = useState('');
   const [dataFim, setDataFim] = useState('');
+  const [statusFilter, setStatusFilter] = useState('TODOS');
   const [filtroAtivo, setFiltroAtivo] = useState(false);
   const [isFinalizarModalOpen, setIsFinalizarModalOpen] = useState(false);
   const [selectedAgendamentoId, setSelectedAgendamentoId] = useState(null);
   const [modal, setModal] = useState({ open: false, type: '', message: '', cb: null });
+  const [editingId, setEditingId] = useState(null);
+  const [isEditOpen, setIsEditOpen] = useState(false);
 
   const fetchAgendamentos = async (pageNum, inicio = null, fim = null) => {
     try {
@@ -109,14 +114,129 @@ export default function AgendamentoFuncionario() {
     }
   };
 
+  const fetchAllAgendamentos = async (inicio = null, fim = null) => {
+    try {
+      setLoading(true);
+      let allData = [];
+      let currentPage = 0;
+      let hasMore = true;
+
+      while (hasMore) {
+        let url = `/agendamentos?page=${currentPage}`;
+        if (inicio && fim) {
+          url += `&dataInicio=${inicio}&dataFim=${fim}`;
+        }
+        
+        const response = await api.get(url);
+        const data = response.data;
+        const content = Array.isArray(data) ? data : (data.content || []);
+        
+        if (content.length === 0) {
+          hasMore = false;
+        } else {
+          allData = [...allData, ...content];
+          const total = data?.totalPages ?? 0;
+          if (currentPage >= total - 1) {
+            hasMore = false;
+          } else {
+            currentPage++;
+          }
+        }
+      }
+
+      setRawAgendamentos(allData);
+
+      const formattedAppointments = allData.map(apt => {
+        const dateArr = apt?.appointmentDatetime;
+        let dataPt = '';
+
+        try {
+          if (Array.isArray(dateArr) && dateArr.length >= 5) {
+            const d = new Date(dateArr[0], dateArr[1] - 1, dateArr[2], dateArr[3], dateArr[4]);
+            const day = d.getDate();
+            const month = d.toLocaleString('pt-BR', { month: 'long' });
+            const year = d.getFullYear();
+            const time = d.toLocaleTimeString('pt-BR', {
+              hour: '2-digit',
+              minute: '2-digit'
+            });
+            dataPt = `${day} de ${month} de ${year} às ${time}`;
+          } else if (typeof dateArr === 'string') {
+            const d = new Date(dateArr);
+            if (!isNaN(d.getTime())) {
+              const day = d.getDate();
+              const month = d.toLocaleString('pt-BR', { month: 'long' });
+              const year = d.getFullYear();
+              const time = d.toLocaleTimeString('pt-BR', {
+                hour: '2-digit',
+                minute: '2-digit'
+              });
+              dataPt = `${day} de ${month} de ${year} às ${time}`;
+            }
+          }
+        } catch (error) {
+          console.error('Error formatting date:', error, dateArr);
+        }
+
+        const nomesServicos = apt?.items?.map(i => i.service?.name).filter(Boolean) || [];
+        const total = apt?.items?.reduce((sum, i) => sum + (i.finalPrice || 0), 0) || 0;
+
+        return {
+          id: apt?.id,
+          data: dataPt || '-',
+          servico: nomesServicos.join(', '),
+          servicos: nomesServicos,
+          cliente: apt.client?.name || 'Cliente não identificado',
+          status: apt?.status || 'PENDING',
+          total: total,
+          items: apt?.items || []
+        };
+      });
+
+      setAllAgendamentos(formattedAppointments);
+      setAgendamentos(formattedAppointments);
+    } catch (error) {
+      console.error('Erro ao buscar todos os agendamentos:', error);
+      if (error.response?.status === 401) {
+        setModal({
+          open: true,
+          type: 'error',
+          message: 'Sessão expirada. Por favor, faça login novamente.',
+          cb: () => setModal(modal => ({ ...modal, open: false }))
+        });
+      } else {
+        setModal({
+          open: true,
+          type: 'error',
+          message: 'Erro ao buscar agendamentos. Tente novamente.',
+          cb: () => setModal(modal => ({ ...modal, open: false }))
+        });
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchAgendamentos(0);
+  }, []);
+
   useEffect(() => {
     if (filtroAtivo) {
       fetchAgendamentos(page, dataInicio, dataFim);
     } else {
       fetchAgendamentos(page);
     }
-    // eslint-disable-next-line
-  }, [page, filtroAtivo, dataInicio, dataFim]);
+  }, [page, filtroAtivo]);
+
+  useEffect(() => {
+    if (statusFilter !== 'TODOS' && !filtroAtivo) {
+      fetchAllAgendamentos();
+    } else if (statusFilter === 'TODOS' && allAgendamentos.length > 0 && !filtroAtivo) {
+      setAllAgendamentos([]);
+      fetchAgendamentos(page);
+    }
+  }, [statusFilter]);
 
   const handleDelete = async (id) => {
     try {
@@ -157,12 +277,11 @@ export default function AgendamentoFuncionario() {
   };
 
   const handleEdit = (id) => {
-    // Implement edit functionality if needed
-    console.log('Editar agendamento:', id);
+    setEditingId(id);
+    setIsEditOpen(true);
   };
 
   const handleFeedback = (id) => {
-    // Implement feedback functionality if needed
     console.log('Feedback para agendamento:', id);
   };
 
@@ -206,6 +325,7 @@ export default function AgendamentoFuncionario() {
 
   const onPrevPage = () => setPage((p) => Math.max(0, p - 1));
   const onNextPage = () => setPage((p) => (p + 1 < totalPages ? p + 1 : p));
+  const onPageChange = (newPage) => setPage(newPage);
 
   const handleConfirmarAgendamento = async (novoAgendamento) => {
     try {
@@ -232,10 +352,7 @@ export default function AgendamentoFuncionario() {
   };
 
   const formatDateTimeForAPI = (dateArr) => {
-    if (!Array.isArray(dateArr) || dateArr.length < 5) return null;
-    const [year, month, day, hour, minute] = dateArr;
-    const pad = (n) => n.toString().padStart(2, '0');
-    return `${year}-${pad(month)}-${pad(day)}T${pad(hour)}:${pad(minute)}:00`;
+    return dateArr;
   };
 
   const handleConfirmFinalizar = async (data) => {
@@ -259,6 +376,7 @@ export default function AgendamentoFuncionario() {
         'CASH': 4
       };
 
+
       const payload = {
         client: rawAppointment.client?.id,
         employee: rawAppointment.employee?.id,
@@ -266,7 +384,9 @@ export default function AgendamentoFuncionario() {
         status: 'COMPLETED',
         duration: rawAppointment.duration,
         paymentType: paymentMap[data.paymentMethod],
-        transactionHash: data.hash,
+        transactionHash: null,
+        // createdAt: rawAppointment.createdAt,
+        // updatedAt: new Date().toISOString(),
         items: rawAppointment.items?.map(item => ({
           service: item.service?.id,
           finalPrice: item.finalPrice,
@@ -301,6 +421,73 @@ export default function AgendamentoFuncionario() {
     }
   };
 
+  const getFilteredAgendamentos = () => {
+    const sourceData = (statusFilter !== 'TODOS' && allAgendamentos.length > 0) ? allAgendamentos : agendamentos;
+    let filtered = sourceData;
+
+    // Filtrar por status
+    if (statusFilter !== 'TODOS') {
+      filtered = filtered.filter(agendamento => agendamento.status === statusFilter);
+    }
+
+    // Não filtrar por data quando filtroAtivo é true, pois o backend já retornou os dados filtrados
+    // O filtro de data no frontend só é necessário quando o usuário está visualizando sem aplicar o filtro
+    if (!filtroAtivo && (dataInicio || dataFim)) {
+      filtered = filtered.filter(agendamento => {
+        // Buscar o agendamento original para pegar appointmentDatetime
+        const rawAppointment = rawAgendamentos.find(a => a.id === agendamento.id);
+        if (!rawAppointment) return true;
+
+        const agendamentoDate = rawAppointment.appointmentDatetime;
+        let agendDate = null;
+
+        if (Array.isArray(agendamentoDate) && agendamentoDate.length >= 5) {
+          agendDate = new Date(agendamentoDate[0], agendamentoDate[1] - 1, agendamentoDate[2], agendamentoDate[3], agendamentoDate[4]);
+        } else if (Array.isArray(agendamentoDate) && agendamentoDate.length >= 3) {
+          agendDate = new Date(agendamentoDate[0], agendamentoDate[1] - 1, agendamentoDate[2]);
+        } else if (agendamentoDate) {
+          agendDate = new Date(agendamentoDate);
+        }
+
+        if (!agendDate || isNaN(agendDate.getTime())) return true;
+
+        const agendDateOnly = new Date(agendDate.getFullYear(), agendDate.getMonth(), agendDate.getDate());
+
+        if (dataInicio) {
+          const startDateParts = dataInicio.split('-');
+          const startDate = new Date(parseInt(startDateParts[0]), parseInt(startDateParts[1]) - 1, parseInt(startDateParts[2]));
+          if (agendDateOnly < startDate) return false;
+        }
+
+        if (dataFim) {
+          const endDateParts = dataFim.split('-');
+          const endDate = new Date(parseInt(endDateParts[0]), parseInt(endDateParts[1]) - 1, parseInt(endDateParts[2]));
+          if (agendDateOnly > endDate) return false;
+        }
+
+        return true;
+      });
+    }
+
+    return filtered;
+  };
+
+  const getPaginatedData = () => {
+    const filtered = getFilteredAgendamentos();
+    const itemsPerPage = 10; 
+    
+    if (statusFilter === 'TODOS') {
+      return { data: filtered, totalPages: totalPages };
+    }
+    
+    const calculatedTotalPages = Math.ceil(filtered.length / itemsPerPage);
+    const startIndex = page * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    const paginatedData = filtered.slice(startIndex, endIndex);
+    
+    return { data: paginatedData, totalPages: calculatedTotalPages };
+  };
+
   if (loading) {
     return (
       <Modal open={true} type="loading" message="Carregando agendamentos..." onClose={() => {}} />
@@ -329,7 +516,7 @@ export default function AgendamentoFuncionario() {
       )}
       <NavbarLogado isAdmin={true} />
       <SecaoAgendar
-        agendamentos={agendamentos}
+        agendamentos={getPaginatedData().data}
         showPopup={handleShowDeletePopup}
         onEdit={handleEdit}
         onDelete={handleDelete}
@@ -337,9 +524,15 @@ export default function AgendamentoFuncionario() {
         onNovoAgendamento={handleNovoAgendamento}
         onFinalizar={handleFinalizar}
         page={page}
-        totalPages={totalPages}
+        totalPages={getPaginatedData().totalPages}
         onPrevPage={onPrevPage}
         onNextPage={onNextPage}
+        onPageChange={onPageChange}
+        statusFilter={statusFilter}
+        onStatusFilterChange={(value) => {
+          setStatusFilter(value);
+          setPage(0); // Resetar para primeira página ao mudar filtro
+        }}
         dataInicio={dataInicio}
         onDataInicioChange={setDataInicio}
         dataFim={dataFim}
@@ -347,12 +540,22 @@ export default function AgendamentoFuncionario() {
         onFilter={handleAplicarFiltro}
         onReset={handleLimparFiltro}
         filtroAtivo={filtroAtivo}
+        isEmployee={true}
       />
 
       <Agendar
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onConfirm={handleConfirmarAgendamento}
+      />
+
+      <EditarAgendar
+        isOpen={isEditOpen}
+        onClose={() => setIsEditOpen(false)}
+        scheduleId={editingId}
+        onConfirm={async () => {
+          await fetchAgendamentos(page);
+        }}
       />
 
       <FinalizarAgendamentoModal

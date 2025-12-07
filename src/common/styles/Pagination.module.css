@@ -1,0 +1,141 @@
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 2rem;
+  padding-bottom: 1.25rem;
+}
+
+.pageNavButton {
+  background: white;
+  color: #333;
+  border: 1px solid #ccc;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.25rem;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pageNavButton:hover:not(:disabled) {
+  background: var(--ROSA);
+  border-color: var(--ROSA-LOGO);
+  transform: scale(1.05);
+}
+
+.pageNavButton:disabled {
+  background: #f5f5f5;
+  cursor: not-allowed;
+  opacity: 0.5;
+  transform: none;
+}
+
+.pageNavIcon {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.pageNumbers {
+  display: flex;
+  gap: 0.25rem;
+  align-items: center;
+}
+
+.pageNumberButton {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--ROSA);
+  border-radius: 0.25rem;
+  cursor: pointer;
+  background: var(--ROSA);
+  color: #333;
+  font-weight: normal;
+  font-size: 0.875rem;
+  transition: all 0.2s ease-in-out;
+  min-width: 2.5rem;
+}
+
+.pageNumberButton:hover {
+  background: var(--ROSA-LOGO);
+  border-color: var(--ROSA-LOGO);
+  transform: scale(1.05);
+}
+
+.pageNumberButtonActive {
+  border: 2px solid var(--ROSA-LOGO);
+  background: var(--ROSA-LOGO);
+  font-weight: bold;
+  font-size: 1rem;
+  color: white;
+}
+
+.pageNumberButtonActive:hover {
+  transform: scale(1.05);
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .pagination {
+    gap: 0.4rem;
+    margin-top: 1.5rem;
+    padding-bottom: 1rem;
+    flex-wrap: wrap;
+  }
+  
+  .pageNavButton {
+    padding: 0.4rem 0.6rem;
+  }
+  
+  .pageNavIcon {
+    width: 1.1rem;
+    height: 1.1rem;
+  }
+  
+  .pageNumbers {
+    gap: 0.2rem;
+  }
+  
+  .pageNumberButton {
+    padding: 0.4rem 0.6rem;
+    min-width: 2.25rem;
+    font-size: 0.8rem;
+  }
+  
+  .pageNumberButtonActive {
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .pagination {
+    gap: 0.3rem;
+    margin-top: 1.25rem;
+    padding-bottom: 0.875rem;
+  }
+  
+  .pageNavButton {
+    padding: 0.35rem 0.5rem;
+  }
+  
+  .pageNavIcon {
+    width: 1rem;
+    height: 1rem;
+  }
+  
+  .pageNumbers {
+    gap: 0.15rem;
+  }
+  
+  .pageNumberButton {
+    padding: 0.35rem 0.5rem;
+    min-width: 2rem;
+    font-size: 0.75rem;
+  }
+  
+  .pageNumberButtonActive {
+    font-size: 0.85rem;
+  }
+}
+

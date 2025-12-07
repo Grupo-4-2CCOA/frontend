@@ -12,37 +12,37 @@ const servico = [
     {
         id: 1,
         category: 'Categoria',
-        title: 'Unha',
-        description: 'Oferecemos serviços de manicure e pedicure com higienização, esmaltação impecável e atenção aos detalhes para realçar sua autoestima.',
-        image: "imagem",
+        title: 'Unhas de gel',
+        description: 'Alongamento profissional com gel, garantindo unhas resistentes, elegantes e com acabamento impecável.',
+        image: "https://beauty-barreto-source.s3.us-east-1.amazonaws.com/unha-gel.jpg",
     },
     {
         id: 2,
         category: 'Categoria',
         title: 'Cabelo',
-        description: 'Corte, hidratação, coloração e escova com técnicas profissionais e produtos de qualidade para realçar sua beleza natural.',
-        image: "imagem",
+        description: 'Corte feminino moderno e personalizado, feito para valorizar o formato do rosto e realçar sua beleza natural.',
+        image: "https://beauty-barreto-source.s3.us-east-1.amazonaws.com/corte-de-cabelo.jpg", 
     },
     {
         id: 3,
         category: 'Categoria',
-        title: 'Depilação',
-        description: 'Pele lisinha e bem cuidada com nossa depilação profissional! Utilizamos técnicas seguras e higiênicas para garantir conforto, eficiência e resultados duradouros.',
-        image: "imagem",
+        title: 'Manicure',
+        description: 'Tratamento completo para as mãos com corte, lixamento e esmaltação, oferecendo acabamento limpo e duradouro.',
+        image: "https://beauty-barreto-source.s3.us-east-1.amazonaws.com/manicure-simples.jpg",
     },
     {
         id: 4,
         category: 'Categoria',
-        title: 'Cílios',
-        description: 'Realce o seu olhar com alongamento de cílios feito com precisão e delicadeza! Técnica segura, efeito natural ou volumoso e resultado encantador que valoriza sua beleza.',
-        image: "imagem",
+        title: 'Pedicure',
+        description: 'Cuidado essencial para os pés, incluindo corte, lixamento e esmaltação com técnicas que garantem conforto e estética.',
+        image: "https://beauty-barreto-source.s3.us-east-1.amazonaws.com/pedicure.jpg",
     },
     {
         id: 5,
         category: 'Categoria',
-        title: 'Massagem',
-        description: 'Relaxe e revigore-se com nossas sessões de massagem terapêutica, aliviando tensões e promovendo bem-estar integral.',
-        image: "imagem",
+        title: 'Limpeza de Pele',
+        description: 'Limpeza facial profunda com remoção de impurezas, revitalização da pele e sensação de frescor imediato.',
+        image: "https://beauty-barreto-source.s3.us-east-1.amazonaws.com/limpeza-simples.jpg",
     },
 ];
 
@@ -74,7 +74,15 @@ export default function SecaoServicos() {
                         <SwiperSlide key={servico.id}>
                             <div className={styles['service-card']}>
                                 <div className={styles['service-image-placeholder']}>
-                                    <span className={styles['placeholder-x']}>X</span>
+                                    <img
+                                        src={servico.image}
+                                        alt={servico.name}
+                                        style={{
+                                            width: '100%',
+                                            height: '100%',
+                                            objectFit: 'cover'
+                                        }}
+                                    />
                                 </div>
                                 <p className={styles['service-category']}>{servico.category}</p>
                                 <h3 className={styles['service-title']}>{servico.title}</h3>

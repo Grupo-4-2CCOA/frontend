@@ -3,12 +3,11 @@ import styles from '../styles/Agendar.module.css';
 import Modal from './Modal';
 
 const FinalizarAgendamentoModal = ({ isOpen, onClose, onConfirm }) => {
-    const [hash, setHash] = useState('');
     const [paymentMethod, setPaymentMethod] = useState('');
     const [modal, setModal] = useState({ open: false, type: '', message: '', cb: null });
 
     const handleSubmit = () => {
-        if (!hash || !paymentMethod) {
+        if (!paymentMethod) {
             setModal({
                 open: true,
                 type: 'error',
@@ -17,8 +16,7 @@ const FinalizarAgendamentoModal = ({ isOpen, onClose, onConfirm }) => {
             });
             return;
         }
-        onConfirm({ hash, paymentMethod });
-        setHash('');
+        onConfirm({ paymentMethod });
         setPaymentMethod('');
     };
 
@@ -38,18 +36,6 @@ const FinalizarAgendamentoModal = ({ isOpen, onClose, onConfirm }) => {
             <div className={styles["modal-overlay"]}>
                 <div className={styles["modal-content"]}>
                     <h2>Finalizar Agendamento</h2>
-
-                    <div className={styles["form-group"]}>
-                        <label>Hash da Operação:</label>
-                        <input
-                            type="text"
-                            value={hash}
-                            onChange={(e) => setHash(e.target.value)}
-                            className={styles["date-field"]}
-                            placeholder="Insira o hash da operação"
-                        />
-                    </div>
-
                     <div className={styles["form-group"]}>
                         <label>Método de Pagamento:</label>
                         <select

@@ -3,6 +3,7 @@ import styles from "../styles/sells-panel.module.css";
 import InfoButton from "./InfoButton.jsx";
 import ApexCharts from 'apexcharts';
 import Popup from "./Popup.jsx";
+import api from '../../services/api';
 
 // import { useAuth } from '../hooks/useAuth';
 
@@ -74,14 +75,13 @@ export default function SellsPanel() {
     };
     
     useEffect(() => {
-        const mes = 1;
+        const mes = 11;
         const ano = 2025;
 
-        fetch(`http://localhost:8080/dashboard/vendas?mes=${mes}&ano=${ano}`)
-            .then(response => response.json())
-            .then(data => {
-                console.log(data);
-                return setDashboardData(data);
+        api.get(`http://localhost:8080/dashboard/vendas?mes=${mes}&ano=${ano}`)
+            .then((response) => {
+                setDashboardData(response.data);
+                console.log(response.data)
             })
             .catch(error => {
                 console.error("Erro ao buscar dados do dashboard:", error);

@@ -48,3 +48,48 @@
   0% { transform: rotate(0deg);}
   100% { transform: rotate(360deg);}
 }
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .modal-box {
+    min-width: 280px;
+    padding: 2rem 1.5rem 1.75rem 1.5rem;
+    margin: 1rem;
+  }
+  
+  .modal-msg {
+    font-size: 1.1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .modal-box {
+    min-width: 260px;
+    padding: 1.75rem 1.25rem 1.5rem 1.25rem;
+    margin: 0.5rem;
+  }
+  
+  .modal-close {
+    right: 10px;
+    top: 10px;
+    font-size: 1.5rem;
+  }
+  
+  .modal-icon {
+    margin-bottom: 0.75rem;
+  }
+  
+  .modal-msg {
+    font-size: 1rem;
+  }
+  
+  .modal-loader {
+    margin: 15px auto;
+  }
+  
+  .loader {
+    width: 36px;
+    height: 36px;
+    border-width: 5px;
+  }
+}

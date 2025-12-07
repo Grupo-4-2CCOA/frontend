@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import config from '../../config';
-import Styles from "../styles/NovoServico.module.css";
+import styles from "../styles/NovoServico.module.css";
 import BotaoPrincipal from "./BotaoPrincipal";
+import BotaoSecundario from "./BotaoSecundario";
 import api from '../../services/api';
 import { useAuth } from '../../hooks/useAuth';
 import Modal from './Modal';
@@ -204,10 +205,10 @@ export default function NovoServicoPopup({ onCancel, onConfirm, titulo, servicoP
                     modal.cb && modal.cb();
                 }}
             />
-            <div className={Styles.popupOverlay}>
-                <div className={Styles.popupContainer}>
+            <div className={styles.popupOverlay}>
+                <div className={styles.popupContainer}>
                     <h2>{titulo}</h2>
-                    <div className={Styles.popupForm}>			
+                    <div className={styles.popupForm}>			
                         <label>
                             Nome:
                             <input
@@ -271,13 +272,14 @@ export default function NovoServicoPopup({ onCancel, onConfirm, titulo, servicoP
                             />
                         </label>
                     </div>
-                    <div className={Styles.popupActions}>
-                        <BotaoPrincipal 
+                    <div className={styles.popupActions}>
+                        <BotaoSecundario 
                             onClick={onCancel} 
                             disabled={loading}
+                            className={styles.cancelBtn}
                         >
                             Cancelar
-                        </BotaoPrincipal>
+                        </BotaoSecundario>
                         <BotaoPrincipal
                             onClick={handleSubmit}
                             disabled={loading}
