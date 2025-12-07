@@ -12,7 +12,7 @@ import { useNavigate } from 'react-router-dom';
 import Modal from './Modal';
 
 export default function SecaoServicosCadastro({ onEditar, refreshKey }) {
-	const BUCKET_URL = 'https://beauty-barreto-source.s3.us-east-1.amazonaws.com';
+	const BUCKET_URL = 'https://grupo4-beauty-barreto-source.s3.us-east-1.amazonaws.com';
     const [servicos, setServicos] = useState([]);
     const [loading, setLoading] = useState(false);
     const [modal, setModal] = useState({ open: false, type: '', message: '', cb: null });
