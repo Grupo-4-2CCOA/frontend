@@ -38,8 +38,15 @@ function SuccessPopup({ show, onClose }) {
   );
 }
 
+// Função para verificar se o usuário é cliente
+const isCliente = (role) => {
+  if (!role) return true; // Default para cliente se não tiver role
+  const normalized = String(role).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  return normalized === 'cliente';
+};
+
 export default function AdicionarInformacoes() {
-  const { userInfo } = useAuth('Cliente');
+  const { userInfo } = useAuth( );
   const [formData, setFormData] = useState({
     cpf: '',
     telefone: '',
@@ -51,12 +58,15 @@ export default function AdicionarInformacoes() {
   const [loading, setLoading] = useState(false);
   const [loadingData, setLoadingData] = useState(true);
   const [errors, setErrors] = useState({});
-  const [clientData, setClientData] = useState(null);
+  const [userData, setUserData] = useState(null);
   const [successPopupVisible, setSuccessPopupVisible] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [modal, setModal] = useState({ open: false, type: '', message: '', cb: null });
+  const userRole = userInfo?.role;
+  const isUserCliente = isCliente(userRole);
+  const endpoint = isUserCliente ? '/clientes' : '/funcionarios';
+  const roleId = isUserCliente ? 2 : (userRole?.toLowerCase() === 'administrador' ? 1 : 3);
 
-  // Funções de formatação
   const formatCPF = (value) => {
     return value
       .replace(/\D/g, '')
@@ -82,12 +92,11 @@ export default function AdicionarInformacoes() {
       .replace(/(-\d{3})\d+?$/, '$1');
   };
 
-  // Função para validar CPF
   const validarCPF = (cpf) => {
     cpf = cpf.replace(/\D/g, '');
 
     if (cpf.length !== 11) return false;
-    if (/^(\d)\1{10}$/.test(cpf)) return false; // CPF com todos os dígitos iguais
+    if (/^(\d)\1{10}$/.test(cpf)) return false;
 
     let soma = 0;
     for (let i = 0; i < 9; i++) {
@@ -108,9 +117,10 @@ export default function AdicionarInformacoes() {
     return true;
   };
 
-  // Carrega dados existentes do cliente quando o id estiver disponível
   useEffect(() => {
     let isCancelled = false;
+    console.log('User Info:', userInfo);
+    console.log('Endpoint usado:', endpoint);
 
     const carregarDados = async () => {
       if (!userInfo?.id) {
@@ -120,13 +130,12 @@ export default function AdicionarInformacoes() {
 
       try {
         setLoadingData(true);
-        const res = await api.get(`/clientes/${userInfo.id}`);
+        const res = await api.get(`${endpoint}/${userInfo.id}`);
         if (isCancelled) return;
 
         const dados = res.data || {};
-        setClientData(dados);
+        setUserData(dados);
 
-        // Aplica formatação aos dados carregados
         setFormData(prev => ({
           ...prev,
           cpf: dados.cpf ? formatCPF(dados.cpf) : '',
@@ -137,12 +146,12 @@ export default function AdicionarInformacoes() {
           estado: dados.estado || ''
         }));
       } catch (error) {
-        console.error('Erro ao carregar dados do cliente:', error);
-        setClientData(null);
+        console.error(`Erro ao carregar dados do usuário:`, error);
+        setUserData(null);
         setModal({
           open: true,
           type: 'error',
-          message: 'Erro ao carregar dados do cliente.',
+          message: `Erro ao carregar dados do usuário.`,
           cb: () => setModal(modal => ({ ...modal, open: false }))
         });
       } finally {
@@ -154,11 +163,11 @@ export default function AdicionarInformacoes() {
 
     carregarDados();
     return () => { isCancelled = true; };
-  }, [userInfo?.id]);
+  }, [userInfo?.id, endpoint, isUserCliente]);
 
   if (!userInfo) return <div className={styles.loading}>Carregando...</div>;
 
-  if (loadingData) return <div className={styles.loading}>Carregando dados do cliente...</div>;
+  if (loadingData) return <div className={styles.loading}>Carregando dados do usuário...</div>;
 
   const handleInputChange = (field, value) => {
     let formattedValue = value;
@@ -238,12 +247,12 @@ export default function AdicionarInformacoes() {
 
     try {
       const dadosAtualizar = {
-        name: clientData?.name || userInfo?.name || '',
+        name: userData?.name || userInfo?.name || '',
         email: userInfo?.email || '',
         cpf: formData.cpf.replace(/\D/g, ''),
         phone: formData.telefone.replace(/\D/g, ''),
         cep: formData.cep.replace(/\D/g, ''),
-        role: 2
+        role: roleId
       };
 
       const cpfLimpo = formData.cpf.replace(/\D/g, '');
@@ -258,7 +267,7 @@ export default function AdicionarInformacoes() {
         return;
       }
 
-      const response = await api.put(`/clientes/${userInfo.id}`, dadosAtualizar);
+      const response = await api.put(`${endpoint}/${userInfo.id}`, dadosAtualizar);
 
       setSuccessPopupVisible(true);
       setShowSuccess(true);
@@ -272,7 +281,7 @@ export default function AdicionarInformacoes() {
       if (error.response?.status === 400) {
         errorMessage = 'Dados inválidos. Verifique as informações e tente novamente.';
       } else if (error.response?.status === 404) {
-        errorMessage = 'Cliente não encontrado. Faça login novamente.';
+        errorMessage = 'Usuário não encontrado. Faça login novamente.';
       } else if (error.response?.status === 500) {
         errorMessage = 'Erro interno do servidor. Tente novamente mais tarde.';
       }
@@ -299,7 +308,7 @@ export default function AdicionarInformacoes() {
         }}
       />
       <SuccessPopup show={showSuccess} />
-      <NavbarLogado />
+      <NavbarLogado isAdmin={userRole?.toLowerCase() !== 'cliente'} />
       <div className={styles.adicionarInfoContainer}>
         <div className={styles.adicionarInfoContent}>
           <form onSubmit={handleSubmit} className={styles.infoForm}>
@@ -308,7 +317,11 @@ export default function AdicionarInformacoes() {
               <div className={styles.existingInfoGrid}>
                 <div className={styles.infoItem}>
                   <label>Nome</label>
-                  <div className={styles.infoValue}>{clientData?.name || userInfo?.name || 'Não informado'}</div>
+                  <div className={styles.infoValue}>{userData?.name || userInfo?.name || 'Não informado'}</div>
+                </div>
+                <div className={styles.infoItem}>
+                  <label>Cargo</label>
+                  <div className={styles.infoValue}>{userInfo?.role || 'Não informado'}</div>
                 </div>
                 <div className={styles.infoItem}>
                   <label>Email</label>

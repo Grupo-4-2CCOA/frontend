@@ -97,7 +97,7 @@ export default function SystemPanel({ dataInicio, dataFim }) {
             ...commonChartOptions,
             xaxis: { ...commonChartOptions.xaxis, categories: rendimentoLabels },
             title: {
-                text: "Rendimento Total",
+                text: "Faturamento Total (R$)",
                 align: "center",
                 style: {
                     fontSize: "23px",
@@ -112,13 +112,13 @@ export default function SystemPanel({ dataInicio, dataFim }) {
             },
             series: [
                 {
-                    name: "Rendimento",
+                    name: "Faturamento",
                     data: rendimentoValues
                 }
             ],
             yaxis: {
                 title: {
-                    text: "Rendimento (R$)",
+                    text: "Faturamento (R$)",
                     style: {
                         color: 'var(--CINZA-ESCURO)',
                         fontSize: '14px',
