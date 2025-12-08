@@ -124,7 +124,8 @@ export default function SellsPanel({ dataInicio, dataFim }) {
                         fontSize: '12px',
                         fontFamily: 'Roboto'
                     }
-                }
+                },
+                min: 0
             }
         };
 
@@ -253,7 +254,7 @@ export default function SellsPanel({ dataInicio, dataFim }) {
                     </div>
                     <div className={styles.kpiCard}>
                         <div className={styles.kpiCardHeader}>
-                            <span className={styles.cardTitle}>Taxa de Conversão</span>
+                            <span className={styles.cardTitle}>Percentual de Conversão para Clientes</span>
                             <InfoButton
                                 setShowPopup={setShowPopup}
                                 setPopupTitle={setPopupTitle}

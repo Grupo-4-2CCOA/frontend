@@ -35,7 +35,7 @@ export default function NavbarLogado(props) {
           <User className={styles.icon} onClick={() => setShowMenu(!showMenu)} />
           {showMenu && (
             <div className={styles.dropdown}>
-              <button onClick={() => handleNavigate("/agendamento")}>Agendamentos</button>
+              <button onClick={() => handleNavigate(props.isAdmin ? "/agendamentoFunc" : "/agendamento")}>Agendamentos</button>
               <button onClick={() => handleNavigate("/informacoes")}>Informações adicionais</button>
               <button onClick={() => handleNavigate("/login")}>Sair</button>
             </div>

@@ -31,11 +31,11 @@ export default function AuthLoading() {
         switch(role) {
           case 'OWNER':
           case 'Administrador':
-            navigate('/system-dashboard');
+            navigate('/agendamentoFunc');
             break;
           case 'FUNC':
           case 'Funcionário':
-            navigate('/system-dashboard');
+            navigate('/agendamentoFunc');
             break;
           case 'Cliente':
             navigate('/agendamento');
