@@ -31,18 +31,6 @@ export default function SystemPanel({ dataInicio, dataFim }) {
 
     const chartsRef = useRef({});
 
-    const mesesLabels = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
-
-    function getSerieFromPairArray(array, indexValue = 1) {
-        if (!array) return [];
-        return array.map(item => item[indexValue]);
-    }
-
-    function getLabelFromPairArray(array) {
-        if (!array) return [];
-        return array.map(item => mesesLabels[(item[0] ?? 1) - 1]);
-    }
-
     const commonChartOptions = {
         chart: {
             type: "area",
@@ -98,11 +86,12 @@ export default function SystemPanel({ dataInicio, dataFim }) {
 
         if (!dashboardData) return;
 
-        let rendimentoPorMes = getSerieFromPairArray(dashboardData.rendimentoTotal, 1);
-        let rendimentoLabels = getLabelFromPairArray(dashboardData.rendimentoTotal);
+        // Usa a nova estrutura do backend: { labels: [...], values: [...] }
+        const rendimentoLabels = dashboardData.rendimentoTotal?.labels || [];
+        const rendimentoValues = dashboardData.rendimentoTotal?.values || [];
 
-        let cancelamentosPorMes = getSerieFromPairArray(dashboardData.taxaCancelamento, 1);
-        let cancelamentosLabels = getLabelFromPairArray(dashboardData.taxaCancelamento);
+        const cancelamentosLabels = dashboardData.taxaCancelamento?.labels || [];
+        const cancelamentosValues = dashboardData.taxaCancelamento?.values || [];
 
         let performanceChartOptions = {
             ...commonChartOptions,
@@ -124,7 +113,7 @@ export default function SystemPanel({ dataInicio, dataFim }) {
             series: [
                 {
                     name: "Rendimento",
-                    data: rendimentoPorMes
+                    data: rendimentoValues
                 }
             ],
             yaxis: {
@@ -152,7 +141,7 @@ export default function SystemPanel({ dataInicio, dataFim }) {
             ...commonChartOptions,
             xaxis: { ...commonChartOptions.xaxis, categories: cancelamentosLabels },
             title: {
-                text: "Agendamentos Cancelados",
+                text: "Taxa de Cancelamento",
                 align: "center",
                 style: {
                     fontSize: "23px",
@@ -167,13 +156,13 @@ export default function SystemPanel({ dataInicio, dataFim }) {
             },
             series: [
                 {
-                    name: "Cancelados",
-                    data: cancelamentosPorMes
+                    name: "Taxa (%)",
+                    data: cancelamentosValues
                 }
             ],
             yaxis: {
                 title: {
-                    text: "Quantidade",
+                    text: "Taxa (%)",
                     style: {
                         color: 'var(--CINZA-ESCURO)',
                         fontSize: '14px',

@@ -55,7 +55,7 @@ export default function FeedbackScreen() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 8;
+  const itemsPerPage = 16;
 
   const [detailOpen, setDetailOpen] = useState(false);
   const [detailLoading, setDetailLoading] = useState(false);
@@ -79,47 +79,45 @@ export default function FeedbackScreen() {
     }
   };
 
-  React.useEffect(() => {
-    let mounted = true;
-    const fetchAllFeedbacks = async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        let allFeedbacks = [];
-        let currentPage = 0;
-        let totalPagesFetched = 1;
+  const [totalPages, setTotalPages] = React.useState(1);
 
-        while (currentPage < totalPagesFetched) {
-          const res = await api.get(`/feedbacks?page=${currentPage}`);
-          const data = res.data;
-          console.log(data);
-          
-          if (data?.content !== undefined) {
-            const pageContent = data.content || [];
-            allFeedbacks = [...allFeedbacks, ...pageContent];
-            
-            totalPagesFetched = data.totalPages || 0;
-            currentPage++;
-          } else if (Array.isArray(data)) {
-            allFeedbacks = [...allFeedbacks, ...data];
-            break;
-          } else {
-            console.warn('Formato de resposta inesperado:', data);
-            break;
-          }
-        }
-
-        if (mounted) setFeedbacks(allFeedbacks);
-      } catch (err) {
-        console.error('Erro ao buscar feedbacks', err);
-        setError('Não foi possível carregar feedbacks.');
-        if (mounted) setFeedbacks([]);
-      } finally {
-        if (mounted) setLoading(false);
+  const fetchFeedbacks = async (page = 0, rating = null, employeeId = null) => {
+    setLoading(true);
+    setError(null);
+    try {
+      let url = `/feedbacks?page=${page}`;
+      if (rating !== null) {
+        url += `&rating=${rating}`;
       }
-    };
-    fetchAllFeedbacks();
-    return () => { mounted = false; };
+      if (employeeId) {
+        url += `&employeeId=${employeeId}`;
+      }
+      
+      const res = await api.get(url);
+      const data = res.data;
+      console.log(data);
+      
+      if (data?.content !== undefined) {
+        setFeedbacks(data.content || []);
+        setTotalPages(data.totalPages || 1);
+      } else if (Array.isArray(data)) {
+        setFeedbacks(data);
+        setTotalPages(1);
+      } else {
+        console.warn('Formato de resposta inesperado:', data);
+        setFeedbacks([]);
+      }
+    } catch (err) {
+      console.error('Erro ao buscar feedbacks', err);
+      setError('Não foi possível carregar feedbacks.');
+      setFeedbacks([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  React.useEffect(() => {
+    fetchFeedbacks(0);
   }, []);
 
   React.useEffect(() => {
@@ -181,44 +179,53 @@ export default function FeedbackScreen() {
   };
 
   const getFilteredFeedbacks = () => {
-    return feedbacks.filter(feedback => {
-      if (selectedRating !== null && feedback.rating !== selectedRating) {
-        return false;
-      }
-      
-      if (selectedService) {
+    // Filtragem por serviço ainda é feita no frontend (backend não suporta esse filtro combinado)
+    if (selectedService) {
+      return feedbacks.filter(feedback => {
         const hasService = feedback.schedule?.items?.some(item => 
           item.service?.name === selectedService
         );
-        if (!hasService) return false;
-      }
-      
-      if (selectedEmployee) {
-        const employeeId = feedback.schedule?.employee?.id;
-        if (!employeeId || employeeId.toString() !== selectedEmployee) {
-          return false;
-        }
-      }
-      
-      return true;
-    });
+        return hasService;
+      });
+    }
+    return feedbacks;
   };
 
   const getPaginatedFeedbacks = () => {
-    const filtered = getFilteredFeedbacks();
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const endIndex = startIndex + itemsPerPage;
-    return filtered.slice(startIndex, endIndex);
+    // Se tem filtro de serviço, paginar no frontend
+    if (selectedService) {
+      const filtered = getFilteredFeedbacks();
+      const startIndex = (currentPage - 1) * itemsPerPage;
+      const endIndex = startIndex + itemsPerPage;
+      return filtered.slice(startIndex, endIndex);
+    }
+    // Caso contrário, o backend já fez a paginação
+    return feedbacks;
   };
 
   const getTotalPages = () => {
-    const filtered = getFilteredFeedbacks();
-    return Math.ceil(filtered.length / itemsPerPage);
+    // Se tem filtro de serviço, calcular no frontend
+    if (selectedService) {
+      const filtered = getFilteredFeedbacks();
+      return Math.ceil(filtered.length / itemsPerPage) || 1;
+    }
+    return totalPages;
   };
 
+  // Quando muda filtro de rating ou employee, buscar do backend
   React.useEffect(() => {
     setCurrentPage(1);
-  }, [selectedService, selectedRating, selectedEmployee]);
+    const employeeIdNum = selectedEmployee ? parseInt(selectedEmployee) : null;
+    fetchFeedbacks(0, selectedRating, employeeIdNum);
+  }, [selectedRating, selectedEmployee]);
+  
+  // Quando muda de página e não há filtro de serviço, buscar do backend
+  React.useEffect(() => {
+    if (!selectedService) {
+      const employeeIdNum = selectedEmployee ? parseInt(selectedEmployee) : null;
+      fetchFeedbacks(currentPage - 1, selectedRating, employeeIdNum);
+    }
+  }, [currentPage]);
 
   return (
     <div className={styles.container}>

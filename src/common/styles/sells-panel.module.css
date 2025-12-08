@@ -1,18 +1,25 @@
 .sellsPanel {
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     background-color: var(--ROSA);
     width: 95%;
     margin: 0 auto;
     padding: 40px;
-    gap: 40px;
+    gap: 30px;
     border-radius: 20px;
 }
 
-.panelChildren {
+.fullWidthChart {
+    padding: 15px;
+    background-color: var(--BRANCO);
+    border-radius: 15px;
+    position: relative;
+    width: 100%;
+}
+
+.bottomRow {
     display: flex;
-    flex-direction: column;
-    flex: 0.6;
+    flex-direction: row;
     gap: 30px;
 }
 
@@ -21,6 +28,14 @@
     background-color: var(--BRANCO);
     border-radius: 15px;
     position: relative;
+    flex: 0.6;
+}
+
+.kpis {
+    display: flex;
+    flex-direction: column;
+    flex: 0.4;
+    gap: 30px;
 }
 
 .kpiCard {
@@ -31,6 +46,7 @@
     gap: 25px;
     display: flex;
     flex-direction: column;
+    flex: 1;
 }
 
 .kpiCardHeader {
@@ -58,13 +74,16 @@
 /* Responsividade */
 @media (max-width: 1024px) {
     .sellsPanel {
-        flex-direction: column;
         padding: 30px;
         gap: 30px;
     }
     
-    .panelChildren,
-    .kpiCard {
+    .bottomRow {
+        flex-direction: column;
+    }
+    
+    .chart,
+    .kpis {
         flex: 1;
     }
 }
@@ -77,13 +96,14 @@
         border-radius: 15px;
     }
     
-    .panelChildren {
-        gap: 25px;
-    }
-    
+    .fullWidthChart,
     .chart {
         padding: 12px;
         border-radius: 12px;
+    }
+    
+    .kpis {
+        gap: 25px;
     }
     
     .kpiCard {
@@ -107,13 +127,14 @@
         border-radius: 12px;
     }
     
-    .panelChildren {
-        gap: 20px;
-    }
-    
+    .fullWidthChart,
     .chart {
         padding: 10px;
         border-radius: 10px;
+    }
+    
+    .kpis {
+        gap: 20px;
     }
     
     .kpiCard {
