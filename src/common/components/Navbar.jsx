@@ -12,9 +12,8 @@ export default function Navbar() {
             <div className={style.navbarLinks}>
                 <ul>
                     <Link to="/">Home</Link>
-                    <a href="#">Serviços</a>
-                    <a href="#">Sobre nós</a>
-                    <a href="#">Contato</a>
+                    <a href="#servicos">Serviços</a>
+                    <a href="#contato">Contato</a>
                 </ul>
             </div>
 

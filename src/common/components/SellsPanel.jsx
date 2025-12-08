@@ -5,28 +5,21 @@ import ApexCharts from 'apexcharts';
 import Popup from "./Popup.jsx";
 import api from '../../services/api';
 
-// import { useAuth } from '../hooks/useAuth';
-
-export default function SellsPanel() {
-    // const { userInfo } = useAuth('ADMIN', "FUNC");
+/**
+ * 
+ * @param {{
+ *   dataInicio: string,
+ *   dataFim: string,
+ * }} param0 props
+ * @returns 
+ */
+export default function SellsPanel({ dataInicio, dataFim }) {
     const [showPopup, setShowPopup] = useState(false);
-    const [popupTitle, setPopupTitle] = useState("Informação")
+    const [popupTitle, setPopupTitle] = useState("Informação");
     const [popupText, setPopupText] = useState("");
     const [dashboardData, setDashboardData] = useState(null);
 
-    const chartsRef = useRef([]);
-
-    const mesesLabels = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
-
-    function getSerieFromPairArray(array, indexValue = 1) {
-        if (!array) return [];
-        return array.map(item => item[indexValue]);
-    }
-
-    function getLabelFromPairArray(array) {
-        if (!array) return [];
-        return array.map(item => mesesLabels[(item[0] ?? 1) - 1]);
-    }
+    const chartsRef = useRef({});
 
     const commonChartOptions = {
         chart: {
@@ -49,15 +42,6 @@ export default function SellsPanel() {
                 fontWeight: 'bold',
             }
         },
-        xaxis: {
-            categories: ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul"],
-            axisBorder: {
-                show: false
-            },
-            axisTicks: {
-                show: false
-            }
-        },
         fill: {
             type: 'gradient',
             colors: ["var(--ROSA-LOGO)"],
@@ -73,46 +57,38 @@ export default function SellsPanel() {
             }
         }
     };
-    
-    useEffect(() => {
-        const mes = 11;
-        const ano = 2025;
 
-        api.get(`http://localhost:8080/dashboard/vendas?mes=${mes}&ano=${ano}`)
+    useEffect(() => {
+        api.get(`http://localhost:8080/dashboard/vendas?startDate=${dataInicio}&endDate=${dataFim}`)
             .then((response) => {
                 setDashboardData(response.data);
-                console.log(response.data)
+                console.log(response.data);
             })
             .catch(error => {
                 console.error("Erro ao buscar dados do dashboard:", error);
                 setDashboardData(null);
             });
-    }, []);
+    }, [dataInicio, dataFim]);
 
     function generateCharts() {
-        if (chartsRef.current.leadQuantity) {
-            chartsRef.current.leadQuantity.destroy();
-        }
-
-        if (chartsRef.current.returnRate) {
-            chartsRef.current.returnRate.destroy();
-        }
+        if (chartsRef.current.leads) chartsRef.current.leads.destroy();
+        if (chartsRef.current.taxaRetorno) chartsRef.current.taxaRetorno.destroy();
 
         if (!dashboardData) return;
 
-        const primeirosAgendamentosPorMes = getSerieFromPairArray(dashboardData.primeirosAgendamentos, 1);
-        const primeirosAgendamentosLabels = getLabelFromPairArray(dashboardData.primeirosAgendamentos);
+        // Dados dos gráficos
+        const leadsLabels = dashboardData.leads?.labels || [];
+        const leadsValues = dashboardData.leads?.values || [];
 
-        const leadsPorMes = getSerieFromPairArray(dashboardData.leads, 1);
-        const leadsLabels = getLabelFromPairArray(dashboardData.leads);
+        const taxaRetornoLabels = dashboardData.taxaRetorno?.labels || [];
+        const taxaRetornoValues = dashboardData.taxaRetorno?.values || [];
 
-        const taxaRetornoPorMes = getSerieFromPairArray(dashboardData.taxaRetorno, 1);
-        const taxaRetornoLabels = getLabelFromPairArray(dashboardData.taxaRetorno);
-
-        let leadQuantityChartOptions = {
+        // Gráfico de Leads
+        let leadsChartOptions = {
             ...commonChartOptions,
+            xaxis: { ...commonChartOptions.xaxis, categories: leadsLabels },
             title: {
-                text: "Taxa de retorno",
+                text: "Quantidade de Leads",
                 align: "center",
                 style: {
                     fontSize: "23px",
@@ -127,53 +103,8 @@ export default function SellsPanel() {
             },
             series: [
                 {
-                    name: "Rendimento",
-                    data: leadsPorMes
-                }
-            ],
-            yaxis: {
-                title: {
-                    text: "Rendimento (R$)",
-                    style: {
-                        color: 'var(--CINZA-ESCURO)',
-                        fontSize: '14px',
-                        fontFamily: 'Roboto',
-                        fontWeight: '600'
-                    },
-                    offsetX: -10
-                },
-                labels: {
-                    style: {
-                        colors: "var(--CINZA-ESCURO)",
-                        fontSize: '12px',
-                        fontFamily: 'Roboto'
-                    }
-                }
-            }
-        };
-
-        leadQuantityChartOptions.xaxis.categories = leadsLabels;
-
-        let returnRateChartOptions = {
-            ...commonChartOptions,
-            title: {
-                text: "Quantidade de leads no site",
-                align: "center",
-                style: {
-                    fontSize: "23px",
-                    fontWeight: "bold",
-                    fontFamily: "Roboto",
-                    color: "var(--PRETO)"
-                }
-            },
-            stroke: {
-                curve: "smooth",
-                colors: ["var(--BRANCO)"]
-            },
-            series: [
-                {
-                    name: "Cancelled",
-                    data: taxaRetornoPorMes
+                    name: "Leads",
+                    data: leadsValues
                 }
             ],
             yaxis: {
@@ -197,27 +128,66 @@ export default function SellsPanel() {
             }
         };
 
-        returnRateChartOptions.xaxis.categories = taxaRetornoLabels;
-
-        const leadQuantityChart = new ApexCharts(
-            document.querySelector("#lead-quantity-chart"),
-            leadQuantityChartOptions
-        );
-        leadQuantityChart.render();
-
-        const returnRateChart = new ApexCharts(
-            document.querySelector("#return-rate-chart"),
-            returnRateChartOptions
-        );
-        returnRateChart.render();
-
-        chartsRef.current = {
-            returnRate: returnRateChart,
-            leadQuantity: leadQuantityChart,
+        // Gráfico de Taxa de Retorno
+        let taxaRetornoChartOptions = {
+            ...commonChartOptions,
+            xaxis: { ...commonChartOptions.xaxis, categories: taxaRetornoLabels },
+            title: {
+                text: "Clientes Recorrentes",
+                align: "center",
+                style: {
+                    fontSize: "23px",
+                    fontWeight: "bold",
+                    fontFamily: "Roboto",
+                    color: "var(--PRETO)"
+                }
+            },
+            stroke: {
+                curve: "smooth",
+                colors: ["var(--BRANCO)"]
+            },
+            series: [
+                {
+                    name: "Retornos",
+                    data: taxaRetornoValues
+                }
+            ],
+            yaxis: {
+                title: {
+                    text: "Quantidade",
+                    style: {
+                        color: 'var(--CINZA-ESCURO)',
+                        fontSize: '14px',
+                        fontFamily: 'Roboto',
+                        fontWeight: '600'
+                    },
+                    offsetX: -10
+                },
+                labels: {
+                    style: {
+                        colors: "var(--CINZA-ESCURO)",
+                        fontSize: '12px',
+                        fontFamily: 'Roboto'
+                    }
+                }
+            }
         };
+
+        chartsRef.current.leads = new ApexCharts(
+            document.querySelector("#leads-chart"),
+            leadsChartOptions
+        );
+        chartsRef.current.leads.render();
+
+        chartsRef.current.taxaRetorno = new ApexCharts(
+            document.querySelector("#taxa-retorno-chart"),
+            taxaRetornoChartOptions
+        );
+        chartsRef.current.taxaRetorno.render();
+
         return () => {
-            chartsRef.current.leadQuantity?.destroy();
-            chartsRef.current.returnRate?.destroy();
+            chartsRef.current.leads?.destroy();
+            chartsRef.current.taxaRetorno?.destroy();
         };
     }
 
@@ -225,67 +195,81 @@ export default function SellsPanel() {
         return generateCharts();
     }, [dashboardData]);
 
+    // Cálculos dos KPIs
+    const totalPrimeirosAgendamentos = dashboardData?.primeirosAgendamentos?.values?.reduce((a, b) => a + b, 0) || 0;
+    const totalLeads = dashboardData?.leads?.values?.reduce((a, b) => a + b, 0) || 0;
+    const taxaConversaoValues = dashboardData?.taxaConversao?.values || [];
+    const taxaConversaoMedia = taxaConversaoValues.length > 0 
+        ? (taxaConversaoValues.reduce((a, b) => a + b, 0) / taxaConversaoValues.length).toFixed(2)
+        : 0;
+
     return (
         <div className={styles.sellsPanel}>
-            {
-                showPopup && <Popup title={popupTitle} text={popupText} setShowPopup={setShowPopup} />
-            }
-            <div className={styles.panelChildren}>
-                <div className={styles.kpiCard}>
-                    <div className={styles.kpiCardHeader}>
-                        <span className={styles.cardTitle}>Quantidade de primeiros agendamentos</span>
-                        <InfoButton
-                            setShowPopup={setShowPopup}
-                            setPopupTitle={setPopupTitle}
-                            popupTitle={"Informação"}
-                            setPopupText={setPopupText}
-                            popupText={"Número total de primeiros agendamentos realizados no período selecionado."}
-                        />
-                    </div>
-                    <div className={styles.kpiItem}>
-                        <span className={styles.rankValueSpan}>210 agendamentos</span>
-                    </div>
-                </div>
-                <div className={styles.chart}>
-                    <div id="return-rate-chart"></div>
-                    <InfoButton
-                        isAbsolute={true}
-                        setShowPopup={setShowPopup}
-                        setPopupTitle={setPopupTitle}
-                        popupTitle={"Informação"}
-                        setPopupText={setPopupText}
-                        popupText={"A taxa de retorno dos serviços em reais (R$) durante o período selecionado."}
-                    />
-                </div>
+            {showPopup && <Popup title={popupTitle} text={popupText} setShowPopup={setShowPopup} />}
+            
+            {/* Gráfico de Leads - Largura Total */}
+            <div className={styles.fullWidthChart}>
+                <div id="leads-chart"></div>
+                <InfoButton
+                    isAbsolute={true}
+                    setShowPopup={setShowPopup}
+                    setPopupTitle={setPopupTitle}
+                    popupTitle={"Informação"}
+                    setPopupText={setPopupText}
+                    popupText={"Quantidade de usuários cadastrados que ainda não realizaram nenhum agendamento no período selecionado."}
+                />
             </div>
-            <div className={styles.panelChildren}>
-                <div className={styles.kpiCard}>
-                    <div className={styles.kpiCardHeader}>
-                        <span className={styles.cardTitle}>Tempo médio dos leads no site</span>
-                        <InfoButton
-                            setShowPopup={setShowPopup}
-                            setPopupTitle={setPopupTitle}
-                            popupTitle={"Informação"}
-                            setPopupText={setPopupText}
-                            popupText={"Tempo médio que os leads passaram no site (durante o período selecionado)."}
-                        />
-                    </div>
-                    <div className={styles.kpiItem}>
-                        <span className={styles.rankValueSpan}>2 Minutos e 20 segundos</span>
-                    </div>
-                </div>
+
+            {/* Segunda linha: Gráfico de Clientes Recorrentes + KPIs */}
+            <div className={styles.bottomRow}>
                 <div className={styles.chart}>
-                    <div id="lead-quantity-chart"></div>
+                    <div id="taxa-retorno-chart"></div>
                     <InfoButton
                         isAbsolute={true}
                         setShowPopup={setShowPopup}
                         setPopupTitle={setPopupTitle}
                         popupTitle={"Informação"}
                         setPopupText={setPopupText}
-                        popupText={"A taxa de retorno dos serviços em reais (R$) durante o período selecionado"}
+                        popupText={"Quantidade de clientes que realizaram 2 ou mais agendamentos, onde o segundo agendamento foi no período selecionado."}
                     />
+                </div>
+                <div className={styles.kpis}>
+                    <div className={styles.kpiCard}>
+                        <div className={styles.kpiCardHeader}>
+                            <span className={styles.cardTitle}>Primeiros Agendamentos (Clientes)</span>
+                            <InfoButton
+                                setShowPopup={setShowPopup}
+                                setPopupTitle={setPopupTitle}
+                                popupTitle={"Informação"}
+                                setPopupText={setPopupText}
+                                popupText={"Número total de usuários que realizaram seu primeiro e único agendamento no período selecionado."}
+                            />
+                        </div>
+                        <div className={styles.kpiItem}>
+                            <span className={styles.rankValueSpan}>
+                                {dashboardData ? `${totalPrimeirosAgendamentos} clientes` : "Carregando..."}
+                            </span>
+                        </div>
+                    </div>
+                    <div className={styles.kpiCard}>
+                        <div className={styles.kpiCardHeader}>
+                            <span className={styles.cardTitle}>Taxa de Conversão</span>
+                            <InfoButton
+                                setShowPopup={setShowPopup}
+                                setPopupTitle={setPopupTitle}
+                                popupTitle={"Informação"}
+                                setPopupText={setPopupText}
+                                popupText={"Percentual médio de leads (usuários cadastrados) que se converteram em clientes (realizaram pelo menos um agendamento) no período selecionado."}
+                            />
+                        </div>
+                        <div className={styles.kpiItem}>
+                            <span className={styles.rankValueSpan}>
+                                {dashboardData ? `${taxaConversaoMedia}%` : "Carregando..."}
+                            </span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-    )
+    );
 }

@@ -1,12 +1,20 @@
-import React, { useState } from "react";
+import React from "react";
 import styles from "../styles/system-filters.module.css";
 import BotaoPrincipal from "./BotaoPrincipal";
 import BotaoSecundario from "./BotaoSecundario";
 import { useNavigate } from 'react-router-dom';
 
-export default function SystemFilters() {
-    const [dataInicio, setDataInicio] = useState("");
-    const [dataFim, setDataFim] = useState("");
+/**
+ * 
+ * @param {{
+ *   dataInicio: string,
+ *   setDataInicio: React.Dispatch<React.SetStateAction<string>>,
+ *   dataFim: string,
+ *   setDataFim: React.Dispatch<React.SetStateAction<string>>
+ * }} param0 props
+ * @returns 
+ */
+export default function SystemFilters({ dataInicio, setDataInicio, dataFim, setDataFim }) {
     const navigate = useNavigate();
 
     const handleNavigate = (route) => {

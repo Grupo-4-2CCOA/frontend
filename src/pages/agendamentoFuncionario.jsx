@@ -28,12 +28,15 @@ export default function AgendamentoFuncionario() {
   const [editingId, setEditingId] = useState(null);
   const [isEditOpen, setIsEditOpen] = useState(false);
 
-  const fetchAgendamentos = async (pageNum, inicio = null, fim = null) => {
+  const fetchAgendamentos = async (pageNum, inicio = null, fim = null, status = null) => {
     try {
       setLoading(true);
       let url = `/agendamentos?page=${pageNum}`;
       if (inicio && fim) {
         url += `&dataInicio=${inicio}&dataFim=${fim}`;
+      }
+      if (status && status !== 'TODOS') {
+        url += `&status=${status}`;
       }
       
       const response = await api.get(url);
@@ -221,43 +224,23 @@ export default function AgendamentoFuncionario() {
     fetchAgendamentos(0);
   }, []);
 
-  // Efeito para mudanças de página - só buscar se não houver filtro de status
+  // Efeito para mudanças de página - agora o backend faz a filtragem por status
   useEffect(() => {
-    // Só buscar quando não há filtro de status ativo (para evitar conflitos)
-    // Quando há filtro de status, os dados já foram buscados e a paginação é feita no frontend
-    if (statusFilter === 'TODOS') {
-      if (filtroAtivo && dataInicio && dataFim) {
-        fetchAgendamentos(page, dataInicio, dataFim);
-      } else {
-        fetchAgendamentos(page);
-      }
+    if (filtroAtivo && dataInicio && dataFim) {
+      fetchAgendamentos(page, dataInicio, dataFim, statusFilter);
+    } else {
+      fetchAgendamentos(page, null, null, statusFilter);
     }
-    // Se statusFilter !== 'TODOS', não buscar aqui pois já foi buscado no useEffect do statusFilter
-    // e a paginação é feita no frontend através do getPaginatedData()
   }, [page]);
 
-  // Efeito para mudanças de filtro de status
+  // Efeito para mudanças de filtro de status - agora o backend faz a filtragem
   useEffect(() => {
-    // Sempre resetar para primeira página ao mudar o filtro de status
     setPage(0);
-    
-    if (statusFilter !== 'TODOS') {
-      // Se há filtro de status, buscar TODOS os agendamentos para filtrar no frontend
-      // Se há filtro de data ativo, buscar todos os agendamentos com filtro de data
-      if (filtroAtivo && dataInicio && dataFim) {
-        fetchAllAgendamentos(dataInicio, dataFim);
-      } else {
-        fetchAllAgendamentos();
-      }
+    setAllAgendamentos([]);
+    if (filtroAtivo && dataInicio && dataFim) {
+      fetchAgendamentos(0, dataInicio, dataFim, statusFilter);
     } else {
-      // Quando voltar para TODOS, limpar allAgendamentos e buscar normalmente
-      setAllAgendamentos([]);
-      // Buscar página 0 - o useEffect de page não vai disparar porque setPage(0) não muda o estado se já for 0
-      if (filtroAtivo && dataInicio && dataFim) {
-        fetchAgendamentos(0, dataInicio, dataFim);
-      } else {
-        fetchAgendamentos(0);
-      }
+      fetchAgendamentos(0, null, null, statusFilter);
     }
   }, [statusFilter]);
 
@@ -335,7 +318,7 @@ export default function AgendamentoFuncionario() {
 
     setPage(0);
     setFiltroAtivo(true);
-    await fetchAgendamentos(0, dataInicio, dataFim);
+    await fetchAgendamentos(0, dataInicio, dataFim, statusFilter);
   };
 
   const handleLimparFiltro = async () => {
@@ -343,7 +326,7 @@ export default function AgendamentoFuncionario() {
     setDataFim('');
     setFiltroAtivo(false);
     setPage(0);
-    await fetchAgendamentos(0);
+    await fetchAgendamentos(0, null, null, statusFilter);
   };
 
   const getEffectiveTotalPages = () => {
@@ -465,87 +448,13 @@ export default function AgendamentoFuncionario() {
   };
 
   const getFilteredAgendamentos = () => {
-    // Quando há filtro de status, usar allAgendamentos (que já foram buscados todos)
-    // Quando não há filtro de status, usar agendamentos (paginação do backend)
-    let sourceData;
-    
-    if (statusFilter !== 'TODOS' && allAgendamentos.length > 0) {
-      sourceData = allAgendamentos;
-    } else if (statusFilter === 'TODOS') {
-      sourceData = agendamentos;
-    } else {
-      // Caso intermediário: filtro de status ativo mas ainda não carregou todos
-      sourceData = agendamentos;
-    }
-    
-    let filtered = sourceData;
-
-    // Filtrar por status
-    if (statusFilter !== 'TODOS') {
-      filtered = filtered.filter(agendamento => agendamento.status === statusFilter);
-    }
-
-    // Não filtrar por data quando filtroAtivo é true, pois o backend já retornou os dados filtrados
-    // O filtro de data no frontend só é necessário quando o usuário está visualizando sem aplicar o filtro
-    if (!filtroAtivo && (dataInicio || dataFim)) {
-      filtered = filtered.filter(agendamento => {
-        // Buscar o agendamento original para pegar appointmentDatetime
-        const rawAppointment = rawAgendamentos.find(a => a.id === agendamento.id);
-        if (!rawAppointment) return true;
-
-        const agendamentoDate = rawAppointment.appointmentDatetime;
-        let agendDate = null;
-
-        if (Array.isArray(agendamentoDate) && agendamentoDate.length >= 5) {
-          agendDate = new Date(agendamentoDate[0], agendamentoDate[1] - 1, agendamentoDate[2], agendamentoDate[3], agendamentoDate[4]);
-        } else if (Array.isArray(agendamentoDate) && agendamentoDate.length >= 3) {
-          agendDate = new Date(agendamentoDate[0], agendamentoDate[1] - 1, agendamentoDate[2]);
-        } else if (agendamentoDate) {
-          agendDate = new Date(agendamentoDate);
-        }
-
-        if (!agendDate || isNaN(agendDate.getTime())) return true;
-
-        const agendDateOnly = new Date(agendDate.getFullYear(), agendDate.getMonth(), agendDate.getDate());
-
-        if (dataInicio) {
-          const startDateParts = dataInicio.split('-');
-          const startDate = new Date(parseInt(startDateParts[0]), parseInt(startDateParts[1]) - 1, parseInt(startDateParts[2]));
-          if (agendDateOnly < startDate) return false;
-        }
-
-        if (dataFim) {
-          const endDateParts = dataFim.split('-');
-          const endDate = new Date(parseInt(endDateParts[0]), parseInt(endDateParts[1]) - 1, parseInt(endDateParts[2]));
-          if (agendDateOnly > endDate) return false;
-        }
-
-        return true;
-      });
-    }
-
-    return filtered;
+    // Agora o backend faz toda a filtragem, então só retornamos os agendamentos recebidos
+    return agendamentos;
   };
 
   const getPaginatedData = () => {
-    const filtered = getFilteredAgendamentos();
-    const itemsPerPage = 5; // Máximo de 5 agendamentos por página
-    
-    // Se não há filtro de status (TODOS), usa paginação do backend
-    if (statusFilter === 'TODOS') {
-      return { data: filtered, totalPages: totalPages };
-    }
-    
-    // Se há filtro de status, faz paginação no frontend com 5 itens por página
-    const calculatedTotalPages = Math.ceil(filtered.length / itemsPerPage);
-    const startIndex = page * itemsPerPage;
-    const endIndex = startIndex + itemsPerPage;
-    const paginatedData = filtered.slice(startIndex, endIndex);
-    
-    // Garantir que totalPages seja pelo menos 1 mesmo se não houver dados
-    const finalTotalPages = calculatedTotalPages === 0 ? 1 : calculatedTotalPages;
-    
-    return { data: paginatedData, totalPages: finalTotalPages };
+    // Agora o backend faz toda a paginação e filtragem
+    return { data: agendamentos, totalPages: totalPages || 1 };
   };
 
   if (loading) {

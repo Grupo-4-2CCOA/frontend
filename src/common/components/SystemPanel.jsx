@@ -14,26 +14,22 @@ import api from '../../services/api';
 
 // import { useAuth } from '../hooks/useAuth';
 
-export default function SystemPanel() {
+/**
+ * 
+ * @param {{
+ *   dataInicio: string,
+ *   dataFim: string,
+ * }} param0 props
+ * @returns 
+ */
+export default function SystemPanel({ dataInicio, dataFim }) {
     // const { userInfo } = useAuth('ADMIN', "FUNC");
     const [showPopup, setShowPopup] = useState(false);
-    const [popupTitle, setPopupTitle] = useState("Informação")
+    const [popupTitle, setPopupTitle] = useState("Informação");
     const [popupText, setPopupText] = useState("");
     const [dashboardData, setDashboardData] = useState(null);
 
     const chartsRef = useRef({});
-
-    const mesesLabels = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
-
-    function getSerieFromPairArray(array, indexValue = 1) {
-        if (!array) return [];
-        return array.map(item => item[indexValue]);
-    }
-
-    function getLabelFromPairArray(array) {
-        if (!array) return [];
-        return array.map(item => mesesLabels[(item[0] ?? 1) - 1]);
-    }
 
     const commonChartOptions = {
         chart: {
@@ -71,33 +67,31 @@ export default function SystemPanel() {
             }
         }
     };
-    
-    useEffect(() => {
-        const mes = 10;
-        const ano = 2025;
 
-        api.get(`http://localhost:8080/dashboard/sistema?mes=${mes}&ano=${ano}`)
+    useEffect(() => {
+        api.get(`http://localhost:8080/dashboard/sistema?startDate=${dataInicio}&endDate=${dataFim}`)
             .then((response) => {
                 setDashboardData(response.data);
-                console.log(response.data)
+                console.log(response.data);
             })
             .catch(error => {
                 console.error("Erro ao buscar dados do dashboard:", error);
                 setDashboardData(null);
             });
-    }, []);
-    
+    }, [dataInicio, dataFim]);
+
     function generateCharts() {
         if (chartsRef.current.cancelled) chartsRef.current.cancelled.destroy();
         if (chartsRef.current.performance) chartsRef.current.performance.destroy();
 
         if (!dashboardData) return;
 
-        let rendimentoPorMes = getSerieFromPairArray(dashboardData.rendimentoTotal, 1);
-        let rendimentoLabels = getLabelFromPairArray(dashboardData.rendimentoTotal);
+        // Usa a nova estrutura do backend: { labels: [...], values: [...] }
+        const rendimentoLabels = dashboardData.rendimentoTotal?.labels || [];
+        const rendimentoValues = dashboardData.rendimentoTotal?.values || [];
 
-        let cancelamentosPorMes = getSerieFromPairArray(dashboardData.taxaCancelamento, 1);
-        let cancelamentosLabels = getLabelFromPairArray(dashboardData.taxaCancelamento);
+        const cancelamentosLabels = dashboardData.taxaCancelamento?.labels || [];
+        const cancelamentosValues = dashboardData.taxaCancelamento?.values || [];
 
         let performanceChartOptions = {
             ...commonChartOptions,
@@ -119,7 +113,7 @@ export default function SystemPanel() {
             series: [
                 {
                     name: "Rendimento",
-                    data: rendimentoPorMes
+                    data: rendimentoValues
                 }
             ],
             yaxis: {
@@ -147,7 +141,7 @@ export default function SystemPanel() {
             ...commonChartOptions,
             xaxis: { ...commonChartOptions.xaxis, categories: cancelamentosLabels },
             title: {
-                text: "Agendamentos Cancelados",
+                text: "Taxa de Cancelamento",
                 align: "center",
                 style: {
                     fontSize: "23px",
@@ -162,13 +156,13 @@ export default function SystemPanel() {
             },
             series: [
                 {
-                    name: "Cancelados",
-                    data: cancelamentosPorMes
+                    name: "Taxa (%)",
+                    data: cancelamentosValues
                 }
             ],
             yaxis: {
                 title: {
-                    text: "Quantidade",
+                    text: "Taxa (%)",
                     style: {
                         color: 'var(--CINZA-ESCURO)',
                         fontSize: '14px',
@@ -263,7 +257,7 @@ export default function SystemPanel() {
                         <InfoButton
                             setShowPopup={setShowPopup}
                             setPopupTitle={setPopupTitle}
-                            popupTitle={"Informação"}   
+                            popupTitle={"Informação"}
                             setPopupText={setPopupText}
                             popupText={"Lista dos serviços mais vendidos no período selecionado."}
                         />

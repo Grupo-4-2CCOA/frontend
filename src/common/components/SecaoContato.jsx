@@ -6,7 +6,7 @@ import { FaPhone, FaEnvelope, FaMapMarkerAlt } from 'react-icons/fa';
 export default function SecaoContato() {
 	return (
 		<section className={styles["contato"]}>
-			<h1 className={styles["titulo"]}>Contato</h1>
+			<h1 className={styles["titulo"]} id="contato">Contato</h1>
 
 			<div className={styles["area-conteudo"]}>
 				<div className={styles["imagem"]}>

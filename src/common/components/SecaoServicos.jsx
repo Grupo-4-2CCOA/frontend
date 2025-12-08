@@ -49,7 +49,7 @@ const servico = [
 export default function SecaoServicos() {
     return (
         <section className={styles['servico-secao']}>
-            <h2 className={styles['servico-titulo']}>Serviços</h2>
+            <h2 className={styles['servico-titulo']} id="servicos">Serviços</h2>
 
             <div className={styles['carousel-container']}>
                 <Swiper
