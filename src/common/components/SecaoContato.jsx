@@ -34,23 +34,6 @@ export default function SecaoContato() {
 					</div>
 				</div>
 			</div>
-
-			<div className={styles["desconto"]}>
-				<h2>
-					O que acha de um desconto no seu <br />
-					primeiro agendamento?
-				</h2>
-				<p>
-					Preencha algumas informações e ganhe 15% de desconto para
-					qualquer serviço!
-				</p>
-
-				<form className={styles["formulario"]}>
-					<input type="email" placeholder="Email" />
-					<input type="tel" placeholder="Telefone" />
-					<BotaoPrincipal children="Enviar" />
-				</form>
-			</div>
 		</section>
 	);
 }
